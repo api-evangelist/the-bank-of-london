@@ -1,0 +1,185 @@
+generated: '2026-08-30'
+method: derived
+source: >-
+  openapi/the-bank-of-london-api-openapi.json — components.schemas.PaymentStatus (oneOf,
+  detailedStatusIdentifier enums per status) and components.schemas.MandateCancellationReasonCode.
+summary: >-
+  The Bank of London publishes its scheme-level payment failure reasons inside the OpenAPI rather
+  than as a separate decline-code reference page. `status.detailedStatusIdentifier` on a payment
+  carries the Faster Payments scheme reason (FPS_*) that explains WHY a payment landed in its
+  status; direct-debit mandates carry a Bacs cancellation reason code (0/1/2/B). The bank warns in
+  the spec that these enums are EXTENSIBLE and may gain values without a major version change, so
+  clients must default-case unknown values.
+envelope_field: status.detailedStatusIdentifier
+history_field: status.history[].detailedStatusIdentifier
+extensible: true
+masked_to_buyers: not_documented
+scheme: FPS (UK Faster Payments)
+decline_codes:
+- code: PENDING_APPROVAL
+  status: PENDING_APPROVAL
+  class: other
+- code: ACCEPTED_CUSTOMER_PROFILE
+  status: PENDING
+  class: other
+- code: ACCEPTED_SETTLEMENT_IN_PROCESS
+  status: PENDING
+  class: other
+- code: ACCEPTED_TECHNICAL_VALIDATION
+  status: PENDING
+  class: other
+- code: INFORMATORY
+  status: PENDING
+  class: other
+- code: RECEIVED
+  status: PENDING
+  class: other
+- code: PENDING
+  status: PENDING
+  class: other
+- code: WAITING
+  status: PENDING
+  class: other
+- code: APPROVED
+  status: APPROVED
+  class: other
+- code: REJECTED
+  status: REJECTED
+  class: other
+- code: ACCEPTED_SETTLEMENT_COMPLETED
+  status: SUCCESSFUL
+  class: other
+- code: ACCEPTED_WITH_CHANGE
+  status: SUCCESSFUL
+  class: other
+- code: FPS_ACCEPTED_AFTER_NEXT_WORKING_DAY
+  status: SUCCESSFUL
+  class: accepted
+- code: FPS_ACCEPTED_NEXT_CALENDAR_DAY
+  status: SUCCESSFUL
+  class: accepted
+- code: FPS_ACCEPTED_NEXT_WORKING_DAY
+  status: SUCCESSFUL
+  class: accepted
+- code: FPS_ACCEPTED_SAME_DAY
+  status: SUCCESSFUL
+  class: accepted
+- code: FPS_ACCEPTED_WITHOUT_QUALIFICATION_IMMEDIATE
+  status: SUCCESSFUL
+  class: accepted
+- code: FPS_ACCEPTED_WITH_UNSPECIFIED_TIME
+  status: SUCCESSFUL
+  class: accepted
+- code: PARTIALLY_ACCEPTED
+  status: SUCCESSFUL
+  class: accepted
+- code: FPS_ACCOUNT_IN_WRONG_CURRENCY
+  status: FAILED
+  class: other
+- code: FPS_ACCOUNT_TERMS_AND_CONDITIONS_VIOLATION
+  status: FAILED
+  class: other
+- code: FPS_ACCOUNT_TRANSFERRED
+  status: FAILED
+  class: other
+- code: FPS_BENEFICIARY_ACCOUNT_CANNOT_BE_IDENTIFIED
+  status: FAILED
+  class: beneficiary
+- code: FPS_BENEFICIARY_ACCOUNT_CLOSED
+  status: FAILED
+  class: beneficiary
+- code: FPS_BENEFICIARY_ACCOUNT_NAME_AND_NUMBER_MISMATCH
+  status: FAILED
+  class: beneficiary
+- code: FPS_BENEFICIARY_ACCOUNT_NAME_MISSING
+  status: FAILED
+  class: beneficiary
+- code: FPS_BENEFICIARY_ACCOUNT_STOPPED
+  status: FAILED
+  class: beneficiary
+- code: FPS_BENEFICIARY_DECEASED
+  status: FAILED
+  class: beneficiary
+- code: FPS_BENEFICIARY_SENSITIVITIES_ERROR
+  status: FAILED
+  class: beneficiary
+- code: FPS_CANNOT_DETERMINE_ROUTE_FOR_PAYMENT
+  status: FAILED
+  class: scheme
+- code: FPS_DUPLICATE_FPID
+  status: FAILED
+  class: other
+- code: FPS_FUNDS_NOT_AVAILABLE
+  status: FAILED
+  class: other
+- code: FPS_INCORRECT_REFERENCE_INFORMATION
+  status: FAILED
+  class: other
+- code: FPS_RECEIVING_AGENCY_3RD_PARTY_BENEFICIARY_ACCOUNT_TRANSFERRED
+  status: FAILED
+  class: beneficiary
+- code: FPS_RECEIVING_AGENCY_ACCOUNT_CLOSED
+  status: FAILED
+  class: agency
+- code: FPS_RECEIVING_AGENCY_ACCOUNT_STOPPED
+  status: FAILED
+  class: agency
+- code: FPS_RECEIVING_AGENCY_ACCOUNT_TRANSFERRED
+  status: FAILED
+  class: agency
+- code: FPS_RECEIVING_AGENCY_SORT_CODE_ACCOUNT_UNKNOWN
+  status: FAILED
+  class: agency
+- code: FPS_SCHEME_IS_DOWN
+  status: FAILED
+  class: scheme
+- code: FPS_SENDING_AGENCY_ACCOUNT_CLOSED
+  status: FAILED
+  class: agency
+- code: FPS_SENDING_AGENCY_ACCOUNT_STOPPED
+  status: FAILED
+  class: agency
+- code: FPS_SENDING_AGENCY_SORT_CODE_ACCOUNT_UNKNOWN
+  status: FAILED
+  class: agency
+- code: FPS_SENDING_INSTITUTION_ACTION_REQUIRED
+  status: FAILED
+  class: other
+- code: FPS_SYNTAX_ERROR
+  status: FAILED
+  class: scheme
+- code: FPS_SYSTEM_MALFUNCTION
+  status: FAILED
+  class: scheme
+- code: FPS_UNABLE_TO_SEND_PAYMENT
+  status: FAILED
+  class: other
+- code: EXECUTION_DATE_CANNOT_BE_IN_PAST
+  status: FAILED
+  class: other
+- code: RECALLED
+  status: FAILED
+  class: other
+- code: REJECTED
+  status: FAILED
+  class: other
+- code: FAILED
+  status: FAILED
+  class: other
+- code: SCHEDULED
+  status: SCHEDULED
+  class: other
+mandate_cancellation_reason_codes:
+- code: 0_BACS_CANCELLED_BY_PAYMENT_SERVICE_PROVIDER
+  scheme: Bacs
+- code: 1_BACS_CANCELLED_BY_PAYER
+  scheme: Bacs
+- code: 2_BACS_PAYER_DECEASED
+  scheme: Bacs
+- code: B_BACS_ACCOUNT_CLOSED
+  scheme: Bacs
+note: >-
+  No card-network decline codes exist — The Bank of London is a clearing/BaaS bank, not a card
+  acquirer. Retryability is not documented per code; treat FPS_FUNDS_NOT_AVAILABLE and
+  FPS_SCHEME_IS_DOWN as the only plausibly transient reasons and confirm with the bank before
+  automating any retry.

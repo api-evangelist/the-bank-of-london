@@ -1,0 +1,80 @@
+generated: '2026-08-30'
+method: generated
+source: openapi/the-bank-of-london-api-openapi.json + the Bank of London Developer Studio documentation
+summary: Five packaged Agent Skills for the Bank of London API, each grounded in operationIds verified
+  against the harvested OpenAPI. Authored by API Evangelist — The Bank of London publishes no skills,
+  no AGENTS.md and no MCP server. Every rule, window and error code quoted in these skills comes from
+  the provider's own contract or documentation.
+skills:
+- name: the-bank-of-london-onboard-customer-and-open-account
+  file: skills/the-bank-of-london-onboard-customer-and-open-account.md
+  description: Onboard an organisation or individual as a Bank of London customer and open a physical
+    account for them, using the v3 organisation surface and the v2 account surface.
+  operations:
+  - CreateOrganisationV3
+  - GetOrganisationsV3
+  - GetOrganisationV3
+  - PatchOrganisationV3
+  - CreateIndividual
+  - GetIndividuals
+  - GetIndividual
+  - PatchIndividual
+  - CreateAccount
+  - GetAccounts
+  - GetAccount
+  - UpdateAccount
+  - CloseAccount
+- name: the-bank-of-london-receive-webhooks
+  file: skills/the-bank-of-london-receive-webhooks.md
+  description: Subscribe to Bank of London webhook events, verify the PS256 JWS signature on every delivery,
+    and handle at-least-once, out-of-order delivery correctly.
+  operations:
+  - CreateWebhook
+  - GetWebhooks
+  - PatchWebhook
+  - DeleteWebhook
+  - CreateTestEvent
+  - RegenerateWebhookKey
+- name: the-bank-of-london-reconcile-transactions
+  file: skills/the-bank-of-london-reconcile-transactions.md
+  description: Reconcile a Bank of London account — query the transaction ledger, run an asynchronous
+    transaction export, and pull statements — without confusing a payment instruction with its settled
+    ledger entry.
+  operations:
+  - GetTransactionsV3
+  - GetTransactionV3
+  - InitiateTransactionExportV3
+  - GetTransactionExportV3
+  - GetTransactionExportsByAccountIdV3
+  - GetVirtualAccountTransactionsV3
+  - GetStatements
+  - DownloadStatements
+  - GetPayments
+- name: the-bank-of-london-send-faster-payment
+  file: skills/the-bank-of-london-send-faster-payment.md
+  description: Send a UK Faster Payment from a Bank of London account, with a Confirmation of Payee check
+    first, an idempotency key, and correct handling of the asynchronous 202 result and the FPS scheme
+    reason codes.
+  operations:
+  - ConfirmPayee
+  - CreateAFasterPayment
+  - GetPayment
+  - GetPayments
+- name: the-bank-of-london-virtual-account-hierarchy
+  file: skills/the-bank-of-london-virtual-account-hierarchy.md
+  description: Build and query a Bank of London virtual account hierarchy — aggregator nodes over virtual
+    accounts pinned to a physical header account — the structure used for safeguarding and client-money
+    segregation.
+  operations:
+  - CreateVirtualAggregatorNode
+  - GetVirtualAggregatorNodes
+  - GetVirtualAggregatorNode
+  - UpdateVirtualAggregatorNode
+  - CreateVirtualAccountHierarchy
+  - GetHierarchy
+  - CreateVirtualAccount
+  - GetVirtualAccounts
+  - GetAVirtualAccount
+  - UpdateAVirtualAccount
+  - CloseVirtualAccount
+  - GetVirtualAccountTransactionsV3

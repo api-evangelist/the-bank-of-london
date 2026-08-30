@@ -1,0 +1,51 @@
+generated: '2026-08-30'
+method: searched
+source: https://developer.bankoflondon.com/docs/overviews/api-rate-limiting
+summary: >-
+  A single published, uniform limit: 1,000 requests per fixed 10-minute window, counted per API Key
+  used to sign the request. The window opens on the first request made with that key. Exhaustion
+  returns 429 Too Many Requests. The bank deliberately does NOT apply a shorter 1-minute or 5-second
+  window, so a short burst inside the 10-minute budget will not be throttled.
+limit_count: 1
+rate_limits:
+- name: Standard API rate limit
+  scope: per-api-key
+  window: 10m
+  limit: 1000
+  unit: requests
+  burst: >-
+    Not separately limited. The docs state limits are deliberately not applied over periods shorter
+    than 10 minutes so that a short spike does not breach a 1-minute or 5-second limit.
+  status_on_exhaustion: 429
+  applies_to: all operations on the Bank of London API (v2/v3)
+  negotiable: true
+  increase_process:
+    contact: Hello@thebankoflondon.com
+    information_required:
+    - Which APIs the application calls
+    - Whether the workload is batch or online
+    - For batch workloads, the proposed design and number of concurrent requests
+    - For online workloads, the factors influencing demand
+response_headers:
+  documented: []
+  note: >-
+    No RateLimit-*, X-RateLimit-* or Retry-After response headers are documented in the rate-limiting
+    guide, and the OpenAPI declares none on the shared 429 response (only the required
+    x-correlation-id). A client cannot read its remaining budget — it discovers the ceiling only by
+    receiving a 429. This is the single largest agent-readiness gap on an otherwise well-documented
+    API.
+status_codes:
+  exhausted: 429
+  response_schema: components.schemas.TooManyRequestsError
+guidance_published:
+  backoff_strategies:
+  - exponential backoff
+  - token bucket algorithm implemented client-side
+  - fixed delay after a 429
+  - adaptive rate limiting driven by observed 429 frequency
+  - circuit breaker with a cooldown period
+  batch_recommendation: >-
+    For large batch payment workloads, limit concurrency to a single thread that sends the next
+    request only after receiving the previous response — roughly 60 payments/minute at a 1s response
+    time. The bank asks to be told a week in advance of large-scale load testing in the Sandbox.
+docs: https://developer.bankoflondon.com/docs/overviews/api-rate-limiting

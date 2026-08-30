@@ -1,0 +1,386 @@
+generated: '2026-08-30'
+method: derived
+source: openapi/the-bank-of-london-api-openapi.json (58 operations) + searches of the provider surface for a published MCP server
+summary: >-
+  The Bank of London ships NO Model Context Protocol server. Its published AI work is TBOL(R) AI, a
+  generative code assistant embedded in the Developer Studio that answers developer questions in
+  natural language across several programming languages — a human-facing chat surface, not an agent
+  endpoint. No MCP endpoint, no stdio package and no tools/list manifest exists on any host, and no
+  MCP mention appears anywhere in the docs, the route manifest or the press releases. The tools below
+  are a CANDIDATE surface derived one-to-one from the published OpenAPI operations so the shape of a
+  future server is on record. Nothing here is served by the provider.
+status: candidate
+provider_publishes_mcp: false
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: derived
+  note: >-
+    mode:none because nobody ships a server. No endpoint URL is guessed: the API gateway at
+    api.bankoflondon.com answers {"message":"Not Found"} for every unknown path, so a probe of an
+    invented /mcp path would be indistinguishable from a real miss and must never be recorded as a
+    surface.
+related_ai_surface:
+  name: TBOL(R) AI
+  kind: generative code assistant inside the Developer Studio
+  agent_callable: false
+  announced: '2025-07-22'
+  source: https://www.bankoflondon.com/resources/bank-of-london-launches-ai-assistant
+candidate_tools:
+- name: create_account
+  category: "Accounts"
+  rest_operation: CreateAccount
+  http: POST /v2/accounts
+  description: "Create Account"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1accounts/post
+- name: get_accounts
+  category: "Accounts"
+  rest_operation: GetAccounts
+  http: GET /v2/accounts
+  description: "Get Accounts"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1accounts/get
+- name: get_account
+  category: "Accounts"
+  rest_operation: GetAccount
+  http: GET /v2/accounts/{id}
+  description: "Get Account"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1accounts~1{id}/get
+- name: update_account
+  category: "Accounts"
+  rest_operation: UpdateAccount
+  http: PATCH /v2/accounts/{id}
+  description: "Update Account"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1accounts~1{id}/patch
+- name: close_account
+  category: "Accounts"
+  rest_operation: CloseAccount
+  http: POST /v2/accounts/{id}/close
+  description: "Close Account"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1accounts~1{id}~1close/post
+- name: create_individual
+  category: "Customer Management"
+  rest_operation: CreateIndividual
+  http: POST /v2/individuals
+  description: "Create Individual"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1individuals/post
+- name: get_individuals
+  category: "Customer Management"
+  rest_operation: GetIndividuals
+  http: GET /v2/individuals
+  description: "Get Individuals"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1individuals/get
+- name: get_individual
+  category: "Customer Management"
+  rest_operation: GetIndividual
+  http: GET /v2/individuals/{id}
+  description: "Get Individual"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1individuals~1{id}/get
+- name: patch_individual
+  category: "Customer Management"
+  rest_operation: PatchIndividual
+  http: PATCH /v2/individuals/{id}
+  description: "Update Individual"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1individuals~1{id}/patch
+- name: create_organisation_v3
+  category: "Customer Management"
+  rest_operation: CreateOrganisationV3
+  http: POST /v3/organisations
+  description: "Create Organisation v3"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v3~1organisations/post
+- name: get_organisations_v3
+  category: "Customer Management"
+  rest_operation: GetOrganisationsV3
+  http: GET /v3/organisations
+  description: "Get Organisations v3"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v3~1organisations/get
+- name: get_organisation_v3
+  category: "Customer Management"
+  rest_operation: GetOrganisationV3
+  http: GET /v3/organisations/{id}
+  description: "Get Organisation v3"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v3~1organisations~1{id}/get
+- name: patch_organisation_v3
+  category: "Customer Management"
+  rest_operation: PatchOrganisationV3
+  http: PATCH /v3/organisations/{id}
+  description: "Update Organisation v3"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v3~1organisations~1{id}/patch
+- name: get_virtual_accounts
+  category: "Virtual Account Management"
+  rest_operation: GetVirtualAccounts
+  http: GET /v2/virtual/accounts
+  description: "Get Virtual Accounts"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1virtual~1accounts/get
+- name: create_virtual_account
+  category: "Virtual Account Management"
+  rest_operation: CreateVirtualAccount
+  http: POST /v2/virtual/accounts
+  description: "Create a Virtual Account"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1virtual~1accounts/post
+- name: get_a_virtual_account
+  category: "Virtual Account Management"
+  rest_operation: GetAVirtualAccount
+  http: GET /v2/virtual/accounts/{id}
+  description: "Get a Virtual Account"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1virtual~1accounts~1{id}/get
+- name: update_a_virtual_account
+  category: "Virtual Account Management"
+  rest_operation: UpdateAVirtualAccount
+  http: PATCH /v2/virtual/accounts/{id}
+  description: "Update a Virtual Account"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1virtual~1accounts~1{id}/patch
+- name: close_virtual_account
+  category: "Virtual Account Management"
+  rest_operation: CloseVirtualAccount
+  http: POST /v2/virtual/accounts/{id}/close
+  description: "Close Virtual Account"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1virtual~1accounts~1{id}~1close/post
+- name: get_virtual_account_transactions_v3
+  category: "Virtual Account Management"
+  rest_operation: GetVirtualAccountTransactionsV3
+  http: GET /v3/virtual/transactions
+  description: "Get Virtual Account Transactions V3"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v3~1virtual~1transactions/get
+- name: get_virtual_aggregator_nodes
+  category: "Virtual Account Management"
+  rest_operation: GetVirtualAggregatorNodes
+  http: GET /v2/virtual/aggregator-nodes
+  description: "Get Virtual Aggregator Nodes"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1virtual~1aggregator-nodes/get
+- name: create_virtual_aggregator_node
+  category: "Virtual Account Management"
+  rest_operation: CreateVirtualAggregatorNode
+  http: POST /v2/virtual/aggregator-nodes
+  description: "Create a Virtual Aggregator Node"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1virtual~1aggregator-nodes/post
+- name: get_virtual_aggregator_node
+  category: "Virtual Account Management"
+  rest_operation: GetVirtualAggregatorNode
+  http: GET /v2/virtual/aggregator-nodes/{id}
+  description: "Get a Virtual Aggregator Node"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1virtual~1aggregator-nodes~1{id}/get
+- name: update_virtual_aggregator_node
+  category: "Virtual Account Management"
+  rest_operation: UpdateVirtualAggregatorNode
+  http: PATCH /v2/virtual/aggregator-nodes/{id}
+  description: "Update a Virtual Aggregator Node"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1virtual~1aggregator-nodes~1{id}/patch
+- name: get_hierarchy
+  category: "Virtual Account Management"
+  rest_operation: GetHierarchy
+  http: GET /v2/virtual/hierarchy
+  description: "Get a Hierarchy"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1virtual~1hierarchy/get
+- name: create_virtual_account_hierarchy
+  category: "Virtual Account Management"
+  rest_operation: CreateVirtualAccountHierarchy
+  http: POST /v2/virtual/hierarchy
+  description: "Create a Virtual Account Hierarchy"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1virtual~1hierarchy/post
+- name: confirm_payee
+  category: "Confirmation of Payee"
+  rest_operation: ConfirmPayee
+  http: POST /v2/confirmation-of-payee
+  description: "Confirm Payee"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1confirmation-of-payee/post
+- name: create_an_f_x_quote_v2
+  category: "Payments V2"
+  rest_operation: CreateAnFXQuoteV2
+  http: POST /v2/fx-quotes
+  description: "Create an FX Quote"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1fx-quotes/post
+- name: get_an_f_x_quote_v2
+  category: "Payments V2"
+  rest_operation: GetAnFXQuoteV2
+  http: GET /v2/fx-quotes/{quoteId}
+  description: "Get an FX Quote"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1fx-quotes~1{quoteId}/get
+- name: create_an_internal_payment
+  category: "Payments V2"
+  rest_operation: CreateAnInternalPayment
+  http: POST /v2/payments/internal
+  description: "Create an Internal Payment"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1payments~1internal/post
+- name: create_a_faster_payment
+  category: "Payments V2"
+  rest_operation: CreateAFasterPayment
+  http: POST /v2/payments/faster-payment
+  description: "Create a Faster Payment"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1payments~1faster-payment/post
+- name: create_a_bacs_payment
+  category: "Payments V2"
+  rest_operation: CreateABacsPayment
+  http: POST /v2/payments/bacs
+  description: "Create a Bacs Payment"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1payments~1bacs/post
+- name: create_a_c_h_a_p_s_payment
+  category: "Payments V2"
+  rest_operation: CreateACHAPSPayment
+  http: POST /v2/payments/chaps
+  description: "Create a CHAPS Payment"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1payments~1chaps/post
+- name: create_agency_payment
+  category: "Payments V2"
+  rest_operation: CreateAgencyPayment
+  http: POST /v2/payments/agency
+  description: "Create an Agency Payment"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1payments~1agency/post
+- name: create_payment_v2
+  category: "Payments V2"
+  rest_operation: CreatePaymentV2
+  http: POST /v2/payments
+  description: "Create a Cross-border Payment"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1payments/post
+- name: get_payments
+  category: "Payments V2"
+  rest_operation: GetPayments
+  http: GET /v2/payments
+  description: "Get Payments"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1payments/get
+- name: get_payment
+  category: "Payments V2"
+  rest_operation: GetPayment
+  http: GET /v2/payments/{paymentId}
+  description: "Get Payment"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1payments~1{paymentId}/get
+- name: create_a_faster_payment_standing_order
+  category: "Standing Orders"
+  rest_operation: CreateAFasterPaymentStandingOrder
+  http: POST /v2/standing-orders/faster-payment
+  description: "Create a Faster Payment Standing Order"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1standing-orders~1faster-payment/post
+- name: create_an_internal_standing_order
+  category: "Standing Orders"
+  rest_operation: CreateAnInternalStandingOrder
+  http: POST /v2/standing-orders/internal
+  description: "Create an Internal Standing Order"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1standing-orders~1internal/post
+- name: get_standing_orders
+  category: "Standing Orders"
+  rest_operation: GetStandingOrders
+  http: GET /v2/standing-orders
+  description: "Get Standing Orders"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1standing-orders/get
+- name: get_standing_order
+  category: "Standing Orders"
+  rest_operation: GetStandingOrder
+  http: GET /v2/standing-orders/{standingOrderId}
+  description: "Get Standing Order"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1standing-orders~1{standingOrderId}/get
+- name: update_standing_order
+  category: "Standing Orders"
+  rest_operation: UpdateStandingOrder
+  http: PATCH /v2/standing-orders/{standingOrderId}
+  description: "Update a Standing Order"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1standing-orders~1{standingOrderId}/patch
+- name: cancel_standing_order
+  category: "Standing Orders"
+  rest_operation: CancelStandingOrder
+  http: POST /v2/standing-orders/{standingOrderId}/cancel
+  description: "Cancel a Standing Order"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1standing-orders~1{standingOrderId}~1cancel/post
+- name: get_transactions_v3
+  category: "Transactions"
+  rest_operation: GetTransactionsV3
+  http: GET /v3/transactions
+  description: "Get Transactions V3"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v3~1transactions/get
+- name: get_transaction_v3
+  category: "Transactions"
+  rest_operation: GetTransactionV3
+  http: GET /v3/transactions/{transactionId}
+  description: "Get Transaction V3"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v3~1transactions~1{transactionId}/get
+- name: get_transaction_export_v3
+  category: "Transactions"
+  rest_operation: GetTransactionExportV3
+  http: GET /v3/transaction-export/{transactionExportId}
+  description: "Get Transaction Export V3"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v3~1transaction-export~1{transactionExportId}/get
+- name: get_transaction_exports_by_account_id_v3
+  category: "Transactions"
+  rest_operation: GetTransactionExportsByAccountIdV3
+  http: GET /v3/transaction-export
+  description: "Get Transaction Exports V3"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v3~1transaction-export/get
+- name: initiate_transaction_export_v3
+  category: "Transactions"
+  rest_operation: InitiateTransactionExportV3
+  http: POST /v3/transaction-export
+  description: "Initiate Transaction Export V3"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v3~1transaction-export/post
+- name: get_mandates
+  category: "Mandates (Direct Debits)"
+  rest_operation: GetMandates
+  http: GET /v2/mandates
+  description: "Get Mandates"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1mandates/get
+- name: get_mandate
+  category: "Mandates (Direct Debits)"
+  rest_operation: GetMandate
+  http: GET /v2/mandates/{mandateId}
+  description: "Get Mandate"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1mandates~1{mandateId}/get
+- name: cancel_mandate
+  category: "Mandates (Direct Debits)"
+  rest_operation: CancelMandate
+  http: POST /v2/mandates/{mandateId}/cancel
+  description: "Cancel Mandate"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1mandates~1{mandateId}~1cancel/post
+- name: get_statements
+  category: "Statements"
+  rest_operation: GetStatements
+  http: GET /v2/statements
+  description: "Get Statements"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1statements/get
+- name: download_statements
+  category: "Statements"
+  rest_operation: DownloadStatements
+  http: GET /v2/statements/{statementId}/download
+  description: "Download Statements"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1statements~1{statementId}~1download/get
+- name: create_webhook
+  category: "Webhook Management"
+  rest_operation: CreateWebhook
+  http: POST /v2/webhooks
+  description: "Create Webhook"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1webhooks/post
+- name: get_webhooks
+  category: "Webhook Management"
+  rest_operation: GetWebhooks
+  http: GET /v2/webhooks
+  description: "Get Webhooks"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1webhooks/get
+- name: patch_webhook
+  category: "Webhook Management"
+  rest_operation: PatchWebhook
+  http: PATCH /v2/webhooks/{id}
+  description: "Update Webhook"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1webhooks~1{id}/patch
+- name: delete_webhook
+  category: "Webhook Management"
+  rest_operation: DeleteWebhook
+  http: DELETE /v2/webhooks/{id}
+  description: "Delete Webhook"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1webhooks~1{id}/delete
+- name: create_test_event
+  category: "Webhook Management"
+  rest_operation: CreateTestEvent
+  http: POST /v2/webhooks/{id}/create-test-event
+  description: "Create Webhook Test Event"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1webhooks~1{id}~1create-test-event/post
+- name: regenerate_webhook_key
+  category: "Webhook Management"
+  rest_operation: RegenerateWebhookKey
+  http: POST /v2/webhooks/{id}/regenerate-key
+  description: "Regenerate Webhook Key"
+  input_schema_source: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1webhooks~1{id}~1regenerate-key/post
+candidate_tool_count: 58
+agent_readiness_note: >-
+  Any real server here would have to solve request signing on the agent's behalf: every call needs a
+  freshly minted PS256 detached JWS with a unique nonce and a 5-minute freshness window, which is not
+  something an agent can be handed as a static bearer token. That is the single largest engineering
+  reason this bank has no MCP surface today, and the most useful thing a server would actually do.

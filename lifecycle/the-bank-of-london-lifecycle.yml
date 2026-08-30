@@ -1,0 +1,89 @@
+generated: '2026-08-30'
+method: searched
+source: >-
+  https://developer.bankoflondon.com/docs/overviews/versioning +
+  https://status.bankoflondon.com/api/v2/summary.json (probed 2026-08-30) +
+  https://priora.saltedge.com/docs/open_banking/tbol/v3.1/availability
+summary: >-
+  Versioning is a URI path prefix with v2 current and v3 already shipping alongside it for
+  organisations, transactions and transaction exports. A written breaking-change policy exists and is
+  specific enough to be actionable (new enum values are non-breaking; removing one is breaking). An
+  Atlassian-style status page covers eleven components including the API and the API Sandbox, and the
+  PSD2 interface publishes daily availability and quarterly performance statistics as required by the
+  UK Open Banking regime. No Sunset/Deprecation response headers (RFC 8594) are documented, no dated
+  changelog or release-notes page exists, and no public SLA is published.
+versioning:
+  style: uri-path-prefix
+  current: v2
+  in_flight: v3
+  v3_surfaces:
+  - GetOrganisationsV3 / CreateOrganisationV3 / GetOrganisationV3 / PatchOrganisationV3
+  - GetTransactionsV3 / GetTransactionV3
+  - GetTransactionExportV3 / GetTransactionExportsByAccountIdV3 / InitiateTransactionExportV3
+  - GetVirtualAccountTransactionsV3
+  release_cadence: monthly (intended)
+  policy_url: https://developer.bankoflondon.com/docs/overviews/versioning
+deprecation:
+  policy_published: true
+  policy_url: https://developer.bankoflondon.com/docs/overviews/versioning
+  statement: >-
+    "Breaking changes are changes to the API that will require you to make updates to your
+    application code in order to use a new API version. In the event of a breaking change Bank of
+    London will create a new version of the API and document the changes." New features are added
+    into existing versions wherever possible.
+  enum_rule: >-
+    Adding a value to an existing enum is explicitly NOT a breaking change; clients must include a
+    default case. Removing an enum value IS a breaking change. The spec repeats this warning inline
+    on PaymentStatus, StandingOrderStatus, WebhookEvent and CrossBorderPaymentStatus.
+  sunset_header: not_documented
+  deprecation_header: not_documented
+  rfc8594: false
+  deprecated_operations_in_spec: 0
+  retirement_window: not_published
+status_page:
+  url: https://status.bankoflondon.com/
+  platform: Atlassian Statuspage
+  api: https://status.bankoflondon.com/api/v2/summary.json
+  probed: '2026-08-30'
+  http_status: 200
+  overall_indicator: none (All Systems Operational)
+  components:
+  - Online Banking
+  - Client Services
+  - Developer Studio
+  - API
+  - API Sandbox
+  - Website
+  - Faster Payments
+  - BACS Credit
+  - BACS Direct Debits
+  - CHAPS
+  - Confirmation of Payee
+  incident_history: https://status.bankoflondon.com/history
+psd2_availability_reporting:
+  required_by: UK Open Banking / PSD2 regulatory technical standards
+  url: https://priora.saltedge.com/docs/open_banking/tbol/v3.1/availability
+  publishes: daily availability %, daily downtime seconds, quarterly API performance
+  probed: '2026-08-30'
+  http_status: 200
+changelog:
+  published: false
+  note: >-
+    No dated changelog, release-notes or "what's new" page exists on developer.bankoflondon.com — the
+    Developer Studio route manifest contains no such page and the docs navigation has no changelog
+    entry. The versioning guide says releases "will be documented" but no document was found. No
+    ChangeLog pointer is emitted.
+sla:
+  published: false
+  note: >-
+    No public SLA or uptime commitment. The sandbox guide states explicitly that Sandbox performance
+    and uptime cannot be guaranteed to match live.
+support:
+  channels:
+  - email: uksupport@thebankoflondon.com
+    purpose: payment operations, Bacs recalls, CHAPS assistance (quoted in the OpenAPI descriptions)
+  - phone: '+44 3301 659 131'
+    purpose: payment operations
+  - email: Hello@thebankoflondon.com
+    purpose: rate-limit increase requests
+  - url: https://www.bankoflondon.com/contact-us

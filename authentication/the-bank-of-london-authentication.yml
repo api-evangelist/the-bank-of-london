@@ -1,0 +1,84 @@
+generated: '2026-08-30'
+method: searched
+source: >-
+  https://developer.bankoflondon.com/docs/overviews/authentication-message-signature-guide +
+  https://developer.bankoflondon.com/docs/overviews/architecture-security-guide +
+  https://developer.bankoflondon.com/docs/guides/getting-started-guide +
+  openapi/the-bank-of-london-api-openapi.json (components.parameters.JwsSignature)
+summary: >-
+  The Bank of London API does not use bearer tokens or a plain API-key header. Every request carries
+  a detached JSON Web Signature in the `x-jws-signature` header, produced with the private key of an
+  API key pair created inside the Developer Studio. The signature binds the request target, method,
+  content-type, a SHA-256 content digest, a single-use nonce and a creation timestamp, so a captured
+  request cannot be replayed or altered. The published OpenAPI declares NO `components.securitySchemes`
+  block at all — the scheme is carried only as a required header parameter (`JwsSignature`) applied to
+  all 58 operations, which is why a spec-only reader would wrongly conclude this API is unauthenticated.
+spec_declared:
+  security_schemes: {}
+  note: >-
+    components.securitySchemes is an empty object in the published contract, and there is no top-level
+    `security` array. This is a real gap in the contract, not in the product: the header parameter
+    `x-jws-signature` ($ref components/parameters/JwsSignature) is marked required on every operation.
+schemes:
+- id: jws-message-signature
+  type: http-message-signature
+  location: header
+  header: x-jws-signature
+  algorithm: PS256
+  algorithms_supported: [PS256]
+  key_material: >-
+    API Key + secret pair generated per App in the Developer Studio; the secret is shown once and
+    cannot be retrieved again. Each key is bound permanently to exactly one environment (Live or
+    Sandbox) at creation time.
+  jose_header:
+    alg: PS256 (only PS256 is supported)
+    kid: Key ID indicating which key was used to secure the JWS
+  jws_payload_claims:
+  - name: request-target
+    description: The request path per RFC 9110 HTTP Semantics, e.g. /v2/accounts
+  - name: method
+    description: HTTP verb; a mismatch against the actual request method is rejected
+  - name: content-type
+    description: Request content-type, e.g. application/json. Omitted when the request has no body.
+  - name: content-digest
+    description: SHA-256 hash of the request body with no whitespace or indentation before hashing
+  - name: nonce
+    description: >-
+      Random unique string per signature to prevent replay. The same nonce must not be reused within
+      a five-minute interval or the request is rejected.
+  - name: created
+    description: >-
+      Creation time as an integer UNIX timestamp. Only messages signed within the last 5 minutes are
+      accepted.
+  verification_steps:
+  - The request must be signed by the caller's private key.
+  - The signed request must not be more than 5 minutes old.
+  - The nonce must be unique — the same request cannot be sent twice.
+  - The API Key must be active (not disabled or expired).
+  - The message signature must be valid over content, date and authentication of the request.
+oauth2:
+  present_on_main_api: false
+  note: >-
+    No OAuth 2.0 or OpenID Connect flow exists on the Bank of London API v2. OAuth/OIDC applies only
+    to the separate PSD2 / Open Banking UK v3.1 TPP interface operated by Salt Edge Priora, where
+    TPPs perform dynamic client registration and PSU consent via OIDC. That interface is documented
+    at https://priora.saltedge.com/docs/open_banking/tbol/v3.1 and no scope reference is published by
+    either party, so no scopes/ artifact is emitted for this provider.
+portal_authentication:
+  mfa_required: true
+  note: >-
+    Mandatory two-factor authentication for all Developer Studio users, enforced strong password
+    policy, role-based team access with audit logs covering API key creation/approval, invitations
+    and role changes.
+key_handling_guidance:
+  source: https://developer.bankoflondon.com/docs/overviews/architecture-security-guide
+  recommendations:
+  - Store keys in an industry-recognised secrets vault (AWS Secrets Manager, HashiCorp Vault, GCP, Azure).
+  - Never place keys in plaintext, source code, logs or email.
+  - Do not let end users contact the API directly; proxy through a gateway in your own secure data centre.
+transport:
+  tls_minimum: TLSv1.2
+  note: All Bank of London services are accessible only over SSL with non-downgradable TLS 1.2 or higher.
+docs:
+- https://developer.bankoflondon.com/docs/overviews/authentication-message-signature-guide
+- https://developer.bankoflondon.com/docs/overviews/architecture-security-guide

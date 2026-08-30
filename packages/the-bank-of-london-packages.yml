@@ -1,0 +1,71 @@
+generated: '2026-08-30'
+method: searched
+source: >-
+  Registry sweeps of npm (registry.npmjs.org search), PyPI, RubyGems, crates.io, NuGet,
+  pkg.go.dev/proxy.golang.org, Maven Central and Packagist; GitHub repository + organisation search;
+  plus the Developer Studio docs (getting-started, sandbox) and the Bank of London website.
+summary:
+  first_party_sdk_count: 0
+  third_party_package_count: 0
+  note: >-
+    The Bank of London publishes NO client library in any public package registry, and operates no
+    public GitHub organisation. Its published integration story is raw HTTPS against a JWS-signed
+    REST API, supported by copy-paste request-signing code samples inside the Developer Studio docs
+    in four languages (Node.js, Java, Rust, Python) and an in-portal "Try It Now" console. Because no
+    official SDK exists, this repo emits NO `SDKs` pointer in apis.yml — the ergonomics sdk_count
+    check must read a genuine zero here.
+github_organization:
+  found: false
+  checked: '2026-08-30'
+  searched:
+  - github.com/bankoflondon
+  - GitHub repository search "bankoflondon" (1 unrelated personal repo, xylmiz/bankoflondon)
+  note: >-
+    No GitHub organisation owned by The Bank of London was located, and no bankoflondon.com or
+    thebankoflondon.com URL in the docs points at any repository. Do not wire a GitHubOrganization
+    pointer for this provider.
+packages: []
+code_samples:
+  first_party: true
+  distribution: inline in the Developer Studio documentation only — not packaged, not versioned, not installable
+  languages:
+  - Node.js
+  - Java
+  - Rust
+  - Python
+  covers:
+  - Building and signing the x-jws-signature JWS (PS256)
+  - Retrieving sandbox accounts (GetAccounts)
+  - Making a sandbox Faster Payment (CreateAFasterPayment)
+  source: https://developer.bankoflondon.com/docs/guides/getting-started-guide
+  version: null
+  published: null
+  note: >-
+    Version and publication date recorded as null deliberately: these are documentation snippets with
+    no registry entry, no tag and no release date, so a consumer cannot tell how current the signing
+    code they copy actually is. Checked 2026-08-30; nothing to record, as distinct from not checked.
+registries_checked:
+- registry: npm
+  endpoint: https://registry.npmjs.org/-/v1/search?text=bank%20of%20london
+  result: no first-party package
+- registry: pypi
+  endpoint: https://pypi.org/pypi/bankoflondon/json
+  result: 404
+- registry: rubygems
+  result: no first-party package
+- registry: crates.io
+  result: no first-party package
+- registry: nuget
+  result: no first-party package
+- registry: maven-central
+  result: no first-party package
+- registry: pkg.go.dev
+  result: no first-party package
+- registry: packagist
+  result: no first-party package
+postman:
+  found: false
+  checked: '2026-08-30'
+  note: >-
+    Postman public API network search for "bank of london" returned no workspace, collection or
+    request owned by the provider. No Postman pointer is emitted.

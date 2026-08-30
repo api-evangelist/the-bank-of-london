@@ -1,0 +1,186 @@
+generated: '2026-08-30'
+method: derived
+source: >-
+  openapi/the-bank-of-london-api-openapi.json — 369 component schemas, traced through $ref links and
+  typed id-reference fields (AccountId, OrganisationId, PersonId, PaymentId, StandingOrderId,
+  MandateId, TransactionId, AggregatorNodeId, WebhookId, StatementId, QuoteId).
+summary: >-
+  Eleven first-class entities hanging off two roots: an Organisation (the customer of the bank, v3)
+  and a physical Account. Everything that moves money or reports on it belongs to an Account.
+  The distinctive shape is Virtual Account Management — a hierarchy of aggregator nodes above
+  virtual accounts, each virtual account pinned to a real "header" account, which is how the bank
+  supports safeguarding and client-money segregation without opening a real account per end client.
+  Ids are typed at the schema level rather than being bare strings, which is unusually disciplined
+  and makes the reference graph readable straight from the contract.
+id_conventions:
+  typed_ids: true
+  note: >-
+    Each entity's identifier has its own named schema, and a foreign-key field $refs the OWNER's id
+    schema, so the direction of every reference is explicit in the contract.
+  account_id_format: >-
+    Account identifiers appear in the documented form GB-040075-12345678 (country, sort code, account
+    number), e.g. in the webhook PAYMENT_FAILED sample payload.
+entities:
+- name: Organisation
+  id: OrganisationId1
+  versions: [v2, v3]
+  schemas: [OrganisationV2, OrganisationV3]
+  operations: [CreateOrganisationV3, GetOrganisationsV3, GetOrganisationV3, PatchOrganisationV3]
+  role: The bank's customer — the corporate entity onboarded to the platform.
+- name: Individual
+  id: PersonId
+  schemas: [Individual]
+  operations: [CreateIndividual, GetIndividuals, GetIndividual, PatchIndividual]
+  role: A natural person onboarded under an Organisation.
+- name: Account
+  id: AccountId
+  schemas: [BaseAccount, CreateAccountRequest, CreateAccountResponse, UpdateAccountRequest]
+  operations: [CreateAccount, GetAccounts, GetAccount, UpdateAccount, CloseAccount]
+  role: A real (BAAS_PHYSICAL_ACCOUNT) bank account. The root every money movement is anchored to.
+- name: VirtualAccount
+  id: AccountId
+  schemas: [VirtualAccountBase, CreateVirtualAccountRequest, CreateVirtualAccountResponse, UpdateVirtualAccountRequest]
+  operations: [CreateVirtualAccount, GetVirtualAccounts, GetAVirtualAccount, UpdateAVirtualAccount, CloseVirtualAccount, GetVirtualAccountTransactionsV3]
+  role: A ledger-level sub-account carved out of a physical header account; cannot be used for CHAPS.
+- name: AggregatorNode
+  id: AggregatorNodeId
+  schemas: [AggregatorNodeResponse, CreateAggregatorNodeRequest, CreateAggregatorNodeResponse, GetAggregatorNodeResponse, UpdateAggregatorNodeRequest]
+  operations: [GetVirtualAggregatorNodes, CreateVirtualAggregatorNode, GetVirtualAggregatorNode, UpdateVirtualAggregatorNode, GetHierarchy, CreateVirtualAccountHierarchy]
+  role: A node in the virtual-account tree; self-referential via parentVirtualAggregatorNodeId.
+- name: Payment
+  id: PaymentId
+  schemas: [InternalSinglePayment, FPSSinglePayment, BacsSinglePayment, BacsDebitPaymentRequest, CHAPSSinglePayment, BaseCrossBorderPaymentResponse, CrossBorderDirectPaymentRequest]
+  operations: [CreatePaymentV2, CreateAnInternalPayment, CreateAFasterPayment, CreateABacsPayment, CreateACHAPSPayment, CreateAgencyPayment, GetPayments, GetPayment]
+  role: One money movement on one scheme, carrying an extensible status + detailedStatusIdentifier history.
+- name: StandingOrder
+  id: StandingOrderId
+  schemas: [FPSStandingOrder, InternalStandingOrder]
+  operations: [CreateAFasterPaymentStandingOrder, CreateAnInternalStandingOrder, GetStandingOrders, GetStandingOrder, UpdateStandingOrder, CancelStandingOrder]
+  role: A recurring payment instruction that emits Payments.
+- name: Mandate
+  id: MandateId
+  schemas: [Mandate, MandateSender, MandateCancellationReasonCode]
+  operations: [GetMandates, GetMandate, CancelMandate]
+  role: A Bacs Direct Debit mandate held against an Account. Read + cancel only; not created via this API.
+- name: Transaction
+  id: TransactionId
+  schemas: [PaymentTransactionV3, FeeInterestTransactionV3, TransactionBaseV3]
+  operations: [GetTransactionsV3, GetTransactionV3]
+  role: The settled ledger entry. Distinct from a Payment — a Payment is an instruction, a Transaction is its posting.
+- name: TransactionExport
+  id: TransactionExportId
+  operations: [InitiateTransactionExportV3, GetTransactionExportV3, GetTransactionExportsByAccountIdV3]
+  role: An asynchronous bulk export job over an Account's transactions; completion is signalled by webhook.
+- name: Statement
+  id: StatementId
+  schemas: [Statement]
+  operations: [GetStatements, DownloadStatements]
+  role: A periodic account statement; DownloadStatements is the only application/pdf response in the contract.
+- name: FXQuote
+  id: QuoteId
+  schemas: [CreateAnFXQuoteResponse, CrossBorderQuoteId]
+  operations: [CreateAnFXQuoteV2, GetAnFXQuoteV2]
+  role: A time-limited exchange-rate quote consumed by a cross-border payment.
+- name: Webhook
+  id: WebhookId
+  schemas: [Webhook, RegenerateWebhookKeyResponse]
+  operations: [CreateWebhook, GetWebhooks, PatchWebhook, DeleteWebhook, CreateTestEvent, RegenerateWebhookKey]
+  role: An event subscription with its own PS256 key pair.
+relationships:
+- from: Individual
+  to: Organisation
+  type: belongs_to
+  via: organisationId
+- from: VirtualAccount
+  to: Organisation
+  type: belongs_to
+  via: organisationId
+- from: VirtualAccount
+  to: Account
+  type: belongs_to
+  via: headerAccountId
+- from: VirtualAccount
+  to: AggregatorNode
+  type: belongs_to
+  via: virtualAggregatorNodeId
+- from: AggregatorNode
+  to: Account
+  type: belongs_to
+  via: headerAccountId
+- from: AggregatorNode
+  to: AggregatorNode
+  type: belongs_to
+  via: parentVirtualAggregatorNodeId
+  note: self-referential — this is what makes the virtual-account hierarchy a tree
+- from: Account
+  to: SalesProduct
+  type: belongs_to
+  via: salesProductId
+- from: Payment
+  to: Account
+  type: belongs_to
+  via: sender.accountId
+- from: Payment
+  to: StandingOrder
+  type: belongs_to
+  via: standingOrderId
+  note: present on InternalSinglePayment and FPSSinglePayment — the link from an executed instalment back to its instruction
+- from: Payment
+  to: PaymentOrder
+  type: belongs_to
+  via: paymentOrderId
+- from: Payment
+  to: FXQuote
+  type: belongs_to
+  via: quoteId
+  note: cross-border payments only
+- from: Payment
+  to: User
+  type: belongs_to
+  via: createdBy (PaymentCreatorId)
+- from: StandingOrder
+  to: Account
+  type: belongs_to
+  via: sender.accountId
+- from: StandingOrder
+  to: User
+  type: belongs_to
+  via: StandingOrderCreatorId
+- from: Mandate
+  to: Account
+  type: belongs_to
+  via: sender.accountId
+- from: Transaction
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: Transaction
+  to: PaymentOrder
+  type: belongs_to
+  via: paymentOrderId
+- from: TransactionExport
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: Statement
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: Account
+  to: Payment
+  type: has_many
+  via: sender.accountId
+- from: Account
+  to: Transaction
+  type: has_many
+  via: accountId
+- from: Account
+  to: VirtualAccount
+  type: has_many
+  via: headerAccountId
+- from: StandingOrder
+  to: Payment
+  type: has_many
+  via: standingOrderId
+schema_count: 369
+entity_count: 13

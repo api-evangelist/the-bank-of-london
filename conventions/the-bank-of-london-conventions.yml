@@ -1,0 +1,215 @@
+generated: '2026-08-30'
+method: searched
+source: >-
+  https://developer.bankoflondon.com/docs/overviews/authentication-message-signature-guide,
+  /docs/overviews/versioning, /docs/overviews/api-rate-limiting, /docs/guides/manage-webhooks-guide +
+  derived from openapi/the-bank-of-london-api-openapi.json
+summary: >-
+  Cross-cutting request/response semantics for the Bank of London API v2. Auth is a detached JWS per
+  request; idempotency is a body field (`idempotencyId`) on every payment and standing-order create;
+  pagination is page/pageSize with a `metaData` envelope; every error response carries a required
+  `x-correlation-id` response header for support tracing; versioning is a URL path prefix.
+authentication:
+  style: http-message-signature
+  header: x-jws-signature
+  algorithm: PS256
+  see: authentication/the-bank-of-london-authentication.yml
+idempotency:
+  supported: true
+  mechanism: request-body-field
+  field: idempotencyId
+  header: null
+  scope: >-
+    Payment and standing-order creation. Present on InternalSinglePayment, FPSSinglePayment,
+    BacsSinglePayment, BacsDebitPaymentRequest, CHAPSSinglePayment, CrossBorderDirectPaymentRequest,
+    FPSStandingOrder and InternalStandingOrder; also accepted as a query filter on GET /v2/payments.
+  constraints:
+    type: string
+    min_length: 5
+    max_length: 72
+    example_format: uuid
+  guarantee: >-
+    "Idempotency ID is a unique identifier that will guarantee that a payment or standing order
+    containing a specific ID will be processed only once." (components.schemas.IdempotencyId)
+  conflict_behaviour:
+    status: 409
+    code: IDEMPOTENCY_ID_CONFLICT
+    response: components/responses/ErrorResponseConflictIdempotencyId
+  retention: not_documented
+  gaps: >-
+    No idempotency primitive is documented for account creation, customer/organisation creation,
+    virtual-account creation or webhook creation — an agent retrying those POSTs after a timeout has
+    no safe replay key.
+  source: openapi/the-bank-of-london-api-openapi.json + developer.bankoflondon.com docs
+reversibility:
+  applicable: true
+  overall_grade: verified
+  note: >-
+    Graded `verified` because the contract itself states real reversal windows in prose on the
+    payment operations, not merely that a reversal exists. The windows below are quoted from the
+    published OpenAPI descriptions and the docs; none is inferred.
+  surfaces:
+  - surface: Bacs payment
+    write_operation: CreateABacsPayment
+    reversal: recall
+    reversal_operation: null
+    api_reversible: false
+    window: >-
+      "You can recall a Bacs payment only up to 5.30PM on the day you initiate the payment."
+    channel: >-
+      Out-of-band only — email uksupport@thebankoflondon.com or call +44 3301 659 131. There is no
+      recall operation in the API.
+    grade: verified
+    source: openapi/the-bank-of-london-api-openapi.json (paths./v2/payments/bacs.post.description)
+  - surface: CHAPS payment
+    write_operation: CreateACHAPSPayment
+    reversal: none
+    reversal_operation: null
+    api_reversible: false
+    window: null
+    statement: >-
+      "TBOL uses an agency bank to process CHAPS payments on its behalf; CHAPS payments cannot be
+      reversed."
+    grade: verified
+    source: openapi/the-bank-of-london-api-openapi.json (paths./v2/payments/chaps.post.description)
+  - surface: Faster Payment
+    write_operation: CreateAFasterPayment
+    reversal: none_documented
+    reversal_operation: null
+    api_reversible: false
+    window: null
+    grade: none
+    note: >-
+      No recall, reversal or cancellation path is documented for Faster Payments. Treat a submitted
+      FPS payment as irreversible.
+  - surface: Internal payment
+    write_operation: CreateAnInternalPayment
+    reversal: none_documented
+    reversal_operation: null
+    api_reversible: false
+    window: null
+    grade: none
+  - surface: Standing order
+    write_operation: CreateAFasterPaymentStandingOrder / CreateAnInternalStandingOrder
+    reversal: cancel
+    reversal_operation: CancelStandingOrder
+    api_reversible: true
+    window: not_stated
+    grade: documented
+    note: >-
+      POST /v2/standing-orders/{standingOrderId}/cancel returns success with an empty body. The docs
+      do not state a cut-off relative to the next scheduled execution, so an agent cannot know
+      whether cancelling on the execution date stops that instalment.
+  - surface: Direct debit mandate
+    write_operation: null
+    reversal: cancel
+    reversal_operation: CancelMandate
+    api_reversible: true
+    window: not_stated
+    grade: documented
+  - surface: Physical account
+    write_operation: CreateAccount
+    reversal: close
+    reversal_operation: CloseAccount
+    api_reversible: true
+    window: not_stated
+    restorable: false
+    grade: documented
+    note: Only applicable to BAAS_PHYSICAL_ACCOUNT type accounts. No reopen/restore operation exists.
+  - surface: Virtual account
+    write_operation: CreateVirtualAccount
+    reversal: close
+    reversal_operation: CloseVirtualAccount
+    api_reversible: true
+    window: not_stated
+    restorable: false
+    grade: documented
+  - surface: Webhook subscription
+    write_operation: CreateWebhook
+    reversal: delete
+    reversal_operation: DeleteWebhook
+    api_reversible: true
+    window: not_stated
+    grade: documented
+dry_run_mode:
+  supported: false
+  substitute: >-
+    A fully isolated Sandbox environment (sandbox-api.bankoflondon.com) plus a hosted mock server at
+    https://developer.bankoflondon.com/api/mock/the-bank-of-london-api declared in servers[]. There
+    is no dry-run/simulate flag on live operations.
+  see: sandbox/the-bank-of-london-sandbox.yml
+pagination:
+  style: page-number
+  request_params:
+  - name: page
+    in: query
+    type: integer
+    default: 1
+  - name: pageSize
+    in: query
+    type: integer
+    default: 20
+    minimum: 1
+    maximum: 50
+  response_envelope:
+    field: metaData
+    fields: [totalRecords, page, pageSize]
+  applies_to: 12 collection operations (accounts, individuals, organisations, virtual accounts, payments, standing orders, transactions, mandates, statements, webhooks)
+field_expansion:
+  supported: false
+filtering:
+  supported: true
+  common_params: [accountId, organisationId, individualId, status, type, scheme, reference, fromDate, toDate, createdDateFrom, createdDateTo, amount, isCredit, search, orderBy, idempotencyId, accountOwnership, paymentOrderId]
+request_tracing:
+  supported: true
+  header: x-correlation-id
+  direction: response
+  required: true
+  description: >-
+    "A unique identifier assigned to each request, facilitating issue tracing. In the event that a
+    problem arises with a request, this ID can be provided to Bank of London support team for
+    assistance." Declared as a required response header on every error response component
+    (400/401/403/404/409/413/422/429/500/504).
+  example: '2579248247516384065'
+versioning:
+  style: uri-path-prefix
+  current: v2
+  coexisting: v3 (Customer Management organisations, Transactions, Virtual Account transactions and exports)
+  cadence: monthly updates intended
+  breaking_change_policy: >-
+    Breaking changes require a new API version and are documented. Adding a new enum value is NOT a
+    breaking change — clients must handle unknown enum values with a default case. Removing an enum
+    value IS a breaking change.
+  source: https://developer.bankoflondon.com/docs/overviews/versioning
+  see: lifecycle/the-bank-of-london-lifecycle.yml
+error_envelope:
+  format: vendor-json
+  rfc9457: false
+  media_type: application/json
+  schema: components.schemas.ErrorResponseJSON
+  fields:
+  - name: status
+    type: integer
+  - name: name
+    type: string
+  - name: message
+    type: string
+  - name: code
+    type: string
+    description: A unique code for the error, if available.
+  - name: details
+    type: object
+    schema: ErrorResponseDetails
+  see: errors/the-bank-of-london-problem-types.yml
+rate_limit_signalling:
+  documented_headers: []
+  exhaustion_status: 429
+  note: >-
+    No RateLimit-*/X-RateLimit-*/Retry-After response headers are documented or declared in the spec.
+    A client learns its position only by receiving a 429.
+  see: rate-limits/the-bank-of-london-rate-limits.yml
+webhooks:
+  see: asyncapi/the-bank-of-london-webhooks.yml
+media_types:
+  request: [application/json]
+  response: [application/json, application/pdf]

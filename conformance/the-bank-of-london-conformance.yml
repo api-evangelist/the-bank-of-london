@@ -1,0 +1,145 @@
+generated: '2026-08-30'
+method: searched
+source: >-
+  openapi/the-bank-of-london-api-openapi.json,
+  https://developer.bankoflondon.com/docs/overviews/authentication-message-signature-guide,
+  https://developer.bankoflondon.com/psd2-third-party-providers,
+  https://priora.saltedge.com/docs/open_banking/tbol/v3.1,
+  https://www.bankoflondon.com/regulated-financial-services
+summary: >-
+  A UK-regulated clearing bank with a real domain-standard footprint. The core Bank of London API is
+  a bespoke REST contract — it is NOT an Open Banking API and does not claim to be — but the bank
+  operates a separate, regulator-mandated PSD2 TPP interface built to the UK Open Banking Read/Write
+  Standard v3.1, and the core API's own scheme semantics (Faster Payments, Bacs, CHAPS, Confirmation
+  of Payee, Bacs Direct Debit mandate reason codes, IBAN/BIC and ISO 4217 currency handling) are
+  the UK national payment-scheme standards rather than vendor inventions.
+regulatory:
+  regime: banking_open_finance
+  jurisdiction: United Kingdom
+  authorisations:
+  - authority: Bank of England Prudential Regulation Authority
+    role: authorised
+  - authority: Financial Conduct Authority
+    role: regulated
+  firm_reference_number: '930379'
+  legal_entity: The Bank of London Group Limited (company number 12844788)
+  deposit_protection: https://www.bankoflondon.com/legals/deposit-protection
+  source: https://www.bankoflondon.com/regulated-financial-services
+domain_standards:
+- id: uk-open-banking
+  name: UK Open Banking Read/Write API Standard v3.1
+  conforms: true
+  evidence: >-
+    The bank's own Developer Studio publishes a PSD2 & Third Party Providers page directing TPPs to
+    a dedicated Open Banking v3.1 interface (AIS, PIS, PIIS, TPP onboarding / dynamic client
+    registration, OpenID) operated by Salt Edge Priora under provider code `tbol` (live since
+    3 April 2024) and `tbol_sandbox`.
+  location: https://priora.saltedge.com/docs/open_banking/tbol/v3.1
+  operated_by: Salt Edge Priora (PSD2 compliance solution) on behalf of The Bank of London
+  machine_readable_contract: false
+  note: >-
+    Neither the bank nor Salt Edge publishes an OpenAPI for this interface; the machine-readable
+    contract is the OBIE v3.1 standard itself, which the interface implements.
+- id: psd2
+  name: PSD2 / RTS on strong customer authentication and secure communication
+  conforms: true
+  evidence: >-
+    Dedicated TPP interface plus the regulator-mandated publication of daily availability and
+    quarterly performance statistics.
+  location: https://priora.saltedge.com/docs/open_banking/tbol/v3.1/availability
+- id: fapi
+  name: Financial-grade API security profile
+  conforms: partial
+  evidence: >-
+    The Open Banking v3.1 request examples on the TPP interface carry the FAPI interaction header
+    `x-fapi-interaction-id` and PS256-signed JWT request objects, which is the FAPI 1.0 Advanced
+    shape. Neither party publishes a FAPI certification or a conformance statement, so this is
+    recorded as partial on evidence rather than as a certified profile.
+  location: https://priora.saltedge.com/docs/open_banking/tbol/v3.1/ais
+- id: bacs
+  name: Bacs Payment Schemes (Direct Debit + Bacs Credit)
+  conforms: true
+  evidence: >-
+    CreateABacsPayment operation, Bacs three-day cycle documented in the operation description, Bacs
+    mandate cancellation reason codes (0_BACS_CANCELLED_BY_PAYMENT_SERVICE_PROVIDER,
+    1_BACS_CANCELLED_BY_PAYER, 2_BACS_PAYER_DECEASED, B_BACS_ACCOUNT_CLOSED) declared as
+    components.schemas.MandateCancellationReasonCode.
+  location: openapi/the-bank-of-london-api-openapi.json#/components/schemas/MandateCancellationReasonCode
+- id: faster-payments
+  name: UK Faster Payments Scheme (FPS)
+  conforms: true
+  evidence: >-
+    CreateAFasterPayment plus a 30-value FPS scheme reason registry carried as
+    PaymentStatus.detailedStatusIdentifier (FPS_BENEFICIARY_ACCOUNT_CLOSED,
+    FPS_SENDING_AGENCY_SORT_CODE_ACCOUNT_UNKNOWN, FPS_ACCEPTED_NEXT_WORKING_DAY, …).
+  location: openapi/the-bank-of-london-api-openapi.json#/components/schemas/PaymentStatus
+- id: chaps
+  name: CHAPS (Bank of England RTGS high-value scheme)
+  conforms: true
+  evidence: CreateACHAPSPayment operation with scheme-specific validation codes and a stated no-reversal rule.
+  location: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1payments~1chaps
+- id: confirmation-of-payee
+  name: Confirmation of Payee (Pay.UK CoP)
+  conforms: true
+  evidence: POST /v2/confirmation-of-payee (ConfirmPayee) with a dedicated CoP result-status vocabulary.
+  location: openapi/the-bank-of-london-api-openapi.json#/paths/~1v2~1confirmation-of-payee
+- id: iso-20022
+  name: ISO 20022
+  conforms: unknown
+  evidence: >-
+    Not declared anywhere in the contract or the docs. UK schemes are migrating to ISO 20022 message
+    formats, but The Bank of London exposes a bespoke JSON payment model and makes no ISO 20022
+    claim. Recorded as unknown rather than false — absence of a claim is not a denial.
+- id: fdx
+  name: Financial Data Exchange
+  conforms: false
+  evidence: US regime; not applicable to a UK-only clearing bank. No FDX claim anywhere.
+cross_cutting:
+- id: oauth2
+  conforms: false
+  evidence: >-
+    The core API uses detached JWS request signing (PS256) with API keys, not OAuth 2.0. No
+    securitySchemes block is declared. OAuth/OIDC exists only on the separate PSD2 TPP interface.
+- id: oidc
+  conforms: partial
+  evidence: OpenID Connect is part of the Open Banking v3.1 TPP interface (PSU authorisation), not the core API.
+- id: http-message-signatures
+  conforms: partial
+  evidence: >-
+    The signing scheme is JWS-based with claims named after the HTTP Message Signatures vocabulary
+    (`request-target`, `content-digest`, `created`, `nonce`, PS256) but is carried in a bespoke
+    `x-jws-signature` header rather than RFC 9421 `Signature`/`Signature-Input`.
+  location: https://developer.bankoflondon.com/docs/overviews/authentication-message-signature-guide
+- id: rfc9457
+  name: Problem Details for HTTP APIs
+  conforms: false
+  evidence: >-
+    Errors are a vendor JSON envelope (status/name/message/code/details) served as application/json;
+    zero occurrences of application/problem+json in the contract.
+- id: rfc8594
+  name: Sunset HTTP header
+  conforms: false
+  evidence: No Sunset or Deprecation headers documented or declared.
+- id: pagination
+  conforms: true
+  evidence: page/pageSize query parameters with a metaData{totalRecords,page,pageSize} envelope on 12 collection operations.
+- id: idempotency
+  conforms: true
+  evidence: >-
+    components.schemas.IdempotencyId, carried as a request-body field on every payment and standing
+    order create, with a dedicated 409 IDEMPOTENCY_ID_CONFLICT response.
+- id: rfc9116
+  name: security.txt
+  conforms: false
+  evidence: /.well-known/security.txt returns 404 on every Bank of London host (probed 2026-08-30).
+- id: iso-4217
+  conforms: true
+  evidence: Currency codes are ISO 4217 throughout the payment and FX quote models.
+certifications:
+  published: []
+  note: >-
+    No trust centre, SOC 2, ISO 27001, PCI DSS or comparable certification page is published on any
+    Bank of London host (probe-security-programs.py, 2026-08-30, trust=none). The bank's public
+    assurance story is its PRA authorisation and FCA/PRA regulation, its FSCS deposit protection
+    disclosure and its "safer by design" model in which client money is held at the Bank of England
+    and never loaned, invested or leveraged — not a security-certification portfolio.

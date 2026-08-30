@@ -1,0 +1,70 @@
+generated: '2026-08-30'
+method: searched
+source: https://www.bankoflondon.com/regulated-financial-services
+summary: >-
+  The Bank of London does not sell API access as a metered developer plan. There is no per-call or
+  per-seat API pricing and no self-serve tier. What IS published is a banking fee schedule for
+  Regulated Financial Institutions — flat per-payment scheme charges and a set of account products
+  whose fees are either zero (savings/notice deposits) or "provided upon request" (operating,
+  safeguarding and client-money accounts). Access to the API sandbox itself is free and, per the
+  bank's own statement, requires no NDA and sits behind no paywall; production access follows a
+  commercial onboarding conversation.
+plan_count: 0
+metered_api_pricing: false
+model: relationship-priced banking fees; API access bundled with the banking relationship
+sandbox_access:
+  free: true
+  nda_required: false
+  paywall: false
+  source: https://www.bankoflondon.com/resources/bank-of-london-launches-ai-assistant
+published_fees:
+  audience: Regulated Financial Institutions
+  currency: GBP
+  note: >-
+    "Fees depend on transaction profiles, markets served, account structures, and/or your specific
+    requirements." The rates below are the published standard-terms payment service charges.
+  payment_services:
+  - service: Faster Payments
+    currency: GBP
+    per_payment: 0.19
+    basis: flat fee
+  - service: Bacs
+    currency: GBP
+    per_payment: 0.17
+    basis: flat fee
+  - service: CHAPS
+    currency: GBP
+    per_payment: 25.00
+    basis: flat fee
+  accounts:
+  - name: Operating account
+    type: Current
+    fee: provided upon request
+  - name: Safeguarding account
+    type: Segregation
+    fee: provided upon request
+  - name: Client Money account
+    type: Segregation
+    fee: provided upon request
+  - name: Easy access deposit account
+    type: Savings
+    fee: no fees
+  - name: 30 Day notice deposit account
+    type: Savings
+    fee: no fees
+  - name: 45 Day notice deposit account
+    type: Savings
+    fee: no fees
+  - name: 95 Day notice deposit account
+    type: Savings
+    fee: no fees
+  - name: 180 Day notice deposit account
+    type: Savings
+    fee: no fees
+other_segments:
+  note: >-
+    The same page carries tabbed fee views for "Corporate & Commercial Banking" and "Embedded
+    Banking" which are rendered client-side and were not present in the server-delivered HTML; their
+    figures are therefore NOT recorded here rather than guessed.
+plans: []
+docs: https://www.bankoflondon.com/regulated-financial-services

@@ -1,0 +1,108 @@
+# generated: '2026-08-30'
+# method: generated
+# source: openapi/the-bank-of-london-api-openapi.json + the Bank of London Developer Studio docs
+#
+# API Evangelist enhancements to the verbatim Bank of London API contract. The original spec is
+# NEVER mutated; this Overlay records exactly what we would add and why. The two substantive gaps it
+# closes are (1) info.description is an empty string in the published contract, and (2)
+# components.securitySchemes is an empty object even though every one of the 58 operations requires
+# a signed x-jws-signature header — a spec-only reader would conclude this banking API is
+# unauthenticated. Everything asserted below is quoted from the provider's own documentation.
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Bank of London API
+  version: 1.0.0
+extends: ../openapi/the-bank-of-london-api-openapi.json
+actions:
+  - target: $.info
+    description: Fill the empty info.description with the provider's own summary of the API surface.
+    update:
+      description: >-
+        The Bank of London's REST banking API for embedded banking and Banking-as-a-Service.
+        Covers current and interest-bearing accounts, segregated (safeguarding and client-money)
+        accounts, customer onboarding for individuals and organisations, virtual account management
+        with an aggregator-node hierarchy, Confirmation of Payee, and payments over Faster Payments,
+        Bacs, CHAPS, agency and cross-border FX rails, plus standing orders, Bacs direct-debit
+        mandates, transactions, transaction exports, statements and webhooks. Requests are
+        authenticated with a per-request detached JWS (PS256) in the x-jws-signature header.
+      contact:
+        name: Bank of London Developer Studio
+        url: https://developer.bankoflondon.com/
+        email: uksupport@thebankoflondon.com
+      x-provider: The Bank of London Group Limited
+      x-regulator: Bank of England Prudential Regulation Authority / Financial Conduct Authority
+      x-firm-reference-number: '930379'
+  - target: $.components.securitySchemes
+    description: >-
+      Declare the authentication scheme the API actually enforces. The published contract carries an
+      EMPTY securitySchemes object and no top-level security array, while requiring the
+      x-jws-signature header parameter on every operation. This models it as an apiKey-in-header
+      scheme, which is the closest OpenAPI 3.0 construct for a detached JWS signature header.
+    update:
+      JwsMessageSignature:
+        type: apiKey
+        in: header
+        name: x-jws-signature
+        description: >-
+          A detached JSON Web Signature (PS256) over the request, generated with the private key of
+          an API key pair created in the Bank of London Developer Studio. The JOSE header carries
+          alg=PS256 and kid; the payload carries request-target, method, content-type,
+          content-digest (SHA-256 of the unindented body), a single-use nonce, and created (UNIX
+          timestamp). Signatures older than 5 minutes are rejected, and a nonce may not be reused
+          within a 5-minute interval. See
+          https://developer.bankoflondon.com/docs/overviews/authentication-message-signature-guide
+  - target: $
+    description: Apply the signature scheme globally, matching the required header parameter on all 58 operations.
+    update:
+      security:
+        - JwsMessageSignature: []
+  - target: $.info
+    description: >-
+      Record the published rate limit as machine-readable metadata. The contract declares a 429
+      response on 26 operations but never states the budget; the docs do.
+    update:
+      x-rate-limit:
+        requests: 1000
+        window: 10m
+        scope: per-api-key
+        status_on_exhaustion: 429
+        response_headers: []
+        source: https://developer.bankoflondon.com/docs/overviews/api-rate-limiting
+  - target: $.info
+    description: Record the reversibility facts the contract states in prose, so an agent can read them as data.
+    update:
+      x-reversibility:
+        bacs_recall_window: >-
+          A Bacs payment can be recalled only up to 5.30PM on the day it is initiated, and only
+          out-of-band via uksupport@thebankoflondon.com or +44 3301 659 131. There is no API operation.
+        chaps: CHAPS payments cannot be reversed.
+        faster_payments: No recall or reversal path is documented.
+        cancellable_operations:
+          - CancelStandingOrder
+          - CancelMandate
+          - CloseAccount
+          - CloseVirtualAccount
+          - DeleteWebhook
+        source: openapi/the-bank-of-london-api-openapi.json operation descriptions
+  - target: $.info
+    description: Record the correlation header every error response returns, for support tracing.
+    update:
+      x-request-tracing:
+        response_header: x-correlation-id
+        required: true
+        declared_on: every error response component (400/401/403/404/409/413/422/429/500/504)
+  - target: $.servers
+    description: >-
+      Note the live/sandbox host discrepancy between the contract and the guides. Both name sets
+      resolve to the same gateway; the contract's bankoflondon.com hosts are the newer of the two.
+    update:
+      x-host-aliases:
+        live:
+          - https://api.bankoflondon.com/
+          - https://api.thebankoflondon.com/
+        sandbox:
+          - https://sandbox-api.bankoflondon.com/
+          - https://sandbox-api.thebankoflondon.com/
+        note: >-
+          developer.bankoflondon.com/docs/guides/getting-started-guide and /docs/overviews/using-sandbox-guide
+          both name the thebankoflondon.com hosts; the OpenAPI servers[] block names bankoflondon.com.

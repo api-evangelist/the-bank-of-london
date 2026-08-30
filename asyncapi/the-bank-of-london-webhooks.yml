@@ -1,0 +1,116 @@
+generated: '2026-08-30'
+method: searched
+source: >-
+  https://developer.bankoflondon.com/docs/guides/manage-webhooks-guide +
+  openapi/the-bank-of-london-api-openapi.json (Webhook Management tag, components.schemas.WebhookEvent)
+summary: >-
+  The Bank of London publishes a real, well-specified webhook surface — six event types, a versioned
+  payload envelope, PS256 JWS signature verification with a per-webhook public key the caller
+  retrieves at creation time, a documented 15-attempt retry ladder, and explicit at-least-once /
+  unordered delivery semantics. It does NOT publish an AsyncAPI document; no /asyncapi.json or
+  /asyncapi.yaml exists on any host and the docs reference none. This artifact is the webhook catalog,
+  and apis.yml carries a `Webhooks` pointer — not an `AsyncAPI` one.
+asyncapi_document:
+  published: false
+  checked: '2026-08-30'
+  note: >-
+    No AsyncAPI spec is served by the provider. None is authored here — the pipeline does not
+    fabricate an event contract on a provider's behalf.
+transport: HTTPS POST to a subscriber-supplied endpoint
+subscription_management:
+  api_tag: Webhook Management
+  operations:
+  - operationId: CreateWebhook
+    http: POST /v2/webhooks
+    note: Returns the public key to store for signature verification.
+  - operationId: GetWebhooks
+    http: GET /v2/webhooks
+  - operationId: PatchWebhook
+    http: PATCH /v2/webhooks/{id}
+  - operationId: DeleteWebhook
+    http: DELETE /v2/webhooks/{id}
+  - operationId: CreateTestEvent
+    http: POST /v2/webhooks/{id}/create-test-event
+  - operationId: RegenerateWebhookKey
+    http: POST /v2/webhooks/{id}/regenerate-key
+  configuration:
+  - url — the HTTPS endpoint events are delivered to
+  - events — the event types subscribed to
+  - version — the API version that fixes the object schema of the `data` property
+events:
+- type: PAYMENT_PENDING
+  object: Payment
+  description: Payment has been created and is PENDING or SCHEDULED.
+- type: PAYMENT_SUCCESSFUL
+  object: Payment
+  description: Payment has become SUCCESSFUL.
+- type: PAYMENT_FAILED
+  object: Payment
+  description: Payment has been updated with a status of REJECTED or FAILED.
+- type: TRANSACTION_SUCCESSFUL
+  object: Transaction
+  description: A transaction has been created and successfully settled.
+- type: TRANSACTION_EXPORT_SUCCESSFUL
+  object: TransactionExport
+  description: A transaction export has completed successfully.
+- type: TRANSACTION_EXPORT_FAILED
+  object: TransactionExport
+  description: A transaction export has failed.
+extensible: true
+extensibility_warning: >-
+  The contract states event type values are extensible and new values can be added without a major
+  version change; consumers must default-case unknown types.
+payload_envelope:
+  fields:
+  - name: id
+    description: Unique identifier of the event (use it to de-duplicate).
+  - name: eventType
+    description: The event type, e.g. PAYMENT_FAILED.
+  - name: eventVersion
+    description: The API version of the event, e.g. 2. Fixes the schema of `data`.
+  - name: data
+    description: The event object, in the format of the API response for that type.
+  - name: timestamp
+    description: When the event occurred within the system — the field to sort on, since ordering is not guaranteed.
+security:
+  mechanism: detached JWS in the x-jws-signature request header on the delivered webhook
+  algorithm: PS256
+  key_distribution: >-
+    A key pair is generated per webhook at creation; the public key is returned in the CreateWebhook
+    response for the subscriber to store, and the private key is held by the bank, bound to the
+    environment (Sandbox or Live) whose API key created it. RegenerateWebhookKey rotates it.
+  jws_payload_claims:
+  - name: content-digest
+    description: Request body hashed with SHA-256, expressed as a hexadecimal number.
+  - name: created
+    description: Creation time as an integer UNIX timestamp; usable for replay prevention.
+delivery_semantics:
+  acknowledgement: HTTP 200 from the subscriber endpoint
+  guarantee: at-least-once
+  duplicates: >-
+    Possible. The bank recommends storing processed event ids and ignoring an id already seen.
+  ordering: not guaranteed — sort on the `timestamp` property
+  latency: event delivery can take up to 20 minutes after the event occurs
+  endpoint_requirements: publicly reachable over HTTPS
+retry_policy:
+  attempts: 15
+  schedule:
+  - attempt: 1
+    after: 1 minute
+  - attempt: 2
+    after: 5 minutes
+  - attempt: 3
+    after: 15 minutes
+  - attempt: 4
+    after: 30 minutes
+  - attempt: 5
+    after: 1 hour
+  - attempt: 6
+    after: 3 hours
+  - attempt: 7
+    after: 6 hours
+  - attempt: 8
+    after: 12 hours
+  - attempts: 9-15
+    after: 24 hours
+docs: https://developer.bankoflondon.com/docs/guides/manage-webhooks-guide

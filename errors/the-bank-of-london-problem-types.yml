@@ -1,0 +1,652 @@
+generated: '2026-08-30'
+method: derived
+source: openapi/the-bank-of-london-api-openapi.json (components.responses + components.schemas error hierarchy)
+summary: >-
+  The Bank of London API does NOT use RFC 9457 problem+json. Errors are a vendor JSON envelope
+  (components.schemas.ErrorResponseJSON) served as application/json with a machine-readable `code`
+  string, and every error response carries a required `x-correlation-id` response header for support
+  tracing. The contract defines 10 generic status-level responses and 20 operation-specific
+  refinements that enumerate the exact `code` values each endpoint can return — an unusually complete
+  error registry for a banking API.
+format: vendor-json
+rfc9457: false
+media_type: application/json
+envelope:
+  schema: components.schemas.ErrorResponseJSON
+  fields:
+    - name: status
+      description: HTTP status code, nullable integer
+    - name: name
+      description: Error class name, e.g. ValidationError
+    - name: message
+      description: Human-readable message
+    - name: code
+      description: A unique code for the error, if available
+    - name: details
+      description: ErrorResponseDetails object with per-field validation detail
+tracing_header:
+  name: x-correlation-id
+  required: true
+  description: >-
+    Unique identifier assigned to each request, quoted to Bank of London support when raising an issue.
+problem_types:
+- id: 400
+  title: "Bad Request"
+  status: 400
+  scope: generic
+  codes: []
+  operations:
+  - CancelMandate
+  - CancelStandingOrder
+  - CloseAccount
+  - CloseVirtualAccount
+  - ConfirmPayee
+  - CreateABacsPayment
+  - CreateAFasterPayment
+  - CreateAFasterPaymentStandingOrder
+  - CreateAccount
+  - CreateAgencyPayment
+  - CreateAnFXQuoteV2
+  - CreateAnInternalPayment
+  - CreateAnInternalStandingOrder
+  - CreateIndividual
+  - CreateOrganisationV3
+  - CreatePaymentV2
+  - CreateTestEvent
+  - CreateVirtualAccount
+  - CreateVirtualAccountHierarchy
+  - CreateVirtualAggregatorNode
+  - CreateWebhook
+  - DeleteWebhook
+  - DownloadStatements
+  - GetAVirtualAccount
+  - GetAccount
+  - GetAccounts
+  - GetAnFXQuoteV2
+  - GetHierarchy
+  - GetIndividual
+  - GetIndividuals
+  - GetMandate
+  - GetOrganisationV3
+  - GetOrganisationsV3
+  - GetPayment
+  - GetPayments
+  - GetStandingOrder
+  - GetStandingOrders
+  - GetStatements
+  - GetTransactionExportV3
+  - GetTransactionExportsByAccountIdV3
+  used_by_operation_count: 56
+- id: 401
+  title: "Unauthorized"
+  status: 401
+  scope: generic
+  codes: []
+  operations:
+  - CancelMandate
+  - CancelStandingOrder
+  - CloseAccount
+  - CloseVirtualAccount
+  - ConfirmPayee
+  - CreateAccount
+  - CreateAnFXQuoteV2
+  - CreateIndividual
+  - CreateOrganisationV3
+  - CreateTestEvent
+  - CreateVirtualAccount
+  - CreateVirtualAccountHierarchy
+  - CreateVirtualAggregatorNode
+  - CreateWebhook
+  - DeleteWebhook
+  - DownloadStatements
+  - GetAVirtualAccount
+  - GetAccount
+  - GetAccounts
+  - GetAnFXQuoteV2
+  - GetHierarchy
+  - GetIndividual
+  - GetIndividuals
+  - GetMandate
+  - GetMandates
+  - GetOrganisationV3
+  - GetOrganisationsV3
+  - GetPayment
+  - GetPayments
+  - GetStandingOrder
+  - GetStandingOrders
+  - GetStatements
+  - GetTransactionExportV3
+  - GetTransactionExportsByAccountIdV3
+  - GetTransactionV3
+  - GetTransactionsV3
+  - GetVirtualAccountTransactionsV3
+  - GetVirtualAccounts
+  - GetVirtualAggregatorNode
+  - GetVirtualAggregatorNodes
+  used_by_operation_count: 50
+- id: 403
+  title: "Forbidden"
+  status: 403
+  scope: generic
+  codes: []
+  operations:
+  - CancelMandate
+  - CancelStandingOrder
+  - CloseAccount
+  - CloseVirtualAccount
+  - ConfirmPayee
+  - CreateABacsPayment
+  - CreateAFasterPaymentStandingOrder
+  - CreateAccount
+  - CreateAnFXQuoteV2
+  - CreateAnInternalStandingOrder
+  - CreateIndividual
+  - CreateOrganisationV3
+  - CreateTestEvent
+  - CreateVirtualAccount
+  - CreateVirtualAccountHierarchy
+  - CreateWebhook
+  - DeleteWebhook
+  - GetAVirtualAccount
+  - GetAccount
+  - GetAccounts
+  - GetAnFXQuoteV2
+  - GetIndividual
+  - GetIndividuals
+  - GetOrganisationV3
+  - GetOrganisationsV3
+  - GetPayment
+  - GetPayments
+  - GetStandingOrder
+  - GetStandingOrders
+  - GetTransactionExportV3
+  - GetTransactionExportsByAccountIdV3
+  - GetTransactionsV3
+  - GetVirtualAccountTransactionsV3
+  - GetVirtualAccounts
+  - GetVirtualAggregatorNodes
+  - GetWebhooks
+  - PatchIndividual
+  - PatchOrganisationV3
+  - PatchWebhook
+  - RegenerateWebhookKey
+  used_by_operation_count: 43
+- id: 404
+  title: "Not Found"
+  status: 404
+  scope: generic
+  codes: []
+  operations:
+  - CloseAccount
+  - CloseVirtualAccount
+  - ConfirmPayee
+  - CreateAccount
+  - CreateIndividual
+  - CreateOrganisationV3
+  - CreateTestEvent
+  - CreateVirtualAccount
+  - CreateVirtualAccountHierarchy
+  - CreateVirtualAggregatorNode
+  - CreateWebhook
+  - DeleteWebhook
+  - DownloadStatements
+  - GetAVirtualAccount
+  - GetAccount
+  - GetAnFXQuoteV2
+  - GetHierarchy
+  - GetIndividual
+  - GetIndividuals
+  - GetOrganisationV3
+  - GetOrganisationsV3
+  - GetPayments
+  - GetStandingOrders
+  - GetStatements
+  - GetTransactionExportV3
+  - GetTransactionV3
+  - GetTransactionsV3
+  - GetVirtualAccountTransactionsV3
+  - GetVirtualAggregatorNode
+  - GetVirtualAggregatorNodes
+  - GetWebhooks
+  - InitiateTransactionExportV3
+  - PatchIndividual
+  - PatchOrganisationV3
+  - PatchWebhook
+  - RegenerateWebhookKey
+  - UpdateAVirtualAccount
+  - UpdateAccount
+  - UpdateVirtualAggregatorNode
+  used_by_operation_count: 39
+- id: 409
+  title: "Conflict"
+  status: 409
+  scope: generic
+  codes: []
+  operations:
+  - CloseAccount
+  - CloseVirtualAccount
+  - CreateIndividual
+  - PatchIndividual
+  - UpdateAVirtualAccount
+  - UpdateAccount
+  used_by_operation_count: 6
+- id: 413
+  title: "Request Entity Too Large"
+  status: 413
+  scope: generic
+  codes: []
+  operations:
+  - InitiateTransactionExportV3
+  used_by_operation_count: 1
+- id: 422
+  title: "Validation Failed"
+  status: 422
+  scope: generic
+  codes: []
+  operations:
+  - CancelMandate
+  - CancelStandingOrder
+  - CloseAccount
+  - CloseVirtualAccount
+  - ConfirmPayee
+  - CreateAccount
+  - CreateAnFXQuoteV2
+  - CreateIndividual
+  - CreateOrganisationV3
+  - CreateVirtualAccount
+  - CreateVirtualAccountHierarchy
+  - CreateVirtualAggregatorNode
+  - CreateWebhook
+  - DeleteWebhook
+  - DownloadStatements
+  - GetAVirtualAccount
+  - GetAccount
+  - GetAccounts
+  - GetAnFXQuoteV2
+  - GetHierarchy
+  - GetIndividual
+  - GetIndividuals
+  - GetMandate
+  - GetMandates
+  - GetOrganisationV3
+  - GetOrganisationsV3
+  - GetPayments
+  - GetStandingOrder
+  - GetStandingOrders
+  - GetStatements
+  - GetTransactionV3
+  - GetTransactionsV3
+  - GetVirtualAccountTransactionsV3
+  - GetVirtualAccounts
+  - GetVirtualAggregatorNode
+  - GetVirtualAggregatorNodes
+  - GetWebhooks
+  - InitiateTransactionExportV3
+  - PatchIndividual
+  - PatchOrganisationV3
+  used_by_operation_count: 45
+- id: 429
+  title: "Too Many Requests"
+  status: 429
+  scope: generic
+  codes: []
+  operations:
+  - CancelStandingOrder
+  - CreateABacsPayment
+  - CreateACHAPSPayment
+  - CreateAFasterPayment
+  - CreateAFasterPaymentStandingOrder
+  - CreateAgencyPayment
+  - CreateAnInternalPayment
+  - CreateAnInternalStandingOrder
+  - CreateIndividual
+  - CreateOrganisationV3
+  - CreatePaymentV2
+  - CreateWebhook
+  - DeleteWebhook
+  - GetIndividual
+  - GetIndividuals
+  - GetOrganisationV3
+  - GetOrganisationsV3
+  - GetPayment
+  - GetPayments
+  - GetStandingOrder
+  - GetStandingOrders
+  - GetWebhooks
+  - PatchIndividual
+  - PatchOrganisationV3
+  - PatchWebhook
+  - UpdateStandingOrder
+  used_by_operation_count: 26
+- id: 500
+  title: "Internal Server Error"
+  status: 500
+  scope: generic
+  codes: []
+  operations:
+  - CancelMandate
+  - CancelStandingOrder
+  - CloseAccount
+  - CloseVirtualAccount
+  - ConfirmPayee
+  - CreateABacsPayment
+  - CreateACHAPSPayment
+  - CreateAFasterPayment
+  - CreateAFasterPaymentStandingOrder
+  - CreateAccount
+  - CreateAgencyPayment
+  - CreateAnFXQuoteV2
+  - CreateAnInternalPayment
+  - CreateAnInternalStandingOrder
+  - CreateIndividual
+  - CreateOrganisationV3
+  - CreatePaymentV2
+  - CreateTestEvent
+  - CreateVirtualAccount
+  - CreateVirtualAccountHierarchy
+  - CreateVirtualAggregatorNode
+  - CreateWebhook
+  - DeleteWebhook
+  - DownloadStatements
+  - GetAVirtualAccount
+  - GetAccount
+  - GetAccounts
+  - GetAnFXQuoteV2
+  - GetHierarchy
+  - GetIndividual
+  - GetIndividuals
+  - GetMandate
+  - GetMandates
+  - GetOrganisationV3
+  - GetOrganisationsV3
+  - GetPayment
+  - GetPayments
+  - GetStandingOrder
+  - GetStandingOrders
+  - GetStatements
+  used_by_operation_count: 58
+- id: 504
+  title: "Gateway Timeout"
+  status: 504
+  scope: generic
+  codes: []
+  operations:
+  - GetPayments
+  used_by_operation_count: 1
+- id: PaymentUnauthorizedError
+  title: "Unauthorized"
+  scope: operation-specific
+  codes:
+  - BANK_ACCOUNT_LOCKED
+  - BANK_ACCOUNT_CLOSED
+  operations:
+  - CreateABacsPayment
+  - CreateACHAPSPayment
+  - CreateAFasterPayment
+  - CreateAgencyPayment
+  - CreateAnInternalPayment
+  - CreatePaymentV2
+  used_by_operation_count: 6
+- id: PaymentForbiddenError
+  title: "Forbidden"
+  scope: operation-specific
+  codes:
+  - PAYEE_IS_NOT_A_NOMINATED_PAYEE
+  operations:
+  - CreateACHAPSPayment
+  - CreateAFasterPayment
+  - CreateAgencyPayment
+  - CreateAnInternalPayment
+  - CreatePaymentV2
+  used_by_operation_count: 5
+- id: BankAccountNotFoundError
+  title: "Not Found"
+  scope: operation-specific
+  codes:
+  - BANK_ACCOUNT_NOT_FOUND
+  operations:
+  - CreateABacsPayment
+  - CreateACHAPSPayment
+  - CreateAFasterPayment
+  - CreateAFasterPaymentStandingOrder
+  - CreateAgencyPayment
+  - CreateAnInternalPayment
+  - CreateAnInternalStandingOrder
+  - CreatePaymentV2
+  - GetMandates
+  used_by_operation_count: 9
+- id: ErrorResponseConflictIdempotencyId
+  title: "Conflict"
+  scope: operation-specific
+  codes:
+  - IDEMPOTENCY_ID_CONFLICT
+  operations:
+  - CreateABacsPayment
+  - CreateACHAPSPayment
+  - CreateAFasterPayment
+  - CreateAFasterPaymentStandingOrder
+  - CreateAgencyPayment
+  - CreateAnInternalPayment
+  - CreateAnInternalStandingOrder
+  - CreatePaymentV2
+  used_by_operation_count: 8
+- id: CreateInternalPaymentUnprocessableError
+  title: "Validation Failed"
+  scope: operation-specific
+  codes:
+  - PAYMENT_EXECUTION_DATE_IS_NOT_NOTICE_PERIOD_COMPLIANT
+  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+  - PAYMENT_AMOUNT_EXCEEDS_LIMIT
+  - ONE_TIME_EXECUTION_DATE_CANNOT_BE_IN_PAST
+  - NO_PAYMENT_EXECUTION_DATE_DEFINED
+  - RECURRING_PAYMENT_DAY_CANNOT_BE_IN_PAST
+  - RECURRING_PAYMENT_START_DAY_IS_LATER_THAN_END_DAY
+  - EXECUTION_DATE_TODAY
+  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
+  - PAYMENT_REFERENCE_VIOLATES_PROFANITY_FILTER
+  - INVALID_SORT_CODE_PROVIDED
+  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+  - INVALID_PLANNED_EXECUTION_DATE
+  operations:
+  - CreateAnInternalPayment
+  used_by_operation_count: 1
+- id: CreateFPSUnprocessableError
+  title: "Validation Failed"
+  scope: operation-specific
+  codes:
+  - PAYMENT_EXECUTION_DATE_IS_NOT_NOTICE_PERIOD_COMPLIANT
+  - PAYMENT_AMOUNT_EXCEEDS_LIMIT
+  - ONE_TIME_EXECUTION_DATE_CANNOT_BE_IN_PAST
+  - NO_PAYMENT_EXECUTION_DATE_DEFINED
+  - RECURRING_PAYMENT_DAY_CANNOT_BE_IN_PAST
+  - RECURRING_PAYMENT_START_DAY_IS_LATER_THAN_END_DAY
+  - EXECUTION_DATE_TODAY
+  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
+  - EXECUTION_DATE_ON_WEEKEND
+  - EXECUTION_DATE_ON_PUBLIC_HOLIDAY
+  - PAYMENT_REFERENCE_VIOLATES_PROFANITY_FILTER
+  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+  - INVALID_SORT_CODE_PROVIDED
+  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+  - INVALID_PLANNED_EXECUTION_DATE
+  operations:
+  - CreateAFasterPayment
+  - CreateAgencyPayment
+  used_by_operation_count: 2
+- id: CreateBacsPaymentUnprocessableError
+  title: "Validation Failed"
+  scope: operation-specific
+  codes:
+  - BACS_EXECUTION_DATE_IN_THE_PAST
+  - BACS_EXECUTION_DATE_LIMIT_EXCEEDED
+  - BACS_EXECUTION_DATE_ON_WEEKEND
+  - BACS_NO_PAYEES_PROVIDED
+  - BACS_MULTIPLE_PAYEES_NOT_ALLOWED
+  - BACS_INTERNAL_SORT_CODE_PROVIDED
+  - BACS_EXECUTION_DATE_ON_PUBLIC_HOLIDAY
+  - PAYMENT_REFERENCE_VIOLATES_PROFANITY_FILTER
+  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+  - INVALID_SORT_CODE_PROVIDED
+  - BACS_EXECUTION_DATE_CUTOFF_TIME
+  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+  operations:
+  - CreateABacsPayment
+  used_by_operation_count: 1
+- id: CreateChapsBadRequestError
+  title: "Bad Request"
+  scope: operation-specific
+  codes:
+  - CHAPS_INVALID_SORT_CODE_PROVIDED
+  - NO_PAYMENT_EXECUTION_DATE_DEFINED
+  operations:
+  - CreateACHAPSPayment
+  used_by_operation_count: 1
+- id: CreateChapsPaymentUnprocessableError
+  title: "Validation Failed"
+  scope: operation-specific
+  codes:
+  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+  - ONE_TIME_EXECUTION_DATE_CANNOT_BE_IN_PAST
+  - CHAPS_EXECUTION_DATE_ON_WEEKEND
+  - CHAPS_EXECUTION_DATE_LIMIT_EXCEEDED
+  - PAYMENT_EXECUTION_DATE_IS_NOT_NOTICE_PERIOD_COMPLIANT
+  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
+  - PAYMENT_REFERENCE_VIOLATES_PROFANITY_FILTER
+  - INVALID_SORT_CODE_PROVIDED
+  - CHAPS_EXECUTION_DATE_CUTOFF_TIME
+  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+  operations:
+  - CreateACHAPSPayment
+  used_by_operation_count: 1
+- id: CreateCrossBorderUnprocessableError
+  title: "Validation Failed"
+  scope: operation-specific
+  codes:
+  - INVALID_ACCOUNT_ID
+  - BANK_ACCOUNT_NOT_FOUND
+  - BANK_ACCOUNT_LOCKED
+  - BANK_ACCOUNT_CLOSED
+  - IDEMPOTENCY_ID_CONFLICT
+  - FX_QUOTE_GENERATION_FAILED
+  - FX_QUOTE_NOT_FOUND
+  - FX_QUOTE_EXPIRED
+  - FX_QUOTE_CURRENCY_MISMATCH
+  - FX_QUOTE_AMOUNT_MISMATCH
+  - INVALID_QUOTE_FOR_SAME_CURRENCY
+  - FX_PROVIDER_DOWNTIME
+  - FX_QUOTE_ALREADY_USED
+  - FX_QUOTE_ALREADY_IN_USE
+  - BIC_OR_BANK_IDENTIFIER_REQUIRED
+  - BANK_IDENTIFIER_REQUIRED
+  - COUNTRY_REQUIRED_FOR_BANK_IDENTIFIER
+  - IBAN_NOT_ALLOWED_WITH_BANK_IDENTIFIER
+  - BANK_IDENTIFIER_NOT_VALID
+  - BIC_NOT_VALID
+  - IBAN_REQUIRED_FOR_BIC
+  - IBAN_NOT_ALLOWED_FOR_BIC
+  - IBAN_OR_ACCOUNT_NUMBER_REQUIRED
+  - IBAN_NOT_VALID
+  - ACCOUNT_NUMBER_NOT_VALID
+  operations:
+  - CreatePaymentV2
+  used_by_operation_count: 1
+- id: PaymentServiceUnavailableError
+  title: "Service Unavailable"
+  scope: operation-specific
+  codes:
+  - FX_PROVIDER_DOWNTIME
+  operations:
+  - CreatePaymentV2
+  used_by_operation_count: 1
+- id: PaymentNotFound
+  title: "Not Found"
+  scope: operation-specific
+  codes:
+  - PAYMENT_DOES_NOT_EXIST
+  operations:
+  - GetPayment
+  used_by_operation_count: 1
+- id: StandingOrderUnauthorizedError
+  title: "Unauthorized"
+  scope: operation-specific
+  codes:
+  - BANK_ACCOUNT_LOCKED
+  - BANK_ACCOUNT_CLOSED
+  operations:
+  - CreateAFasterPaymentStandingOrder
+  - CreateAnInternalStandingOrder
+  used_by_operation_count: 2
+- id: CreateFPSStandingOrderUnprocessableError
+  title: "Validation Failed"
+  scope: operation-specific
+  codes:
+  - RECURRING_PAYMENT_DAY_CANNOT_BE_IN_PAST
+  - RECURRING_PAYMENT_START_DAY_IS_LATER_THAN_END_DAY
+  - EXECUTION_DATE_TODAY
+  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
+  - EXECUTION_DATE_ON_WEEKEND
+  - EXECUTION_DATE_ON_PUBLIC_HOLIDAY
+  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+  - INVALID_SORT_CODE_PROVIDED
+  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+  operations:
+  - CreateAFasterPaymentStandingOrder
+  used_by_operation_count: 1
+- id: CreateInternalStandingOrderUnprocessableError
+  title: "Validation Failed"
+  scope: operation-specific
+  codes:
+  - RECURRING_PAYMENT_DAY_CANNOT_BE_IN_PAST
+  - RECURRING_PAYMENT_START_DAY_IS_LATER_THAN_END_DAY
+  - EXECUTION_DATE_TODAY
+  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
+  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+  - INVALID_SORT_CODE_PROVIDED
+  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+  operations:
+  - CreateAnInternalStandingOrder
+  used_by_operation_count: 1
+- id: StandingOrderNotFound
+  title: "Not Found"
+  scope: operation-specific
+  codes:
+  - STANDING_ORDER_NOT_FOUND
+  operations:
+  - CancelStandingOrder
+  - GetStandingOrder
+  - UpdateStandingOrder
+  used_by_operation_count: 3
+- id: UpdateStandingOrderConflictError
+  title: "Conflict"
+  scope: operation-specific
+  codes:
+  - STANDING_ORDER_NOT_ACTIVE
+  operations:
+  - UpdateStandingOrder
+  used_by_operation_count: 1
+- id: CancelStandingOrderConflictError
+  title: "Conflict"
+  scope: operation-specific
+  codes:
+  - STANDING_ORDER_CANNOT_BE_CANCELLED
+  operations:
+  - CancelStandingOrder
+  used_by_operation_count: 1
+- id: AccountIdError
+  title: "Not Found"
+  scope: operation-specific
+  codes:
+  - INVALID_ACCOUNT_ID
+  operations:
+  - GetMandates
+  used_by_operation_count: 1
+- id: MandateNotFoundError
+  title: "Not Found"
+  scope: operation-specific
+  codes:
+  - MANDATE_NOT_FOUND
+  - BANK_ACCOUNT_NOT_FOUND
+  operations:
+  - CancelMandate
+  - GetMandate
+  used_by_operation_count: 2

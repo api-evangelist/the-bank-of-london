@@ -1,0 +1,101 @@
+generated: '2026-08-30'
+method: searched
+source: >-
+  https://developer.bankoflondon.com/docs/overviews/using-sandbox-guide,
+  https://developer.bankoflondon.com/docs/guides/getting-started-guide,
+  https://priora.saltedge.com/docs/open_banking/tbol/v3.1,
+  openapi/the-bank-of-london-api-openapi.json (servers[])
+summary: >-
+  A genuinely open sandbox — the bank states publicly that anyone can access the API sandbox with no
+  NDA and no paywall. The sandbox is a fully isolated clone of live: same operations, same hostnames
+  pattern, separate data, and apps created in the sandbox can be promoted to live. Environment
+  separation is enforced at the key: an API key is permanently bound to exactly one environment at
+  creation and cannot be moved. A hosted mock server is additionally declared in the contract's
+  servers[] block. Two sandbox-only capabilities — realtime request debugging and test-data
+  management (create third-party accounts, set balances, create transactions) — are documented as
+  COMING SOON and are not available.
+open_access:
+  self_serve: true
+  nda_required: false
+  paywall: false
+  registration_required: true
+  registration_flow: >-
+    Request Access form -> email verification -> confirmation email from the bank -> set password and
+    enrol MFA. Team/Apps sections unlock only after that flow completes.
+  source: https://www.bankoflondon.com/resources/bank-of-london-launches-ai-assistant
+environments:
+- name: Live
+  host_in_spec: https://api.bankoflondon.com/
+  host_in_docs: api.thebankoflondon.com
+  role: production
+- name: Sandbox
+  host_in_spec: https://sandbox-api.bankoflondon.com/
+  host_in_docs: sandbox-api.thebankoflondon.com
+  role: test
+- name: Mock Server
+  host_in_spec: https://developer.bankoflondon.com/api/mock/the-bank-of-london-api
+  role: hosted mock responses, declared in the OpenAPI servers[] block
+host_discrepancy:
+  note: >-
+    The published OpenAPI names bankoflondon.com hosts while the getting-started and sandbox guides
+    still name the legacy thebankoflondon.com hosts. Both DNS names resolve and both answer from the
+    same API gateway (403 "Missing Authentication Token" at the root, probed 2026-08-30). The
+    apis.yml baseURL follows the contract, which is the newer of the two.
+key_model:
+  scoping: per-environment
+  immutable_after_creation: true
+  statement: >-
+    "Each API Key corresponds to one of the two environments, and may only be used in the given
+    environment. Note that this setting is permanent once the key is created, so you will need to
+    create new keys when you wish to go live."
+  secret_retrieval: one-time — the secret is displayed once and the bank cannot regenerate or recover it
+  container: An App may hold several keys across both environments
+test_data:
+  seeded_accounts:
+    provided: true
+    statement: >-
+      "We have created and funded some accounts for you to get started with. You may use these
+      accounts however you like for tests and demos."
+    values_published: false
+    note: >-
+      The seeded account IDs, sort codes and account numbers are retrieved per-tenant by calling
+      GetAccounts in the sandbox; no fixed test account numbers are published, so none are recorded
+      here.
+  magic_values: none published
+  test_cards: not applicable — The Bank of London is a clearing/BaaS bank, not a card acquirer
+  time_simulation: not published
+  triggers: not published
+sandbox_only_capabilities:
+- name: Test Data Management APIs
+  status: coming-soon
+  planned: create third-party accounts; directly set and manage balances; directly create and manage transactions of various types
+- name: Realtime request/transaction debugging
+  status: coming-soon
+  planned: per-App live transaction view with comprehensive logs
+- name: Development APIs
+  status: sandbox-only
+  note: >-
+    The guides state Test Data Management and Development API endpoints exist only in the sandbox, and
+    that prototype endpoints may be sandbox-only until fully released. None of these appear in the
+    published OpenAPI, so their operation set is not recorded.
+webhook_testing:
+  supported: true
+  operation: CreateTestEvent
+  path: POST /v2/webhooks/{id}/create-test-event
+  event_type: TEST
+  note: Fires a TEST event at the registered endpoint so delivery and signature verification can be validated before going live.
+caveats:
+- Sandbox performance and uptime are explicitly not guaranteed to match live.
+- The bank asks for one week's notice before large-scale load testing.
+- Do not place real PII in the sandbox; the docs recommend fake data.
+- Sandbox is fully isolated from live and from the external banking ecosystem; accounts, transactions and balances are not shared.
+psd2_sandbox:
+  provider_code: tbol_sandbox
+  operator: Salt Edge Priora
+  url: https://priora.saltedge.com/docs/open_banking/tbol/v3.1
+  created: '2023-12-07'
+  note: >-
+    Salt Edge publishes fixed PSU test credentials for the TBOL Open Banking sandbox on that page.
+    They are reproduced there for TPP onboarding and are not copied into this repo — they are a
+    third-party operator's login values, not a Bank of London API artifact.
+docs: https://developer.bankoflondon.com/docs/overviews/using-sandbox-guide
