@@ -30,6 +30,19 @@ tags:
 - Open Banking
 - PSD2
 - Faster Payments
+- Financial-Services
+- United Kingdom
+- Virtual Accounts
+tags_raw:
+- Company
+- Banking
+- Clearing Bank
+- Payments
+- Banking as a Service
+- Embedded Finance
+- Open Banking
+- PSD2
+- Faster Payments
 - Financial Services
 - United Kingdom
 - Virtual Accounts
@@ -46,6 +59,17 @@ apis:
   humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
   baseURL: https://api.bankoflondon.com/
   tags:
+  - Banking
+  - Payments
+  - Account
+  - Virtual Accounts
+  - Faster Payments
+  - Bacs
+  - CHAPS
+  - Confirmation of Payee
+  - Direct Debits
+  - Webhook
+  tags_raw:
   - Banking
   - Payments
   - Accounts

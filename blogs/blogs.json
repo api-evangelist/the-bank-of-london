@@ -1,0 +1,14 @@
+{
+  "repo": "the-bank-of-london",
+  "feeds": [
+    {
+      "source": "https://www.bankoflondon.com/faqs",
+      "feed_url": "https://www.bankoflondon.com/faqs",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
+  "post_count": 0,
+  "fetched": "2026-08-30T22:33:40Z"
+}
