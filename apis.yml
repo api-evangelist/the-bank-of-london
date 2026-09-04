@@ -14,6 +14,21 @@ description: >-
   sandbox that requires no NDA. A separate PSD2 / Open Banking UK v3.1 TPP interface is operated on
   the bank's behalf by Salt Edge Priora under provider code `tbol`.
 url: https://raw.githubusercontent.com/api-evangelist/the-bank-of-london/refs/heads/main/apis.yml
+accessModel:
+  pricing: unknown
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: Unknown
+  confidence: low
+  source:
+  - authentication
+  - rate-limits
+  - security
+  - sandbox
+  generated: '2026-09-02'
+  method: derived
 image: https://cdn.prod.website-files.com/67ac63e504ea6d324d5e5a44/67ac8464295e3d604352cb63_256x256%20Webclip%20image.png
 x-type: company
 x-source: harvest:secondary-market
