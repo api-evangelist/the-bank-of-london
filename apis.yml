@@ -62,42 +62,40 @@ tags_raw:
 - United Kingdom
 - Virtual Accounts
 apis:
-- name: Bank of London API
+- name: Bank of London PSD2 / Open Banking UK API
   description: >-
-    The Bank of London's public REST banking API (v2/v3 path-versioned), published as OpenAPI 3.0.3
-    from the Developer Studio. 58 operations across ten tags — Accounts, Customer Management,
-    Virtual Account Management, Confirmation of Payee, Payments V2 (internal, Faster Payments, Bacs,
-    CHAPS, agency and FX/cross-border), Standing Orders, Transactions, Mandates (Direct Debits),
-    Statements and Webhook Management. Requests are authenticated with a per-request detached JWS
-    (PS256) in the `x-jws-signature` header, signed with an API key created in the Developer Studio;
-    payments and standing orders carry a client-supplied `idempotencyId`.
+    The dedicated PSD2 Third Party Provider (TPP) interface for The Bank of London, implementing the UK
+    Open Banking Read/Write API v3.1 (AIS, PIS, PIIS, plus dynamic client registration and OpenID Connect).
+    It is operated on the bank's behalf by Salt Edge Priora — the bank's own Developer Studio publishes
+    priora.saltedge.com as the access point under provider code `tbol` (live, launched 3 April 2024) and
+    `tbol_sandbox`. No machine-readable contract for this interface is published by either party; the
+    surface is the OBIE v3.1 standard.
+  humanURL: https://priora.saltedge.com/docs/open_banking/tbol/v3.1
+  baseURL: https://priora.saltedge.com
+  tags:
+  - Open Banking
+  - PSD2
+  - Account Information
+  - Payment Initiation
+  - FAPI
+  - Regulatory
+  properties:
+  - type: Documentation
+    url: https://priora.saltedge.com/docs/open_banking/tbol/v3.1
+  - type: APIReference
+    url: https://priora.saltedge.com/docs/open_banking/tbol/v3.1/ais
+  - type: StatusPage
+    url: https://priora.saltedge.com/docs/open_banking/tbol/v3.1/availability
+- aid: the-bank-of-london:the-bank-of-london-accounts-api
+  name: The Bank of London Accounts API
+  description: The Accounts API from The Bank of London — 3 operation(s) for accounts.
   humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
   baseURL: https://api.bankoflondon.com/
   tags:
-  - Banking
-  - Payments
-  - Account
-  - Virtual Accounts
-  - Faster Payments
-  - Bacs
-  - CHAPS
-  - Confirmation of Payee
-  - Direct Debits
-  - Webhook
-  tags_raw:
-  - Banking
-  - Payments
   - Accounts
-  - Virtual Accounts
-  - Faster Payments
-  - Bacs
-  - CHAPS
-  - Confirmation of Payee
-  - Direct Debits
-  - Webhooks
   properties:
   - type: OpenAPI
-    url: openapi/the-bank-of-london-api-openapi.json
+    url: openapi/the-bank-of-london-accounts-api-openapi.yml
   - type: Documentation
     url: https://developer.bankoflondon.com/docs/guides/getting-started-guide
   - type: APIReference
@@ -118,40 +116,309 @@ apis:
     url: rate-limits/the-bank-of-london-rate-limits.yml
   - type: Webhooks
     url: asyncapi/the-bank-of-london-webhooks.yml
-  - type: Overlay
-    url: overlays/the-bank-of-london-api-overlay.yaml
   - type: Sandbox
     url: sandbox/the-bank-of-london-sandbox.yml
-- name: Bank of London PSD2 / Open Banking UK API
+- aid: the-bank-of-london:the-bank-of-london-confirmation-of-payee-api
+  name: The Bank of London Confirmation of Payee API
   description: >-
-    The dedicated PSD2 Third Party Provider (TPP) interface for The Bank of London, implementing the
-    UK Open Banking Read/Write API v3.1 (AIS, PIS, PIIS, plus dynamic client registration and
-    OpenID Connect). It is operated on the bank's behalf by Salt Edge Priora — the bank's own
-    Developer Studio publishes priora.saltedge.com as the access point under provider code `tbol`
-    (live, launched 3 April 2024) and `tbol_sandbox`. No machine-readable contract for this
-    interface is published by either party; the surface is the OBIE v3.1 standard.
-  humanURL: https://priora.saltedge.com/docs/open_banking/tbol/v3.1
-  baseURL: https://priora.saltedge.com
+    The Confirmation of Payee API from The Bank of London — 1 operation(s) for confirmation of payee.
+  humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  baseURL: https://api.bankoflondon.com/
   tags:
-  - Open Banking
-  - PSD2
-  - Account Information
-  - Payment Initiation
-  - FAPI
-  - Regulatory
+  - Confirmation of Payee
   properties:
+  - type: OpenAPI
+    url: openapi/the-bank-of-london-confirmation-of-payee-api-openapi.yml
   - type: Documentation
-    url: https://priora.saltedge.com/docs/open_banking/tbol/v3.1
+    url: https://developer.bankoflondon.com/docs/guides/getting-started-guide
   - type: APIReference
-    url: https://priora.saltedge.com/docs/open_banking/tbol/v3.1/ais
-  - type: StatusPage
-    url: https://priora.saltedge.com/docs/open_banking/tbol/v3.1/availability
+    url: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  - type: Authentication
+    url: authentication/the-bank-of-london-authentication.yml
+  - type: Conventions
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: Idempotency
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: ErrorCatalog
+    url: errors/the-bank-of-london-problem-types.yml
+  - type: DataModel
+    url: data-model/the-bank-of-london-data-model.yml
+  - type: DeclineCodes
+    url: errors/the-bank-of-london-decline-codes.yml
+  - type: RateLimits
+    url: rate-limits/the-bank-of-london-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/the-bank-of-london-webhooks.yml
+  - type: Sandbox
+    url: sandbox/the-bank-of-london-sandbox.yml
+- aid: the-bank-of-london:the-bank-of-london-customer-management-api
+  name: The Bank of London Customer Management API
+  description: >-
+    The Customer Management API from The Bank of London — 4 operation(s) for customer management.
+  humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  baseURL: https://api.bankoflondon.com/
+  tags:
+  - Customer Management
+  properties:
+  - type: OpenAPI
+    url: openapi/the-bank-of-london-customer-management-api-openapi.yml
+  - type: Documentation
+    url: https://developer.bankoflondon.com/docs/guides/getting-started-guide
+  - type: APIReference
+    url: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  - type: Authentication
+    url: authentication/the-bank-of-london-authentication.yml
+  - type: Conventions
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: Idempotency
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: ErrorCatalog
+    url: errors/the-bank-of-london-problem-types.yml
+  - type: DataModel
+    url: data-model/the-bank-of-london-data-model.yml
+  - type: DeclineCodes
+    url: errors/the-bank-of-london-decline-codes.yml
+  - type: RateLimits
+    url: rate-limits/the-bank-of-london-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/the-bank-of-london-webhooks.yml
+  - type: Sandbox
+    url: sandbox/the-bank-of-london-sandbox.yml
+- aid: the-bank-of-london:the-bank-of-london-mandates-direct-debits-api
+  name: The Bank of London Mandates (Direct Debits) API
+  description: >-
+    The Mandates (Direct Debits) API from The Bank of London — 3 operation(s) for mandates (direct debits).
+  humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  baseURL: https://api.bankoflondon.com/
+  tags:
+  - Mandates (Direct Debits)
+  properties:
+  - type: OpenAPI
+    url: openapi/the-bank-of-london-mandates-direct-debits-api-openapi.yml
+  - type: Documentation
+    url: https://developer.bankoflondon.com/docs/guides/getting-started-guide
+  - type: APIReference
+    url: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  - type: Authentication
+    url: authentication/the-bank-of-london-authentication.yml
+  - type: Conventions
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: Idempotency
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: ErrorCatalog
+    url: errors/the-bank-of-london-problem-types.yml
+  - type: DataModel
+    url: data-model/the-bank-of-london-data-model.yml
+  - type: DeclineCodes
+    url: errors/the-bank-of-london-decline-codes.yml
+  - type: RateLimits
+    url: rate-limits/the-bank-of-london-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/the-bank-of-london-webhooks.yml
+  - type: Sandbox
+    url: sandbox/the-bank-of-london-sandbox.yml
+- aid: the-bank-of-london:the-bank-of-london-payments-v2-api
+  name: The Bank of London Payments V2 API
+  description: The Payments V2 API from The Bank of London — 9 operation(s) for payments v2.
+  humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  baseURL: https://api.bankoflondon.com/
+  tags:
+  - Payments V2
+  properties:
+  - type: OpenAPI
+    url: openapi/the-bank-of-london-payments-v2-api-openapi.yml
+  - type: Documentation
+    url: https://developer.bankoflondon.com/docs/guides/getting-started-guide
+  - type: APIReference
+    url: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  - type: Authentication
+    url: authentication/the-bank-of-london-authentication.yml
+  - type: Conventions
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: Idempotency
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: ErrorCatalog
+    url: errors/the-bank-of-london-problem-types.yml
+  - type: DataModel
+    url: data-model/the-bank-of-london-data-model.yml
+  - type: DeclineCodes
+    url: errors/the-bank-of-london-decline-codes.yml
+  - type: RateLimits
+    url: rate-limits/the-bank-of-london-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/the-bank-of-london-webhooks.yml
+  - type: Sandbox
+    url: sandbox/the-bank-of-london-sandbox.yml
+- aid: the-bank-of-london:the-bank-of-london-standing-orders-api
+  name: The Bank of London Standing Orders API
+  description: The Standing Orders API from The Bank of London — 5 operation(s) for standing orders.
+  humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  baseURL: https://api.bankoflondon.com/
+  tags:
+  - Standing Orders
+  properties:
+  - type: OpenAPI
+    url: openapi/the-bank-of-london-standing-orders-api-openapi.yml
+  - type: Documentation
+    url: https://developer.bankoflondon.com/docs/guides/getting-started-guide
+  - type: APIReference
+    url: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  - type: Authentication
+    url: authentication/the-bank-of-london-authentication.yml
+  - type: Conventions
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: Idempotency
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: ErrorCatalog
+    url: errors/the-bank-of-london-problem-types.yml
+  - type: DataModel
+    url: data-model/the-bank-of-london-data-model.yml
+  - type: DeclineCodes
+    url: errors/the-bank-of-london-decline-codes.yml
+  - type: RateLimits
+    url: rate-limits/the-bank-of-london-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/the-bank-of-london-webhooks.yml
+  - type: Sandbox
+    url: sandbox/the-bank-of-london-sandbox.yml
+- aid: the-bank-of-london:the-bank-of-london-statements-api
+  name: The Bank of London Statements API
+  description: The Statements API from The Bank of London — 2 operation(s) for statements.
+  humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  baseURL: https://api.bankoflondon.com/
+  tags:
+  - Statements
+  properties:
+  - type: OpenAPI
+    url: openapi/the-bank-of-london-statements-api-openapi.yml
+  - type: Documentation
+    url: https://developer.bankoflondon.com/docs/guides/getting-started-guide
+  - type: APIReference
+    url: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  - type: Authentication
+    url: authentication/the-bank-of-london-authentication.yml
+  - type: Conventions
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: Idempotency
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: ErrorCatalog
+    url: errors/the-bank-of-london-problem-types.yml
+  - type: DataModel
+    url: data-model/the-bank-of-london-data-model.yml
+  - type: DeclineCodes
+    url: errors/the-bank-of-london-decline-codes.yml
+  - type: RateLimits
+    url: rate-limits/the-bank-of-london-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/the-bank-of-london-webhooks.yml
+  - type: Sandbox
+    url: sandbox/the-bank-of-london-sandbox.yml
+- aid: the-bank-of-london:the-bank-of-london-transactions-api
+  name: The Bank of London Transactions API
+  description: The Transactions API from The Bank of London — 4 operation(s) for transactions.
+  humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  baseURL: https://api.bankoflondon.com/
+  tags:
+  - Transactions
+  properties:
+  - type: OpenAPI
+    url: openapi/the-bank-of-london-transactions-api-openapi.yml
+  - type: Documentation
+    url: https://developer.bankoflondon.com/docs/guides/getting-started-guide
+  - type: APIReference
+    url: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  - type: Authentication
+    url: authentication/the-bank-of-london-authentication.yml
+  - type: Conventions
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: Idempotency
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: ErrorCatalog
+    url: errors/the-bank-of-london-problem-types.yml
+  - type: DataModel
+    url: data-model/the-bank-of-london-data-model.yml
+  - type: DeclineCodes
+    url: errors/the-bank-of-london-decline-codes.yml
+  - type: RateLimits
+    url: rate-limits/the-bank-of-london-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/the-bank-of-london-webhooks.yml
+  - type: Sandbox
+    url: sandbox/the-bank-of-london-sandbox.yml
+- aid: the-bank-of-london:the-bank-of-london-virtual-account-management-api
+  name: The Bank of London Virtual Account Management API
+  description: >-
+    The Virtual Account Management API from The Bank of London — 7 operation(s) for virtual account management.
+  humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  baseURL: https://api.bankoflondon.com/
+  tags:
+  - Virtual Account Management
+  properties:
+  - type: OpenAPI
+    url: openapi/the-bank-of-london-virtual-account-management-api-openapi.yml
+  - type: Documentation
+    url: https://developer.bankoflondon.com/docs/guides/getting-started-guide
+  - type: APIReference
+    url: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  - type: Authentication
+    url: authentication/the-bank-of-london-authentication.yml
+  - type: Conventions
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: Idempotency
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: ErrorCatalog
+    url: errors/the-bank-of-london-problem-types.yml
+  - type: DataModel
+    url: data-model/the-bank-of-london-data-model.yml
+  - type: DeclineCodes
+    url: errors/the-bank-of-london-decline-codes.yml
+  - type: RateLimits
+    url: rate-limits/the-bank-of-london-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/the-bank-of-london-webhooks.yml
+  - type: Sandbox
+    url: sandbox/the-bank-of-london-sandbox.yml
+- aid: the-bank-of-london:the-bank-of-london-webhook-management-api
+  name: The Bank of London Webhook Management API
+  description: >-
+    The Webhook Management API from The Bank of London — 4 operation(s) for webhook management.
+  humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  baseURL: https://api.bankoflondon.com/
+  tags:
+  - Webhook Management
+  properties:
+  - type: OpenAPI
+    url: openapi/the-bank-of-london-webhook-management-api-openapi.yml
+  - type: Documentation
+    url: https://developer.bankoflondon.com/docs/guides/getting-started-guide
+  - type: APIReference
+    url: https://developer.bankoflondon.com/apis/the-bank-of-london-api
+  - type: Authentication
+    url: authentication/the-bank-of-london-authentication.yml
+  - type: Conventions
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: Idempotency
+    url: conventions/the-bank-of-london-conventions.yml
+  - type: ErrorCatalog
+    url: errors/the-bank-of-london-problem-types.yml
+  - type: DataModel
+    url: data-model/the-bank-of-london-data-model.yml
+  - type: DeclineCodes
+    url: errors/the-bank-of-london-decline-codes.yml
+  - type: RateLimits
+    url: rate-limits/the-bank-of-london-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/the-bank-of-london-webhooks.yml
+  - type: Sandbox
+    url: sandbox/the-bank-of-london-sandbox.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/the-bank-of-london-api-overlay.yaml
 - type: Website
   url: https://www.bankoflondon.com/
 - type: DeveloperPortal
