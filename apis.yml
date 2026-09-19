@@ -92,6 +92,8 @@ apis:
   humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
   baseURL: https://api.bankoflondon.com/
   tags:
+  - Account
+  tags_raw:
   - Accounts
   properties:
   - type: OpenAPI
@@ -223,6 +225,8 @@ apis:
   humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
   baseURL: https://api.bankoflondon.com/
   tags:
+  - Payments v2
+  tags_raw:
   - Payments V2
   properties:
   - type: OpenAPI
@@ -319,6 +323,8 @@ apis:
   humanURL: https://developer.bankoflondon.com/apis/the-bank-of-london-api
   baseURL: https://api.bankoflondon.com/
   tags:
+  - Transaction
+  tags_raw:
   - Transactions
   properties:
   - type: OpenAPI
