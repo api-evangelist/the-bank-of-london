@@ -1,0 +1,2540 @@
+openapi: 3.2.0
+info:
+  title: Bank of London Virtual Account Management API
+  version: 2.0.0
+  description: ''
+servers:
+- description: Sandbox
+  url: https://sandbox-api.bankoflondon.com/
+- description: Live
+  url: https://api.bankoflondon.com/
+- description: Mock Server
+  url: https://developer.bankoflondon.com/api/mock/the-bank-of-london-api
+tags:
+- name: Virtual Account Management
+paths:
+  /v2/virtual/accounts:
+    get:
+      operationId: GetVirtualAccounts
+      summary: Get Virtual Accounts
+      description: 'Retrieves a list of virtual bank accounts. The consumer application must have already created the Virtual Accounts.
+
+
+        ![Virtual Account Overview Diagram](https://cdn.prod.website-files.com/67ac63e504ea6d324d5e5a44/681b294d1ec87ba3bdf72b2c_Virtual%20Account%20Solution%20overview%20%E2%80%93%20Virtual%20Account.svg)'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - in: query
+        name: organisationId
+        required: false
+        schema:
+          type: string
+          description: 'Supplying the `organisationId` will return only the Virtual Accounts belonging to `Individuals` associated with that `Organisation`.
+
+            '
+      - in: query
+        name: individualId
+        required: false
+        schema:
+          type: string
+          description: 'Supplying the `individualId` will return Virtual Accounts for specific individual.
+
+            '
+      - in: query
+        name: accountOwnership
+        required: false
+        schema:
+          $ref: '#/components/schemas/AccountOwnership1'
+      - in: query
+        name: headerAccountId
+        required: false
+        description: Supplying the `headerAccountId` will return Virtual Accounts under specific header account id.
+        schema:
+          $ref: '#/components/schemas/HeaderAccountId'
+      - in: query
+        name: virtualAggregatorNodeId
+        required: false
+        description: Supplying the `virtualAggregatorNodeId` will return Virtual Accounts under specific virtual aggregator node.
+        schema:
+          $ref: '#/components/schemas/VirtualAccountAggregatorNodeId'
+      - in: query
+        name: status
+        required: false
+        schema:
+          $ref: '#/components/schemas/AccountStatusFilter'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accounts:
+                    items:
+                      $ref: '#/components/schemas/VirtualAccountBase'
+                    type: array
+                  metadata:
+                    $ref: '#/components/schemas/MetaData'
+                required:
+                - accounts
+                - metadata
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+    post:
+      operationId: CreateVirtualAccount
+      summary: Create a Virtual Account
+      description: 'Creates a Virtual Account – the balance limit of the Virtual Account created will be dependent on the hierarchy configuration determined during onboarding (refer to `GET a Hierarchy` endpoint response to validate if required).
+
+        Virtual Accounts can be created for Individuals and Organisations.
+
+
+        **Attention** \
+
+        If you would like to test against our Virtual Account Management (VAM) endpoints,
+
+        please read our Virtual Account Management
+
+        overview for more information on how to get started. `virtualAggregatorNodeId` is an optional attribute in the request.
+
+
+        **Limits**
+
+        - Production: There is a cap on the number of Virtual Accounts a client can create. Please discuss expected volumes with your Relationship Manager during onboarding.
+
+        - Sandbox: Limited to 2,000 Virtual Accounts per client.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVirtualAccountRequest'
+      responses:
+        '200':
+          description: Virtual account created successfully
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateVirtualAccountResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+  /v2/virtual/accounts/{id}:
+    get:
+      operationId: GetAVirtualAccount
+      summary: Get a Virtual Account
+      description: 'Retrieves the details of a specific virtual bank account. The consumer application needs permissions to read the requested account.
+
+
+        **Attention** \
+
+        If you would like to test against our Virtual Account Management (VAM) endpoints, please read our Virtual Account Management overview for more information on how to get started.'
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/AccountId'
+      - $ref: '#/components/parameters/JwsSignature'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSingleVirtualAccountResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+    patch:
+      operationId: UpdateAVirtualAccount
+      summary: Update a Virtual Account
+      description: 'This operation updates a Virtual Account by its `id` in the context of
+
+        an application registered with Bank of London Developer Studio.
+
+
+        **Attention** \
+
+        If you would like to test against our Virtual Account Management (VAM) endpoints, please read our Virtual Account Management overview for more information on how to get started.'
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/AccountId'
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVirtualAccountRequest'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSingleVirtualAccountResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '409':
+          $ref: '#/components/responses/409'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+  /v2/virtual/accounts/{id}/close:
+    post:
+      operationId: CloseVirtualAccount
+      summary: Close Virtual Account
+      description: Closes a Virtual Account. This operation is only applicable to `VIRTUAL_ACCOUNT` type accounts.
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/AccountId'
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseVirtualAccountRequest'
+      responses:
+        '200':
+          description: Account closed successfully
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloseAccountResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '409':
+          $ref: '#/components/responses/409'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+  /v3/virtual/transactions:
+    get:
+      operationId: GetVirtualAccountTransactionsV3
+      summary: Get Virtual Account Transactions V3
+      description: 'This operation allows to retrieve a list of transactions for a Virtual Account along with the transaction ID
+
+        (`id`) to be able to retrieve a specific transaction later via `GET
+
+        /transactions/{transactionId}`.
+
+
+        It must be filtered by either Bank of London Virtual Account ID (`accountId`) to
+
+        retrieve only transactions for a specific Virtual Account or by the `headerAccountId` to
+
+        retrieve all transactions for all Virtual Accounts under the header account.
+
+
+        It can also be filtered by the `fromDate`, `toDate`, `type`, `scheme`, `isCredit` fields to narrow down the result set.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: query
+        name: accountId
+        required: false
+        schema:
+          $ref: '#/components/schemas/AccountId'
+      - in: query
+        name: fromDate
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionFromDate'
+      - in: query
+        name: toDate
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionToDate'
+      - in: query
+        name: isCredit
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionIsCreditQueryParam'
+      - in: query
+        name: type
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionTypeV3'
+      - in: query
+        name: scheme
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionScheme'
+      - in: query
+        name: paymentOrderId
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionPaymentOrderId'
+      - in: query
+        name: search
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionSearch'
+      - in: query
+        name: orderBy
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionOrderBy'
+      - in: query
+        name: headerAccountId
+        description: 'If specified, the response will return the transactions of all Virtual Accounts which have headerAccountId set to the provided value.
+
+          '
+        required: false
+        schema:
+          $ref: '#/components/schemas/HeaderAccountId'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 'Success
+
+            <span style="color:#f46d2a; font-size:14px; font-family:Inter;">**Attention**</span> \
+
+            <span style="font-size:14px; font-family:Inter;">Please note that the oneOf transactions in the **body** below, is extensible and new objects can be
+
+            returned with a new transaction **type**
+
+            in the future without a major version change. Please ensure this is factored into your
+
+            application code.</span>
+
+            '
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      oneOf:
+                      - $ref: '#/components/schemas/PaymentTransactionV3'
+                      - $ref: '#/components/schemas/FeeInterestTransactionV3'
+                  metadata:
+                    $ref: '#/components/schemas/MetaData'
+                required:
+                - transactions
+                - metadata
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+  /v2/virtual/aggregator-nodes:
+    get:
+      operationId: GetVirtualAggregatorNodes
+      summary: Get Virtual Aggregator Nodes
+      description: 'Get a list of Virtual Aggregator nodes.
+
+
+        Aggregator nodes must be filtered by `headerAccountId` to retrieve all aggregator nodes under the header account.
+
+        They can also be filtered by the `organisationId` and `individualId` fields to narrow down the result set.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - in: query
+        name: headerAccountId
+        required: true
+        schema:
+          $ref: '#/components/schemas/AggregatorNodeHeaderAccountId'
+      - in: query
+        name: organisationId
+        required: false
+        schema:
+          type: string
+          description: 'Supplying the `organisationId` will return aggregator nodes for specific organisation.
+
+            '
+      - in: query
+        name: individualId
+        required: false
+        schema:
+          type: string
+          description: 'Supplying the `individualId` will return aggregator nodes for specific individual.
+
+            '
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  aggregatorNodes:
+                    items:
+                      $ref: '#/components/schemas/AggregatorNodeResponse'
+                    type: array
+                  metadata:
+                    $ref: '#/components/schemas/MetaData'
+                required:
+                - aggregatorNodes
+                - metadata
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+    post:
+      operationId: CreateVirtualAggregatorNode
+      summary: Create a Virtual Aggregator Node
+      description: 'Creates A Virtual Aggregator Node.
+
+
+        Virtual aggregator nodes are an aggregation tool and are not externally addressable. They can be used to group Virtual Accounts and view aggregated data relating to those Virtual Accounts.
+
+
+        **Attention** \
+
+        If you would like to test against our Virtual Account Management (VAM) endpoints,
+
+        please read our Virtual Account Management
+
+        overview for more information on how to get started.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAggregatorNodeRequest'
+      responses:
+        '200':
+          description: Aggregator node created successfully
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAggregatorNodeResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+  /v2/virtual/aggregator-nodes/{id}:
+    get:
+      operationId: GetVirtualAggregatorNode
+      summary: Get a Virtual Aggregator Node
+      description: 'Retrieves details of a virtual aggregator node as well as aggregated data of the Virtual Accounts under the virtual aggregator node.
+
+
+        **Attention** \
+
+        If you would like to test against our Virtual Account Management (VAM) endpoints,
+
+        please read our Virtual Account Management
+
+        overview for more information on how to get started.
+
+
+        ![Virtual Account Overview Diagram](https://cdn.prod.website-files.com/67ac63e504ea6d324d5e5a44/681b294dc3f1738a3363fd71_Virtual%20Account%20Solution%20overview%20%E2%80%93%20VA%20Aggregator%20Node.svg)'
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/AggregatorNodeId'
+      - $ref: '#/components/parameters/JwsSignature'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAggregatorNodeResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+    patch:
+      operationId: UpdateVirtualAggregatorNode
+      summary: Update a Virtual Aggregator Node
+      description: 'Updates a Virtual Aggregator Node.
+
+
+        **Attention** \
+
+        If you would like to test against our Virtual Account Management (VAM) endpoints,
+
+        please read our Virtual Account Management
+
+        overview for more information on how to get started.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The ID of the aggregator node to update.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAggregatorNodeRequest'
+      responses:
+        '200':
+          description: Aggregator node updated successfully
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AggregatorNodeResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+  /v2/virtual/hierarchy:
+    get:
+      operationId: GetHierarchy
+      summary: Get a Hierarchy
+      description: 'Retrieve the structure of a Virtual Account hierarchy, showing the Header Account at the top of the structure, the hierarchy type, the default virtual aggregator node below that and all subsequent virtual aggregator nodes and Virtual Accounts that have been set up, along with the associated hierarchy level.
+
+
+        **Attention** \
+
+        If you would like to test against our Virtual Account Management (VAM) endpoints,
+
+        please read our Virtual Account Management
+
+        overview for more information on how to get started.
+
+
+        ![Virtual Account Overview Diagram](https://cdn.prod.website-files.com/67ac63e504ea6d324d5e5a44/681b294d9ede0b6c9c8663dc_Virtual%20Account%20Solution%20overview%20%E2%80%93%20Header%20Account.svg)'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - in: query
+        name: headerAccountId
+        required: true
+        schema:
+          $ref: '#/components/schemas/HeaderAccountId'
+      - in: query
+        name: parentVirtualAggregatorNodeId
+        required: false
+        schema:
+          $ref: '#/components/schemas/ParentAggregatorNodeId'
+      - in: query
+        name: date
+        required: false
+        schema:
+          type: string
+          description: Allows the user to view the hierarchy as it was on a specific date. If none is specified you will be shown the hierarchy as it is now.
+          example: '2025-01-01'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hierarchyType:
+                    $ref: '#/components/schemas/HierarchyType'
+                  elements:
+                    items:
+                      $ref: '#/components/schemas/HierarchyElementResponse'
+                    type: array
+                  metadata:
+                    $ref: '#/components/schemas/MetaData'
+                required:
+                - elements
+                - hierarchyType
+                - metadata
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+    post:
+      operationId: CreateVirtualAccountHierarchy
+      summary: Create a Virtual Account Hierarchy
+      description: '**Attention** \
+
+        This endpoint is only available in the sandbox environment for testing purposes. In production, the header accounts are opened manually and this endpoint is not accessible.
+
+
+        Creates a header account together with `VIRTUAL_SUSPENSE` and `VIRTUAL_PANDL` accounts. Returned header account ID can be used for creating Virtual Accounts in the sandbox environment.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVirtualHierarchyRequest'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateVirtualHierarchyResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Virtual Account Management
+components:
+  schemas:
+    Account1:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/Currency'
+        balance:
+          allOf:
+          - $ref: '#/components/schemas/AccountBalance'
+          - description: The balance of the account after the transaction has been processed.
+      required:
+      - currency
+      - balance
+    TransactionReference:
+      type:
+      - string
+      - 'null'
+      description: Transaction reference
+      example: INV-12345
+    CreateVirtualHierarchyRequest:
+      type: object
+      title: Create Virtual Hierarchy Request
+      description: Request object that is required to create a virtual hierarchy
+      properties:
+        hierarchyType:
+          $ref: '#/components/schemas/HierarchyType'
+      required:
+      - hierarchyType
+    AccountId:
+      type: string
+      description: Bank of London account ID identifies the account within Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by Bank of London Account API.
+      example: GB-040075-12345678
+    PaymentTransactionV3:
+      type: object
+      title: Payment Transaction
+      description: An incoming or outgoing transaction with a sender and recipient.
+      properties:
+        id:
+          $ref: '#/components/schemas/TransactionId'
+        type:
+          $ref: '#/components/schemas/TransactionTypeV3'
+        typeDescription:
+          $ref: '#/components/schemas/TransactionTypeDescription'
+        scheme:
+          $ref: '#/components/schemas/TransactionScheme'
+        channel:
+          $ref: '#/components/schemas/TransactionChannel'
+        sender:
+          $ref: '#/components/schemas/TransactionSenderV3'
+        recipient:
+          $ref: '#/components/schemas/TransactionRecipientV3'
+        originator:
+          $ref: '#/components/schemas/TransactionOriginator'
+        reference:
+          $ref: '#/components/schemas/TransactionReference'
+        mandateReference:
+          $ref: '#/components/schemas/TransactionMandateReference'
+        notes:
+          $ref: '#/components/schemas/TransactionNotes'
+        amount:
+          $ref: '#/components/schemas/schemas-TransactionAmount'
+        postingDate:
+          $ref: '#/components/schemas/TransactionPostingDate'
+        releaseDateTime:
+          $ref: '#/components/schemas/TransactionReleaseDateTime'
+        valueDate:
+          $ref: '#/components/schemas/TransactionValueDate'
+        createdDateTime:
+          $ref: '#/components/schemas/TransactionCreatedDateTime'
+        fxDetails:
+          allOf:
+          - $ref: '#/components/schemas/TransactionFxDetails'
+          - type:
+            - object
+            - 'null'
+        account:
+          $ref: '#/components/schemas/Account1'
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        paymentOrderId:
+          $ref: '#/components/schemas/PaymentOrderId'
+        isCredit:
+          $ref: '#/components/schemas/TransactionIsCredit'
+        isReturn:
+          $ref: '#/components/schemas/TransactionIsReturn'
+      required:
+      - id
+      - sender
+      - recipient
+      - amount
+      - valueDate
+      - postingDate
+      - createdDateTime
+      - account
+      - status
+      - isCredit
+      - isReturn
+      - type
+      - scheme
+      - typeDescription
+    Status:
+      type: object
+      description: An object that represents the status of Bank of London API entity (e.g. payment status, account status etc.)
+      properties:
+        identifier:
+          type: string
+          description: A machine readable string identifier for the status.
+      required:
+      - identifier
+    CreateAggregatorNodeRequest:
+      type: object
+      title: Create Aggregator Node Request
+      description: Request object that is required to create an aggregator node
+      properties:
+        headerAccountId:
+          $ref: '#/components/schemas/AggregatorNodeHeaderAccountId'
+        parentVirtualAggregatorNodeId:
+          $ref: '#/components/schemas/ParentAggregatorNodeIdRequest'
+        name:
+          $ref: '#/components/schemas/AggregatorNodeName'
+        owner:
+          $ref: '#/components/schemas/AggregatorNodeAccountOwner'
+      required:
+      - headerAccountId
+      - name
+    VirtualAccountBase:
+      properties:
+        id:
+          $ref: '#/components/schemas/AccountId'
+        createdDateTime:
+          $ref: '#/components/schemas/AccountCreatedDateTime'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        balances:
+          $ref: '#/components/schemas/AccountBalances'
+        totals:
+          $ref: '#/components/schemas/AccountTotals'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        accountHolderName:
+          $ref: '#/components/schemas/AccountHolderName'
+        status:
+          $ref: '#/components/schemas/AccountStatus'
+        countryCode:
+          $ref: '#/components/schemas/AccountCountryCode'
+        identifiers:
+          $ref: '#/components/schemas/VirtualAccountIdentifiers'
+        type:
+          $ref: '#/components/schemas/AccountType1'
+        lockType:
+          $ref: '#/components/schemas/AccountLockType'
+        limits:
+          $ref: '#/components/schemas/Limits'
+        interests:
+          $ref: '#/components/schemas/InterestData'
+        accountOwner:
+          $ref: '#/components/schemas/NullableAccountOwner'
+        organisationId:
+          $ref: '#/components/schemas/OrganisationId'
+        headerAccountId:
+          $ref: '#/components/schemas/HeaderAccountId'
+        virtualAggregatorNodeId:
+          $ref: '#/components/schemas/VirtualAccountAggregatorNodeId'
+      required:
+      - id
+      - createdDateTime
+      - currency
+      - balances
+      - status
+      - accountHolderName
+      - nickname
+      - countryCode
+      - type
+      - lockType
+      - headerAccountId
+      - virtualAggregatorNodeId
+      type: object
+      description: Response object of getting a Virtual Account
+    TransactionSearch:
+      type: string
+      description: 'Enables transaction search by `sender.reference`, `recipient.reference`, `recipient.accountHolderName`, `typeDescription`, and `amount.value`.
+
+
+        The search is case-insensitive and supports partial matches. The search query must be a maximum of 30 characters.
+
+
+        You can include multiple words in the search query, separated by spaces. When multiple words are provided, the search returns transactions containing all the words in the query.
+
+
+        If an amount is specified, the search returns both credit and debit transactions matching that amount.
+
+
+        Transactions are ordered by `createdDateTime` by default. You can change the order using the `orderBy` query parameter.
+
+        '
+      maxLength: 30
+    FeeInterestTransactionRecipient:
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the recipient is a oneOf object linked to the **type** in the object.
+
+        The **recipient** oneOf is extensible and new recipient types can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Represents the details of the transaction recipient. This is populated for Interest (Credit) transactions.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/TransactionAccountIdentifierTbol'
+    AggregatorNodeResponse:
+      type: object
+      title: Aggregator Node Response
+      description: Response object for aggregator node operations.
+      properties:
+        id:
+          $ref: '#/components/schemas/AggregatorNodeId'
+        headerAccountId:
+          $ref: '#/components/schemas/AggregatorNodeHeaderAccountId'
+        owner:
+          $ref: '#/components/schemas/AggregatorNodeAccountOwner'
+        name:
+          $ref: '#/components/schemas/AggregatorNodeName'
+        parentVirtualAggregatorNodeId:
+          $ref: '#/components/schemas/ParentAggregatorNodeId'
+          description: The parent Virtual Aggregator Node ID. Note that if it is `null`, then this is the aggregator node at the top of your hierarchy, which has no parent. For more information see [Virtual Account Management](https://developer.tbol.com/docs/overviews/virtual-account-management).
+      required:
+      - id
+      - headerAccountId
+      - name
+    Limits:
+      type:
+      - object
+      - 'null'
+      description: Limits applicable to the account.
+      properties:
+        minimumLimit:
+          type:
+          - number
+          - 'null'
+          description: The minimum balance for the account.
+          format: double
+          example: 0
+    AggregatorNodeAccountOwner:
+      type:
+      - object
+      - 'null'
+      description: Owner of the aggregator node. When it has not been specified the aggregator node will be owned directly by your organisation.
+      properties:
+        type:
+          type: string
+          description: '<span style="color:#f46d2a">**Attention**</span> \
+
+            Please note that the allowed values for the **type** are
+
+            extensible and new can be added in the future without a
+
+            major version change. Please ensure this is factored into your
+
+            application code.
+
+
+            The type of owner
+
+            '
+          enum:
+          - INDIVIDUAL
+          - ORGANISATION
+        id:
+          type: string
+          description: The owner's ID
+          example: hkHcJybfBAKjZac9eiIAr
+      required:
+      - type
+      - id
+    FeeInterestTransactionSender:
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the sender is a oneOf object linked to the **type** in the object.
+
+        The **sender** oneOf is extensible and new sender types can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Represents the details of the transaction sender. This field is populated for Fee (Debit) transactions.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/TransactionAccountIdentifierTbol'
+    VirtualAccountCount:
+      type: number
+      description: A count of the Virtual Accounts under the virtual aggregator node. This includes those both directly and indirectly below the node.
+      example: 201
+    CloseVirtualAccountRequest:
+      type: object
+      title: Close Virtual Account Request
+      description: Request object that is required to close a Virtual Account
+      properties:
+        closureReason:
+          $ref: '#/components/schemas/PhysicalAccountClosureReason'
+        recipient:
+          description: 'Account details where the remaining balance of the
+
+            closed account, any pending interest or transactions (if applicable)
+
+            will be transferred to. The account must be within the same Virtual Account Hierarchy.
+
+            It can be `VIRTUAL_ACCOUNT`, `VIRTUAL_SUSPENSE`, or `VIRTUAL_PANDL` account.
+
+            If omitted, the remaining balance is automatically transferred to the
+
+            `VIRTUAL_SUSPENSE` account in the same Virtual Account Hierarchy; no sort code,
+
+            account number, or account holder name is required.
+
+
+            <span style="color:#f46d2a">**Attention**</span>
+
+            Please note that the recipient is a oneOf object linked to the **type** in the object.
+
+            Currently `UK` is the only available oneOf object
+
+            but the **recipient** oneOf is extensible and new recipient types can be added in the future without a
+
+            major version change. Please ensure this is factored into your
+
+            application code.
+
+
+            Represents the details of the payment recipient.'
+          allOf:
+          - oneOf:
+            - $ref: '#/components/schemas/AccountIdentifierForAccountClosureUk'
+    HierarchyElementResponse:
+      type: object
+      title: Get Hierarchy Response
+      description: Get Hierarchy response object
+      properties:
+        id:
+          type: string
+          description: ID of an element i.e. the Header Account ID, the virtual aggregator node ID or the Virtual Account ID.
+          example: GB-040075-87654321
+        level:
+          type: string
+          description: The level of the hierarchy at which the element is positioned. This position is dynamic, so if levels are added or removed from the hierarchy then the hierarchy level for a particular element could change next time you retrieve the hierarchy. E.g. If a virtual aggregator node is added above a Virtual Account then the level of the Virtual Account would increase by one.
+          example: 1.1.1
+        name:
+          type: string
+          description: The name that has been given to the element.
+          example: My node
+        type:
+          type: string
+          description: The type of element that is being returned.
+          example: VIRTUAL_ACCOUNT
+      required:
+      - id
+      - level
+      - name
+      - type
+    UkSortCode:
+      type: string
+      description: A 6-digit identification number of the bank branch holding the account.
+      example: '123456'
+      minLength: 6
+      maxLength: 6
+    TransactionStatus:
+      type: object
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the status is a oneOf object linked to the **identifier** in the object.
+
+        The **status** oneOf, based on the **identifier** is extensible and new status identifiers can be added in the future without a
+
+        major version change. Please ensure this is factored into your application code.
+
+
+        The processing status of a single transaction.
+
+        '
+      oneOf:
+      - type: object
+        title: SUCCESSFUL
+        properties:
+          identifier:
+            type: string
+            description: The transaction has been processed and posted.
+            enum:
+            - SUCCESSFUL
+        required:
+        - identifier
+    Constraints:
+      type:
+      - object
+      - 'null'
+      description: 'The operational constraints applied to the account.
+
+        This object is present if the account has constraints applied to it.
+
+        '
+      properties:
+        withdrawal:
+          type: object
+          description: Withdrawal constraints.
+          properties:
+            noticePeriod:
+              type: object
+              description: The notice period constraint applied to the account.
+              properties:
+                duration:
+                  type: number
+                  description: The duration of the notice period.
+                  format: double
+                  example: 100
+                unitOfTime:
+                  type: string
+                  description: The unit of time of the notice period duration.
+                  enum:
+                  - DAY
+                  - WEEK
+                  - MONTH
+                  - YEAR
+              required:
+              - duration
+              - unitOfTime
+            nominatedPayees:
+              type:
+              - array
+              - 'null'
+              description: Restrictions of payees. If set, account can only send money to these specific payees. Only applies for external transfers.
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: The name of the payee.
+                    example: Pay Ment
+                  accountNumber:
+                    $ref: '#/components/schemas/UkAccountNumber'
+                  sortCode:
+                    $ref: '#/components/schemas/UkSortCode'
+          required:
+          - noticePeriod
+      required:
+      - withdrawal
+    UpdateVirtualAccountAggregatorNodeId:
+      type:
+      - string
+      - 'null'
+      description: The virtual aggregator node, which is linked to the Virtual Account.
+      example: '0000000012'
+      minLength: 1
+      maxLength: 10
+    InterestData:
+      type:
+      - object
+      - 'null'
+      description: Types of interest and associated properties.
+      properties:
+        AER:
+          $ref: '#/components/schemas/InterestDetail'
+        GROSS:
+          $ref: '#/components/schemas/InterestDetail'
+    TransactionOrderBy:
+      type: string
+      description: 'Enables transactions to be ordered by specific fields.
+
+        '
+      enum:
+      - CREATED_DATE_TIME_DESC
+      - CREATED_DATE_TIME_ASC
+      - RELEASE_DATE_TIME_DESC
+      - RELEASE_DATE_TIME_ASC
+      example: RELEASE_DATE_TIME_DESC
+      default: CREATED_DATE_TIME_DESC
+    AggregatorNodeId:
+      type: string
+      description: ID of an aggregator node.
+      example: '0000000012'
+    AggregatorNodeHeaderAccountId:
+      type: string
+      description: The Header Account associated with the aggregator node.
+      example: GB-042972-98824239
+    ConflictError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 409
+          name:
+            enum:
+            - Conflict
+          message:
+            example: Resource already exists
+    BuyAmount:
+      type: string
+      description: 'The amount being bought in the buy currency (accepts 0, 1, or 2 decimal places).
+
+        '
+      example: '10000.00'
+      pattern: ^[0-9]+(\.[0-9]{1,2})?$
+    TransactionOriginator:
+      type:
+      - object
+      - 'null'
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the originator is a oneOf object linked to the **type** in the object.
+
+        The **originator** oneOf is extensible and new originator types can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Represents the details of the transaction originator.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/TransactionAccountIdentifierUk'
+      - $ref: '#/components/schemas/TransactionAccountIdentifierINTL'
+    ErrorResponseDetails:
+      additionalProperties: true
+      properties: {}
+      type:
+      - object
+      - 'null'
+      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
+      example:
+        body.extraProperty:
+          message: '"extraProperty" is an excess property and therefore is not allowed'
+          value: extraProperty
+    AccountNickname:
+      type:
+      - string
+      - 'null'
+      description: User defined name to identify the account.
+      example: Business transactions
+      minLength: 1
+      maxLength: 25
+    TransactionTypeV3:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **type** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        `PAYMENT`: movement of funds which results in debit or credit on a TBOL account, but the other side of the transaction is external to TBOL (the funds were received by TBOL from external sender, or left TBOL to external beneficiary) \
+
+        `DIRECT_DEBIT`: movement of funds which requires a mandate in order to be executed. Currently only applicable to Bacs.  \
+
+        `TRANSFER`: movement of funds between accounts of the same customer within TBOL. \
+
+        `INTERNAL_TRANSFER`: movement of funds between TBOL accounts held by different customers. \
+
+        '
+      enum:
+      - PAYMENT
+      - DIRECT_DEBIT
+      - TRANSFER
+      - INTERNAL_TRANSFER
+    GetAggregatorNodeResponse:
+      type: object
+      title: Get Aggregator Node Response
+      description: Get aggregator node response object
+      properties:
+        id:
+          $ref: '#/components/schemas/AggregatorNodeId'
+        headerAccountId:
+          $ref: '#/components/schemas/AggregatorNodeHeaderAccountId'
+        owner:
+          $ref: '#/components/schemas/AggregatorNodeAccountOwner'
+        name:
+          $ref: '#/components/schemas/AggregatorNodeName'
+        parentVirtualAggregatorNodeId:
+          $ref: '#/components/schemas/ParentAggregatorNodeId'
+          description: The parent Virtual Aggregator Node ID. Note that if it is `null`, then this is the aggregator node at the top of your hierarchy, which has no parent. For more information see [Virtual Account Management](https://developer.tbol.com/docs/overviews/virtual-account-management).
+        currency:
+          $ref: '#/components/schemas/Currency'
+        virtualAccountCount:
+          $ref: '#/components/schemas/VirtualAccountCount'
+        aggregatedBalance:
+          $ref: '#/components/schemas/AggregatedBalance'
+      required:
+      - id
+      - headerAccountId
+      - name
+      - currency
+      - virtualAccountCount
+      - aggregatedBalance
+    CreateVirtualAccountRequest:
+      type: object
+      title: Create Virtual Account Request
+      description: Request object that is required to create a Virtual Account
+      properties:
+        headerAccountId:
+          $ref: '#/components/schemas/HeaderAccountId'
+        virtualAggregatorNodeId:
+          $ref: '#/components/schemas/CreateVirtualAccountAggregatorNodeId'
+        accountOwner:
+          $ref: '#/components/schemas/NullableAccountOwner'
+      required:
+      - headerAccountId
+    AccountCountryCode:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **countryCode** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        The country code in which the account resides.
+
+        '
+      enum:
+      - GB
+      example: GB
+    TransactionChannel:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **channel** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Only used for payments initiated by Bank of London clients, otherwise null is
+
+        returned. It confirms payments initiation channel used to instruct
+
+        the payment.
+
+        '
+      enum:
+      - BACK_OFFICE
+      - STANDING_ORDER
+      - ACCOUNT_CLOSURE
+      - API
+      - ONLINE_BANKING
+      - OPEN_BANKING
+    CreateVirtualHierarchyResponse:
+      type: object
+      title: Create Virtual Hierarchy Response
+      description: Create virtual hierarchy response object
+      properties:
+        headerAccountId:
+          type: string
+          description: ID of created header account, which can be used for creating virtual accounts.
+          example: false
+      required:
+      - headerAccountId
+    AggregatorNodeName:
+      type: string
+      description: User defined name to identify the aggregator node.
+      example: My node
+      minLength: 1
+      maxLength: 60
+    TransactionAccountIdentifierTbol:
+      type: object
+      title: TBOL
+      properties:
+        type:
+          type: string
+          enum:
+          - TBOL
+        accountId:
+          $ref: '#/components/schemas/AccountId'
+        accountHolderName:
+          type: string
+          description: Name of the account holder which is issuing or receiving a payment.
+          example: Pay Ment
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+      required:
+      - type
+      - accountId
+      - sortCode
+      - accountNumber
+      - accountHolderName
+    InternalServerError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          name:
+            enum:
+            - InternalServerError
+          status:
+            enum:
+            - 500
+          message:
+            example: Request failed with status code 500
+    TransactionAccountIdentifierUk:
+      type: object
+      title: UK
+      properties:
+        type:
+          type: string
+          enum:
+          - UK
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+        accountHolderName:
+          type: string
+          description: Name of the account holder which is issuing or receiving a payment.
+          example: Pay Ment
+      required:
+      - type
+      - sortCode
+      - accountNumber
+      - accountHolderName
+    PaymentOrderId:
+      type:
+      - string
+      - 'null'
+      description: An ID that allows the linkage of a transaction and a payment
+      example: S4B1  20240510000000065638
+    AccountType1:
+      type: string
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the allowed values for the **type** are\nextensible and new can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nThe type of account \\\n  `VIRTUAL_ACCOUNT`: Virtual Account. Accounts can be internally or externally addressable, both forms support direct and indirect payments. \\\n  `VIRTUAL_SUSPENSE`: Virtual Suspense Account. Manages the balancing of the virtual hierarchy in case of an unreconciled payment. \\\n  `VIRTUAL_PANDL`: Virtual Profit & Loss Account. Allows profit to be taken from Virtual Account hierarchy by having different interest between real and virtual hierarchies.\n"
+      enum:
+      - VIRTUAL_ACCOUNT
+      - VIRTUAL_SUSPENSE
+      - VIRTUAL_PANDL
+    TransactionCreatedDateTime:
+      type: string
+      description: The date when the transaction was created.
+      format: date-time
+      example: '2022-10-07T08:55:33.213Z'
+    OrganisationId:
+      type:
+      - string
+      - 'null'
+      description: ID of an organisation. When it is not specified, it is then implied that individual is linked to your organisation directly.
+      example: u5vab5K9RZFTTzNJNAs3H
+    TransactionIsCreditQueryParam:
+      type: boolean
+      description: 'Returns the transactions that are credit (`isCredit=true`) or debit (`isCredit=false`). If not provided, both credit and debit transactions are returned.
+
+        '
+      example: true
+    TransactionIsCredit:
+      type: boolean
+      description: 'Boolean, where `true` means credit, `false` stands for debit.
+
+        '
+      example: true
+    CreateVirtualAccountResponse:
+      type: object
+      title: Create Virtual Account Response
+      description: Create Virtual Account response object
+      properties:
+        id:
+          type: string
+          description: The Virtual Account identifier
+          example: GB-040075-87654321
+        currency:
+          $ref: '#/components/schemas/Currency'
+        type:
+          type: string
+          enum:
+          - VIRTUAL_ACCOUNT
+          description: 'Type of account. \
+
+            `VIRTUAL_ACCOUNT`: Virtual Deposit Account. Accounts can be internally or externally addressable, both forms support direct and indirect payments.
+
+            '
+        headerAccountId:
+          $ref: '#/components/schemas/HeaderAccountId'
+        accountOwner:
+          $ref: '#/components/schemas/NullableAccountOwner'
+      required:
+      - id
+      - currency
+      - type
+      - headerAccountId
+    MetaData:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of available records for the query.
+          example: 100
+        page:
+          type: integer
+          description: The page number returned for the query.
+          example: 1
+        pageSize:
+          type: integer
+          description: The number of records per page for the query.
+          example: 20
+      required:
+      - totalRecords
+      - page
+      - pageSize
+    AccountBalance:
+      type: number
+      format: double
+      example: 5000
+    TransactionIsReturn:
+      type: boolean
+      description: Boolean, where `true` means the funds are returned (depending on the original payment direction could be a debit or a credit), otherwise `false` implying a fresh payment.
+    BadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 400
+          name:
+            enum:
+            - BadRequest
+          message:
+            example: The request has validation errors
+    Iban:
+      type: string
+      description: Account identifier in an IBAN format
+      example: GB98TBOL12345612345678
+    ParentAggregatorNodeIdRequest:
+      type:
+      - string
+      - 'null'
+      description: This allows you to set where in the virtual hierarchy your virtual aggregator node will be positioned. Virtual aggregator nodes can be nested one under another if required. When parentVirtualAggregatorNodeId is not provided, the virtual aggregator node you are creating will be placed under the default virtual aggregator node at the top of your hierarchy. The ID of the default virtual aggregator node is returned in the response.
+      example: '0000000012'
+    CreateAggregatorNodeResponse:
+      type: object
+      title: Aggregator Node Response
+      description: Response object for created virtual aggregator node.
+      properties:
+        id:
+          $ref: '#/components/schemas/AggregatorNodeId'
+        headerAccountId:
+          $ref: '#/components/schemas/AggregatorNodeHeaderAccountId'
+        owner:
+          $ref: '#/components/schemas/AggregatorNodeAccountOwner'
+        name:
+          $ref: '#/components/schemas/AggregatorNodeName'
+        parentVirtualAggregatorNodeId:
+          $ref: '#/components/schemas/CreateParentAggregatorNodeIdResponse'
+      required:
+      - id
+      - headerAccountId
+      - name
+      - parentVirtualAggregatorNodeId
+    GetSingleVirtualAccountResponse:
+      allOf:
+      - $ref: '#/components/schemas/VirtualAccountBase'
+      - type: object
+        properties:
+          constraints:
+            $ref: '#/components/schemas/Constraints'
+    HeaderAccountId:
+      type: string
+      description: The Header Account associated with the Virtual Account.
+      example: GB-042972-98824239
+    TransactionFeeScheme:
+      type: string
+      description: 'Payment rails for underlying transaction.
+
+        '
+      enum:
+      - INTERNAL
+    AccountHolderName:
+      type: string
+      description: Name of the account holder which is issuing or receiving a payment.
+      example: Pay Ment
+    CreateVirtualAccountAggregatorNodeId:
+      type:
+      - string
+      - 'null'
+      description: When this field is provided, the Virtual Account is associated with a virtual aggregator node. The virtual aggregator node can then be used to retrieve all transactions for the associated Virtual Accounts.
+      example: '0000000012'
+      minLength: 1
+      maxLength: 10
+    TransactionId:
+      type: string
+      description: Bank of London transaction ID identifies the transaction within Bank of London API platform.
+      example: 0022484107DB1EED9D85FA3B8119427D001
+    AccountIdentifierForAccountClosureUk:
+      type: object
+      title: UK
+      properties:
+        type:
+          type: string
+          enum:
+          - UK
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+        accountHolderName:
+          type: string
+          description: Name of the account holder.
+          example: Pay Ment
+      required:
+      - type
+      - sortCode
+      - accountNumber
+      - accountHolderName
+    VirtualAccountIdentifiers:
+      type: object
+      description: Identifiers are returned when applicable. The `identifiers` object is omitted for `VIRTUAL_SUSPENSE` and `VIRTUAL_PANDL` accounts without account identifiers.
+      properties:
+        uk:
+          type: object
+          description: Identifier of a bank account within the United Kingdom.
+          properties:
+            accountNumber:
+              $ref: '#/components/schemas/UkAccountNumber'
+            sortCode:
+              $ref: '#/components/schemas/UkSortCode'
+          required:
+          - accountNumber
+          - sortCode
+        iban:
+          $ref: '#/components/schemas/Iban'
+      required:
+      - uk
+      - iban
+    UkAccountNumber:
+      type: string
+      description: In the UK, most bank account numbers consist of eight digits. Some UK banks have shorter account numbers, the number `0` should not be prefixed in those cases. Generally, an account number is only relevant in conjunction with a sort code.
+      example: '12345678'
+      minLength: 6
+      maxLength: 8
+    VirtualAccountAggregatorNodeId:
+      type: string
+      description: The id of virtual aggregator node, which can be used to retrieve all transactions for the associated Virtual Accounts.
+      example: '0000000012'
+    TransactionTypeDescription:
+      type: string
+      description: 'A short description of the transaction type.
+
+        '
+      example: Internal transfer
+    TransactionFeeTypeV3:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **type** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        `FEE`: any type of fee deducted for periodic billing or other operational processes. \
+
+        `INTEREST`: any type of interest applied to TBOL account`
+
+        '
+      enum:
+      - FEE
+      - INTEREST
+    TransactionMandateReference:
+      type:
+      - string
+      - 'null'
+      description: The reference to the mandate ID for Direct Debit transactions
+      example: MAND001
+    InterestDetail:
+      type:
+      - object
+      - 'null'
+      description: The unit and value of interest.
+      properties:
+        unit:
+          $ref: '#/components/schemas/InterestDetailUnit'
+        value:
+          type: number
+          format: double
+          example: 0.5
+      required:
+      - unit
+      - value
+    QuoteBuyCurrency:
+      type: string
+      description: 'The ISO 4217 currency code representing the currency being bought. This value must correspond to the currency of the destination account to which funds are credited.
+
+        '
+      enum:
+      - GBP
+      - EUR
+      - USD
+      example: USD
+    schemas-TransactionAmount:
+      allOf:
+      - description: The monetary value of the transaction as booked on The Bank of London account
+      - $ref: '#/components/schemas/TransactionAmount'
+    AccountOwnership1:
+      type: string
+      default: ALL
+      description: 'Supplying the `accountOwnership` will return Virtual Accounts for specific ownership. \
+
+        `ALL`: all Virtual Accounts directly and indirectly linked to the requestor \
+
+        `DIRECT`: Virtual Accounts directly linked to the requestor \
+
+        `INDIRECT`: Virtual Accounts for both individuals and organisations
+
+        '
+      example: ALL
+      enum:
+      - ALL
+      - DIRECT
+      - INDIRECT
+    AccountCreatedDateTime:
+      type: string
+      description: The date and time when the account was created.
+      format: date-time
+      example: '2022-01-30T08:30:00Z'
+    HierarchyType:
+      type: string
+      enum:
+      - NEGATIVE_BALANCE_ENABLED
+      - POSITIVE_BALANCE_ENFORCED
+      description: 'Type of virtual hierarchy. \
+
+        `NEGATIVE_BALANCE_ENABLED`: Hierarchy with enabled negative balance. Balances of Virtual Accounts in such hierarchy can drop below zero as long as header account has sufficient balance. \
+
+        `POSITIVE_BALANCE_ENFORCED`: Hierarchy with enforced positive balance. Balances of Virtual Accounts in such hierarchy can not drop below 0.
+
+        '
+    PhysicalAccountClosureReason:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **type** are
+
+        extensible and new can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        The reason for the account cloosure. \
+
+        `CUST_INITIATED`: Customer initiated the closure of the account. \
+
+        `CUST_DECEASED`: Customer is deceased. \
+
+        `FRAUD_AML`: Account or customer linked to fraud. \
+
+        `ACCT_TRANSFER`: Account was transferred to another bank.
+
+        '
+      enum:
+      - CUST_INITIATED
+      - CUST_DECEASED
+      - FRAUD_AML
+      - ACCT_TRANSFER
+    TransactionPaymentOrderId:
+      type: string
+      description: 'Filters transactions associated with the specified paymentOrderId.
+
+        '
+    AccountStatus:
+      allOf:
+      - $ref: '#/components/schemas/Status'
+      - description: '<span style="color:#f46d2a">**Attention**</span> \
+
+          Please note that the oneOf status is extensible and new objects can be returned
+
+          with the new account status **identifier** in the future without a major version change.
+
+          Please ensure this is factored into your application code.
+
+
+          The current status of the account.
+
+          '
+      - oneOf:
+        - title: ACTIVE
+          properties:
+            identifier:
+              enum:
+              - ACTIVE
+              description: Account is active and can be used to process payments.
+        - title: CLOSED
+          properties:
+            identifier:
+              enum:
+              - CLOSED
+              description: Account is closed.
+    UnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 401
+          name:
+            enum:
+            - Unauthorized
+          message:
+            example: Missing x-jws-signature header
+    InterestDetailUnit:
+      description: The unit of interest.
+      type: string
+      enum:
+      - '%'
+    TransactionFromDate:
+      type: string
+      description: 'The oldest posting date from which the transactions will be
+
+        provided.
+
+        '
+      format: date
+      example: '2022-10-07'
+    TransactionToDate:
+      type: string
+      description: 'The most recent posting date from which the transactions will be
+
+        provided.
+
+        '
+      format: date
+      example: '2022-10-07'
+    AccountBalances:
+      type: object
+      description: Account balances.
+      properties:
+        available:
+          type: number
+          description: 'The available balance is the amount of money that the account holder
+
+            can withdraw immediately.
+
+            Note: For Virtual Accounts with negative balance enabled, the available balance will not be displayed in the response body as the available balance is only applicable to the Header Account.
+
+            '
+          format: double
+          example: 1000
+        current:
+          type: number
+          description: The current balance includes any pending transactions that have not yet been cleared.
+          format: double
+          example: 2000
+      required:
+      - current
+    UpdateVirtualAccountRequest:
+      type: object
+      title: Update Virtual Account Request
+      description: Request object that is required to update a Virtual Account
+      properties:
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        virtualAggregatorNodeId:
+          $ref: '#/components/schemas/UpdateVirtualAccountAggregatorNodeId'
+    TransactionAmount:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/Currency'
+        value:
+          type: number
+          description: The amounts value assuming the provided unit under currency.
+          format: double
+          example: 4320.5
+      required:
+      - currency
+      - value
+    ForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 403
+          name:
+            enum:
+            - Forbidden
+          message:
+            example: You do not have permission to access this resource
+    UpdateAggregatorNodeRequest:
+      type: object
+      title: Update Aggregator Node Request
+      description: Request object that is required to update an aggregator node.
+      properties:
+        name:
+          $ref: '#/components/schemas/AggregatorNodeName'
+        parentVirtualAggregatorNodeId:
+          $ref: '#/components/schemas/ParentAggregatorNodeId'
+      oneOf:
+      - properties:
+          name:
+            $ref: '#/components/schemas/AggregatorNodeName'
+          parentVirtualAggregatorNodeId:
+            $ref: '#/components/schemas/ParentAggregatorNodeId'
+          owner:
+            $ref: '#/components/schemas/AggregatorNodeAccountOwner'
+    TransactionNotes:
+      type:
+      - string
+      - 'null'
+      description: An arbitrary string attached to the transaction. Max length is 140 characters.
+      example: My transaction
+    ExchangeRate:
+      type: string
+      description: 'FX rate rounded off to 4 decimal places
+
+        '
+      example: '1.2750'
+      pattern: ^[0-9]+\.[0-9]{4}$
+    ValidationError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 422
+          name:
+            enum:
+            - ValidationFailure
+            - UnprocessableEntity
+          message:
+            example: Validation Failed
+    NullableAccountOwner:
+      type:
+      - object
+      - 'null'
+      description: Owner of the account. When it is not specified the account will be owned directly by your organisation.
+      properties:
+        type:
+          type: string
+          description: '<span style="color:#f46d2a">**Attention**</span> \
+
+            Please note that the allowed values for the **type** are
+
+            extensible and new can be added in the future without a
+
+            major version change. Please ensure this is factored into your
+
+            application code.
+
+
+            The type of owner
+
+            '
+          enum:
+          - INDIVIDUAL
+          - ORGANISATION
+        id:
+          type: string
+          description: The owner's ID
+          example: hkHcJybfBAKjZac9eiIAr
+      required:
+      - type
+      - id
+    TransactionReleaseDateTime:
+      type:
+      - string
+      - 'null'
+      description: The date when the transaction was released. This date is generally the same as the posting date unless the transaction was delayed awaiting approval.
+      format: date-time
+      example: '2022-10-07T08:55:33.213Z'
+    CreateParentAggregatorNodeIdResponse:
+      type: string
+      description: ID of parent Virtual Aggregator Node as specified in the request. Where it wasn't specified in the request this is the ID of the default virtual aggregator node at the top of your hierarchy. Note, that for POST requests this value is always returned. However, this value can be `null` when sending GET request for the aggregator node at the top of your hierarchy. For more information see [Virtual Account Management](https://developer.tbol.com/docs/overviews/virtual-account-management).
+      example: '0000000355'
+    TransactionAccountIdentifierINTL:
+      type: object
+      title: INTL
+      properties:
+        type:
+          type: string
+          enum:
+          - INTL
+        accountHolderName:
+          type: string
+          description: Name of the account holder which is issuing or receiving a payment.
+          example: Pay Ment
+        iban:
+          type:
+          - string
+          - 'null'
+          description: Account identifier in an IBAN format
+          example: GB98TBOL12345612345678
+        accountNumber:
+          type:
+          - string
+          - 'null'
+          description: Account identifier of the sender. International account numbers supported which could be up to 34 characters.
+        bic:
+          type:
+          - string
+          - 'null'
+          description: Bank Identifier Code.
+      required:
+      - type
+      - accountHolderName
+    FeeInterestTransactionV3:
+      type: object
+      title: Fee/Interest Transaction
+      description: A transaction for fee or earned interest.
+      properties:
+        id:
+          $ref: '#/components/schemas/TransactionId'
+        type:
+          $ref: '#/components/schemas/TransactionFeeTypeV3'
+        typeDescription:
+          $ref: '#/components/schemas/TransactionTypeDescription'
+        scheme:
+          $ref: '#/components/schemas/TransactionFeeScheme'
+        channel:
+          $ref: '#/components/schemas/TransactionChannel'
+        sender:
+          $ref: '#/components/schemas/FeeInterestTransactionSender'
+        recipient:
+          $ref: '#/components/schemas/FeeInterestTransactionRecipient'
+        amount:
+          $ref: '#/components/schemas/schemas-TransactionAmount'
+        postingDate:
+          $ref: '#/components/schemas/TransactionPostingDate'
+        releaseDateTime:
+          $ref: '#/components/schemas/TransactionReleaseDateTime'
+        valueDate:
+          $ref: '#/components/schemas/TransactionValueDate'
+        createdDateTime:
+          $ref: '#/components/schemas/TransactionCreatedDateTime'
+        account:
+          $ref: '#/components/schemas/Account2'
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        isCredit:
+          $ref: '#/components/schemas/TransactionIsCredit'
+        isReturn:
+          $ref: '#/components/schemas/TransactionIsReturn'
+      required:
+      - id
+      - amount
+      - valueDate
+      - postingDate
+      - createdDateTime
+      - account
+      - status
+      - isCredit
+      - isReturn
+      - type
+      - scheme
+      - typeDescription
+    AccountStatusFilter:
+      type: string
+      enum:
+      - ACTIVE
+      - CLOSED
+      - ALL
+      description: 'Supplying the `status` will return accounts with specific status only.
+
+        '
+      default: ACTIVE
+    ParentAggregatorNodeId:
+      type:
+      - string
+      - 'null'
+      description: ID of parent Virtual Aggregator Node.
+      example: '0000000355'
+    TransactionScheme:
+      type: string
+      description: 'Payment rails for underlying transaction.
+
+        '
+      enum:
+      - BACS
+      - CHAPS
+      - FPS
+      - INTERNAL
+      - SWIFT
+      - CROSSBORDER
+    Account2:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/Currency'
+        balance:
+          allOf:
+          - $ref: '#/components/schemas/AccountBalance'
+          - description: The balance of the account after the transaction has been processed.
+      required:
+      - currency
+      - balance
+    QuoteSellCurrency:
+      type: string
+      description: 'The ISO 4217 currency code representing the currency being sold. This value must correspond to the currency of the source account from which funds are debited.
+
+        '
+      enum:
+      - GBP
+      - EUR
+      - USD
+      example: GBP
+    NotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 404
+          name:
+            enum:
+            - NotFound
+          message:
+            example: The requested resource was not found
+    Currency:
+      type: string
+      enum:
+      - GBP
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **currency** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        `GBP`: British Pound Sterling
+
+        '
+      example: GBP
+    AccountTotals:
+      type: object
+      description: Totals for an account.
+      properties:
+        totalMonthlyCreditInterestAccrued:
+          type: number
+          description: The amount of interest accrued on the account in the current month. This interest is not yet paid.
+          format: double
+          example: 1000
+          default: 0
+        totalCreditInterestPaid:
+          type: number
+          description: The total interest paid on the account since the account was opened.
+          format: double
+          example: 1000
+          default: 0
+        totalCreditsCurrentMonth:
+          type: number
+          description: The total credits on the account in the current month.
+          format: double
+          example: 1000
+          default: 0
+        totalDebitsCurrentMonth:
+          type: number
+          description: The total debits on the account in the current month.
+          format: double
+          example: 1000
+          default: 0
+      required:
+      - totalMonthlyCreditInterestAccrued
+      - totalCreditInterestPaid
+      - totalCreditsCurrentMonth
+      - totalDebitsCurrentMonth
+    TransactionPostingDate:
+      type: string
+      description: The date when the transaction was posted and is reflected on the balance of an account.
+      format: date
+      example: '2022-10-07'
+    CloseAccountResponse:
+      type: object
+      title: Close Account Response
+      description: Close account response object
+      properties:
+        id:
+          type: string
+          description: The account identifier of the closed account.
+          example: GB-040075-87654321
+        status:
+          type: object
+          properties:
+            identifier:
+              type: string
+              description: The status of the account
+              example: CLOSED
+              enum:
+              - CLOSED
+      required:
+      - id
+      - status
+    AggregatedBalance:
+      type: number
+      description: The sum of the balances of the Virtual Accounts under the virtual aggregator node. This includes the balances of Virtual Accounts both directly and indirectly below the node.
+      format: double
+      example: 1000
+    TransactionSenderV3:
+      description: 'Represents the details of the transaction sender.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/TransactionAccountIdentifierTbol'
+      - $ref: '#/components/schemas/TransactionAccountIdentifierUk'
+      - $ref: '#/components/schemas/TransactionAccountIdentifierINTL'
+    TransactionFxDetails:
+      type: object
+      title: Transaction FX Details
+      description: 'Foreign exchange details for the transaction.
+
+        '
+      properties:
+        exchangeRate:
+          $ref: '#/components/schemas/ExchangeRate'
+        sell:
+          type: object
+          description: Sell currency details
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteSellCurrency'
+            amount:
+              $ref: '#/components/schemas/SellAmount'
+          required:
+          - currency
+          - amount
+        buy:
+          type: object
+          description: Buy currency details
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteBuyCurrency'
+            amount:
+              $ref: '#/components/schemas/BuyAmount'
+          required:
+          - currency
+          - amount
+      required:
+      - exchangeRate
+      - sell
+      - buy
+    TransactionRecipientV3:
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the recipient is a oneOf object linked to the **type** in the object.
+
+        The **recipient** oneOf is extensible and new recipient types can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Represents the details of the transaction recipient.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/TransactionAccountIdentifierTbol'
+      - $ref: '#/components/schemas/TransactionAccountIdentifierUk'
+      - $ref: '#/components/schemas/TransactionAccountIdentifierINTL'
+    SellAmount:
+      type: string
+      description: 'The amount being sold in the sell currency (accepts 0, 1, or 2 decimal places).
+
+        '
+      example: '8500.00'
+      pattern: ^[0-9]+(\.[0-9]{1,2})?$
+    AccountLockType:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **lockType** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        The lock type of the account. \
+
+        `NONE` - account is not locked. \
+
+        `GENERAL` - account is locked and reason is not specified. \
+
+        `LOW_BALANCE` - account is locked due to minimum balance being reached.
+
+        '
+      enum:
+      - NONE
+      - GENERAL
+      - LOW_BALANCE
+    ErrorResponseJSON:
+      additionalProperties: false
+      properties:
+        status:
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        details:
+          $ref: '#/components/schemas/ErrorResponseDetails'
+        code:
+          type:
+          - string
+          - 'null'
+          description: A unique code for the error, if available.
+      type: object
+    TransactionValueDate:
+      type: string
+      description: The date and time when the transaction was actually valued. This is generally the same as the posting date unless the transaction takes place on a weekend or bank holiday.
+      format: date
+      example: '2022-10-07'
+  parameters:
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+      required: false
+      description: The page number of the result set to be returned.
+    PageSize:
+      in: query
+      name: pageSize
+      required: false
+      schema:
+        type: integer
+        description: The number of items to be returned per page.
+        default: 20
+        minimum: 1
+        maximum: 50
+    JwsSignature:
+      in: header
+      name: x-jws-signature
+      description: A JSON web signature representing signed content using JSON data structures. It contains contextual information from the request signed using a private key generated within Bank of London Developer Studio application.
+      content:
+        application/json:
+          schema:
+            type: string
+  responses:
+    '401':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+      description: Unauthorized
+    '409':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConflictError'
+      description: Conflict
+    '422':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+      description: Validation Failed
+    '404':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+      description: Not Found
+    '403':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+      description: Forbidden
+    '400':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+      description: Bad Request
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error

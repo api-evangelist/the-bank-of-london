@@ -1,0 +1,481 @@
+openapi: 3.2.0
+info:
+  title: Bank of London Statements API
+  version: 2.0.0
+  description: ''
+servers:
+- description: Sandbox
+  url: https://sandbox-api.bankoflondon.com/
+- description: Live
+  url: https://api.bankoflondon.com/
+- description: Mock Server
+  url: https://developer.bankoflondon.com/api/mock/the-bank-of-london-api
+tags:
+- name: Statements
+paths:
+  /v2/statements:
+    get:
+      operationId: GetStatements
+      summary: Get Statements
+      description: 'The API retrieves a list of statements along with the statement ID
+
+        to be able to download a specific statement later via `GET /statements/{statementID}/download`.
+
+
+        It can be filtered by the `accountId`, `startDate`, `endDate`, and `type` to narrow down the result
+
+        set.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: query
+        name: accountId
+        required: false
+        schema:
+          $ref: '#/components/schemas/AccountId'
+      - $ref: '#/components/parameters/StatementStartDateQueryParam'
+      - $ref: '#/components/parameters/StatementEndDateQueryParam'
+      - $ref: '#/components/parameters/StatementTypeQueryParam'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statements:
+                    items:
+                      $ref: '#/components/schemas/Statement'
+                    type: array
+                  metadata:
+                    $ref: '#/components/schemas/MetaData'
+                required:
+                - statements
+                - metadata
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Statements
+  /v2/statements/{statementId}/download:
+    get:
+      operationId: DownloadStatements
+      summary: Download Statements
+      description: 'The ability to download statements. Upon successful request, the API will respond with
+
+        a pdf file.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: path
+        name: statementId
+        required: true
+        schema:
+          $ref: '#/components/schemas/StatementId'
+      - in: query
+        name: accountId
+        required: false
+        description: 'Bank of London account ID identifies the account within the The Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by The Bank of London Account API. This property must be provided when fetching a statement for another customer e.g. a statement belonging to an individual that is linked to your organisation. '
+        schema:
+          $ref: '#/components/schemas/AccountId'
+      responses:
+        '200':
+          description: PDF file with the statement information
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Statements
+components:
+  schemas:
+    StatementType:
+      type: string
+      enum:
+      - TRANSACTION
+      - ANNUAL_INTEREST
+      description: Identifies type of statement
+      example: TRANSACTION
+    AccountId:
+      type: string
+      description: Bank of London account ID identifies the account within Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by Bank of London Account API.
+      example: GB-040075-12345678
+    ErrorResponseDetails:
+      additionalProperties: true
+      properties: {}
+      type:
+      - object
+      - 'null'
+      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
+      example:
+        body.extraProperty:
+          message: '"extraProperty" is an excess property and therefore is not allowed'
+          value: extraProperty
+    Status:
+      type: object
+      description: An object that represents the status of Bank of London API entity (e.g. payment status, account status etc.)
+      properties:
+        identifier:
+          type: string
+          description: A machine readable string identifier for the status.
+      required:
+      - identifier
+    AccountNickname:
+      type:
+      - string
+      - 'null'
+      description: User defined name to identify the account.
+      example: Business transactions
+      minLength: 1
+      maxLength: 25
+    ValidationError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 422
+          name:
+            enum:
+            - ValidationFailure
+            - UnprocessableEntity
+          message:
+            example: Validation Failed
+    StatementName:
+      type: string
+      description: Identifies the end of the statement
+      example: 73975593-march-2024-bank-statement
+    AccountType2:
+      type: string
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the allowed values for the **type** are\nextensible and new can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code. `INSTANT_ACCESS_DEPOSIT` and `FIXED_TERM_DEPOSIT` types have been deprecated \nand no new accounts will be created with these types.\n"
+      enum:
+      - CCA
+      - EASY_ACCESS_DEPOSIT
+      - FIXED_TERM_DEPOSIT
+      - INSTANT_ACCESS_DEPOSIT
+      - NOTICE_DEPOSIT
+      - OPERATING
+      - SEGREGATED
+      - BAAS_PHYSICAL_ACCOUNT
+      - VIRTUAL_ACCOUNT
+    StatementId:
+      type: string
+      description: Bank of London statement ID identifies the statement within Bank of London API platform
+      example: DS40022484107DB1EDE928A6410EA8C811F
+    InternalServerError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          name:
+            enum:
+            - InternalServerError
+          status:
+            enum:
+            - 500
+          message:
+            example: Request failed with status code 500
+    StatementStartDate:
+      type: string
+      description: Identifies the start date of statement's period
+      example: '2024-08-02'
+    NotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 404
+          name:
+            enum:
+            - NotFound
+          message:
+            example: The requested resource was not found
+    MetaData:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of available records for the query.
+          example: 100
+        page:
+          type: integer
+          description: The page number returned for the query.
+          example: 1
+        pageSize:
+          type: integer
+          description: The number of records per page for the query.
+          example: 20
+      required:
+      - totalRecords
+      - page
+      - pageSize
+    Statement:
+      properties:
+        id:
+          $ref: '#/components/schemas/StatementId'
+        startDate:
+          $ref: '#/components/schemas/StatementStartDate'
+        endDate:
+          $ref: '#/components/schemas/StatementEndDate'
+        name:
+          $ref: '#/components/schemas/StatementName'
+        type:
+          $ref: '#/components/schemas/StatementType'
+        accountId:
+          $ref: '#/components/schemas/AccountId'
+        accountStatus:
+          $ref: '#/components/schemas/AccountStatus'
+        accountNickname:
+          $ref: '#/components/schemas/AccountNickname'
+        accountType:
+          $ref: '#/components/schemas/AccountType2'
+      required:
+      - id
+      - startDate
+      - endDate
+      - name
+      - accountId
+      - accountStatus
+      - accountNickname
+      - accountType
+      - type
+      type: object
+      description: Response object of getting a statement
+    BadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 400
+          name:
+            enum:
+            - BadRequest
+          message:
+            example: The request has validation errors
+    AccountStatus:
+      allOf:
+      - $ref: '#/components/schemas/Status'
+      - description: '<span style="color:#f46d2a">**Attention**</span> \
+
+          Please note that the oneOf status is extensible and new objects can be returned
+
+          with the new account status **identifier** in the future without a major version change.
+
+          Please ensure this is factored into your application code.
+
+
+          The current status of the account.
+
+          '
+      - oneOf:
+        - title: ACTIVE
+          properties:
+            identifier:
+              enum:
+              - ACTIVE
+              description: Account is active and can be used to process payments.
+        - title: CLOSED
+          properties:
+            identifier:
+              enum:
+              - CLOSED
+              description: Account is closed.
+    UnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 401
+          name:
+            enum:
+            - Unauthorized
+          message:
+            example: Missing x-jws-signature header
+    ErrorResponseJSON:
+      additionalProperties: false
+      properties:
+        status:
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        details:
+          $ref: '#/components/schemas/ErrorResponseDetails'
+        code:
+          type:
+          - string
+          - 'null'
+          description: A unique code for the error, if available.
+      type: object
+    StatementEndDate:
+      type: string
+      description: Identifies the end date of statement's period
+      example: '2024-08-31'
+  parameters:
+    StatementTypeQueryParam:
+      in: query
+      name: type
+      schema:
+        type: string
+        enum:
+        - TRANSACTION
+        - ANNUAL_INTEREST
+      required: false
+      description: 'Statement `type` to filter by Transaction Statement or Annual Interest Statement.
+
+        '
+      example: TRANSACTION
+    StatementEndDateQueryParam:
+      in: query
+      name: endDate
+      schema:
+        type: string
+      required: false
+      description: 'The most recent `endDate` to which the statements will be provided.
+
+        '
+      example: '2024-08-31'
+    StatementStartDateQueryParam:
+      in: query
+      name: startDate
+      schema:
+        type: string
+      required: false
+      description: 'The oldest `endDate` from which the statements will be provided.
+
+        '
+      example: '2024-08-02'
+    JwsSignature:
+      in: header
+      name: x-jws-signature
+      description: A JSON web signature representing signed content using JSON data structures. It contains contextual information from the request signed using a private key generated within Bank of London Developer Studio application.
+      content:
+        application/json:
+          schema:
+            type: string
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+      required: false
+      description: The page number of the result set to be returned.
+    PageSize:
+      in: query
+      name: pageSize
+      required: false
+      schema:
+        type: integer
+        description: The number of items to be returned per page.
+        default: 20
+        minimum: 1
+        maximum: 50
+  responses:
+    '400':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+      description: Bad Request
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error
+    '401':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+      description: Unauthorized
+    '422':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+      description: Validation Failed
+    '404':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+      description: Not Found

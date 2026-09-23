@@ -1,0 +1,646 @@
+openapi: 3.2.0
+info:
+  title: Bank of London Mandates (Direct Debits) API
+  version: 2.0.0
+  description: ''
+servers:
+- description: Sandbox
+  url: https://sandbox-api.bankoflondon.com/
+- description: Live
+  url: https://api.bankoflondon.com/
+- description: Mock Server
+  url: https://developer.bankoflondon.com/api/mock/the-bank-of-london-api
+tags:
+- name: Mandates (Direct Debits)
+paths:
+  /v2/mandates:
+    get:
+      operationId: GetMandates
+      summary: Get Mandates
+      description: 'This operation allows you to retrieve a list of mandates (aka Direct Debits) along with the mandate ID
+
+        (`id`) to be able to retrieve a specific mandate later via `GET
+
+        /mandates/{mandateId}`.
+
+
+        It must be filtered by Bank of London account ID (`accountId`) to
+
+        retrieve only mandates (aka Direct Debits) for a specific account.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: query
+        name: accountId
+        required: true
+        schema:
+          $ref: '#/components/schemas/AccountId'
+      - in: query
+        name: status
+        required: false
+        schema:
+          type: string
+          description: The status of the mandate
+          enum:
+          - ACTIVE
+          - LOCKED
+          - TO_BE_CONFIRMED
+          - CANCELLED
+          - UNKNOWN
+          example: ACTIVE
+      - in: query
+        name: reference
+        required: false
+        schema:
+          $ref: '#/components/schemas/MandateReference'
+      - in: query
+        name: lastAmountPaid
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 5000
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Mandate'
+                  metadata:
+                    $ref: '#/components/schemas/MetaData'
+                required:
+                - records
+                - metadata
+        '400':
+          $ref: '#/components/responses/AccountIdError'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/BankAccountNotFoundError'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Mandates (Direct Debits)
+  /v2/mandates/{mandateId}:
+    get:
+      operationId: GetMandate
+      summary: Get Mandate
+      description: This operation retrieves a single mandate (aka Direct Debit) by it's ID `mandateId`
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: path
+        name: mandateId
+        required: true
+        schema:
+          $ref: '#/components/schemas/MandateId'
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mandate'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/MandateNotFoundError'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Mandates (Direct Debits)
+  /v2/mandates/{mandateId}/cancel:
+    post:
+      operationId: CancelMandate
+      summary: Cancel Mandate
+      description: This operation cancels a mandate by the ID `mandateId`.
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: path
+        name: mandateId
+        required: true
+        schema:
+          $ref: '#/components/schemas/MandateId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MandateCancel'
+      responses:
+        '200':
+          description: 'Mandate successfully cancelled
+
+            '
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/MandateNotFoundError'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Mandates (Direct Debits)
+components:
+  schemas:
+    AccountId:
+      type: string
+      description: Bank of London account ID identifies the account within Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by Bank of London Account API.
+      example: GB-040075-12345678
+    ErrorResponseDetails:
+      additionalProperties: true
+      properties: {}
+      type:
+      - object
+      - 'null'
+      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
+      example:
+        body.extraProperty:
+          message: '"extraProperty" is an excess property and therefore is not allowed'
+          value: extraProperty
+    ForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 403
+          name:
+            enum:
+            - Forbidden
+          message:
+            example: You do not have permission to access this resource
+    MandateReference:
+      type: string
+      description: The reference to the mandate ID
+      example: MAND001
+    ValidationError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 422
+          name:
+            enum:
+            - ValidationFailure
+            - UnprocessableEntity
+          message:
+            example: Validation Failed
+    MandateType:
+      type: string
+      description: The type of mandate
+      enum:
+      - BACS_DIRECT_DEBIT_MANDATE
+      example: BACS_DIRECT_DEBIT_MANDATE
+    MandateStatus:
+      type: object
+      properties:
+        identifier:
+          type: string
+          description: The status of the mandate
+          enum:
+          - ACTIVE
+          - LOCKED
+          - TO_BE_CONFIRMED
+          - CANCELLED
+          - UNKNOWN
+          example: ACTIVE
+      required:
+      - identifier
+    UkAccountNumber:
+      type: string
+      description: In the UK, most bank account numbers consist of eight digits. Some UK banks have shorter account numbers, the number `0` should not be prefixed in those cases. Generally, an account number is only relevant in conjunction with a sort code.
+      example: '12345678'
+      minLength: 6
+      maxLength: 8
+    MandateScheme:
+      type: string
+      description: The scheme of the mandate
+      example: BACS
+    MandateId:
+      type: string
+      description: 'Bank of London mandate ID identifies the mandate within Bank of London API platform.
+
+        '
+      example: GB-043030-01117536GB86ZZZ176771MAND001
+    InternalServerError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          name:
+            enum:
+            - InternalServerError
+          status:
+            enum:
+            - 500
+          message:
+            example: Request failed with status code 500
+    MandateRecipient:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - UK
+          example: UK
+        accountHolderName:
+          type: string
+          description: The name of the account holder receiving the mandate
+          example: TEST COMPANY LTD
+      required:
+      - type
+      - accountHolderName
+    MandateCancel:
+      type: object
+      description: Request body of mandate cancellation
+      properties:
+        reasonCode:
+          $ref: '#/components/schemas/MandateCancellationReasonCode'
+    UkSortCode:
+      type: string
+      description: A 6-digit identification number of the bank branch holding the account.
+      example: '123456'
+      minLength: 6
+      maxLength: 6
+    MandateLastAmountPaid:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/Currency'
+        value:
+          type: number
+          format: double
+          example: 5000
+      required:
+      - currency
+      - value
+    NotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 404
+          name:
+            enum:
+            - NotFound
+          message:
+            example: The requested resource was not found
+    Currency:
+      type: string
+      enum:
+      - GBP
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **currency** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        `GBP`: British Pound Sterling
+
+        '
+      example: GBP
+    MandateCancellation:
+      type: object
+      properties:
+        canCancel:
+          type: boolean
+          description: Whether the mandate can be cancelled
+          example: true
+        reasonCode:
+          $ref: '#/components/schemas/MandateCancellationReasonCode'
+      required:
+      - canCancel
+    MetaData:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of available records for the query.
+          example: 100
+        page:
+          type: integer
+          description: The page number returned for the query.
+          example: 1
+        pageSize:
+          type: integer
+          description: The number of records per page for the query.
+          example: 20
+      required:
+      - totalRecords
+      - page
+      - pageSize
+    MandateSender:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - TBOL
+          example: TBOL
+        accountId:
+          $ref: '#/components/schemas/AccountId'
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+      required:
+      - type
+      - accountId
+      - sortCode
+      - accountNumber
+    BadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 400
+          name:
+            enum:
+            - BadRequest
+          message:
+            example: The request has validation errors
+    MandateCancellationReasonCode:
+      type: string
+      description: A code representing the reason that a mandate was cancelled
+      enum:
+      - 0_BACS_CANCELLED_BY_PAYMENT_SERVICE_PROVIDER
+      - 1_BACS_CANCELLED_BY_PAYER
+      - 2_BACS_PAYER_DECEASED
+      - B_BACS_ACCOUNT_CLOSED
+      example: 1_BACS_CANCELLED_BY_PAYER
+    UnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 401
+          name:
+            enum:
+            - Unauthorized
+          message:
+            example: Missing x-jws-signature header
+    ErrorResponseJSON:
+      additionalProperties: false
+      properties:
+        status:
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        details:
+          $ref: '#/components/schemas/ErrorResponseDetails'
+        code:
+          type:
+          - string
+          - 'null'
+          description: A unique code for the error, if available.
+      type: object
+    Mandate:
+      type: object
+      description: A mandate object
+      properties:
+        id:
+          $ref: '#/components/schemas/MandateId'
+        type:
+          $ref: '#/components/schemas/MandateType'
+        scheme:
+          $ref: '#/components/schemas/MandateScheme'
+        reference:
+          $ref: '#/components/schemas/MandateReference'
+        sender:
+          $ref: '#/components/schemas/MandateSender'
+        recipient:
+          $ref: '#/components/schemas/MandateRecipient'
+        lastAmountPaid:
+          $ref: '#/components/schemas/MandateLastAmountPaid'
+        status:
+          $ref: '#/components/schemas/MandateStatus'
+        cancellation:
+          $ref: '#/components/schemas/MandateCancellation'
+      required:
+      - id
+      - type
+      - scheme
+      - reference
+      - sender
+      - recipient
+      - status
+      - cancellation
+  responses:
+    '403':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+      description: Forbidden
+    '400':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+      description: Bad Request
+    AccountIdError:
+      description: Not Found
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/NotFoundError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - INVALID_ACCOUNT_ID
+                message:
+                  type: string
+                  example: Invalid accountId <id> provided
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error
+    MandateNotFoundError:
+      description: Not Found
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/NotFoundError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - MANDATE_NOT_FOUND
+                  - BANK_ACCOUNT_NOT_FOUND
+                message:
+                  type: string
+                  example: Bank account with ID <id> not found
+    '401':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+      description: Unauthorized
+    BankAccountNotFoundError:
+      description: Not Found
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/NotFoundError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - BANK_ACCOUNT_NOT_FOUND
+                message:
+                  type: string
+                  example: Bank account with ID <id> not found
+    '422':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+      description: Validation Failed
+  parameters:
+    JwsSignature:
+      in: header
+      name: x-jws-signature
+      description: A JSON web signature representing signed content using JSON data structures. It contains contextual information from the request signed using a private key generated within Bank of London Developer Studio application.
+      content:
+        application/json:
+          schema:
+            type: string
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+      required: false
+      description: The page number of the result set to be returned.
+    PageSize:
+      in: query
+      name: pageSize
+      required: false
+      schema:
+        type: integer
+        description: The number of items to be returned per page.
+        default: 20
+        minimum: 1
+        maximum: 50

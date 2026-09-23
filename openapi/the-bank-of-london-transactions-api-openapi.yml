@@ -1,0 +1,1436 @@
+openapi: 3.2.0
+info:
+  title: Bank of London Transactions API
+  version: 2.0.0
+  description: ''
+servers:
+- description: Sandbox
+  url: https://sandbox-api.bankoflondon.com/
+- description: Live
+  url: https://api.bankoflondon.com/
+- description: Mock Server
+  url: https://developer.bankoflondon.com/api/mock/the-bank-of-london-api
+tags:
+- name: Transactions
+paths:
+  /v3/transactions:
+    get:
+      operationId: GetTransactionsV3
+      summary: Get Transactions V3
+      description: 'This operation allows to retrieve a list of transactions along with the transaction ID
+
+        (`id`) to be able to retrieve a specific transaction later via `GET
+
+        /transactions/{transactionId}`.
+
+
+        It must be filtered by Bank of London account ID (`accountId`) to
+
+        retrieve only transactions for a specific account.
+
+
+        It can also be filtered by the `fromDate`, `toDate`, `type`, `scheme`, `isCredit` fields to narrow down the result set.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: query
+        name: accountId
+        required: false
+        schema:
+          $ref: '#/components/schemas/AccountId'
+      - in: query
+        name: fromDate
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionFromDate'
+      - in: query
+        name: toDate
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionToDate'
+      - in: query
+        name: isCredit
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionIsCreditQueryParam'
+      - in: query
+        name: type
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionTypeV3'
+      - in: query
+        name: scheme
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionQueryScheme'
+      - in: query
+        name: paymentOrderId
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionPaymentOrderId'
+      - in: query
+        name: search
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionSearch'
+      - in: query
+        name: mandateReference
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionMandateReference'
+      - in: query
+        name: orderBy
+        required: false
+        schema:
+          $ref: '#/components/schemas/TransactionOrderBy'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 'Success
+
+            <span style="color:#f46d2a; font-size:14px; font-family:Inter;">**Attention**</span> \
+
+            <span style="font-size:14px; font-family:Inter;">Please note that the oneOf transactions in the **body** below, is extensible and new objects can be
+
+            returned with a new transaction **type**
+
+            in the future without a major version change. Please ensure this is factored into your
+
+            application code.</span>
+
+            '
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      oneOf:
+                      - $ref: '#/components/schemas/PaymentTransactionV31'
+                      - $ref: '#/components/schemas/FeeInterestTransactionV3'
+                  metadata:
+                    $ref: '#/components/schemas/MetaData'
+                required:
+                - transactions
+                - metadata
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Transactions
+  /v3/transactions/{transactionId}:
+    get:
+      operationId: GetTransactionV3
+      summary: Get Transaction V3
+      description: Retrieves a single transaction by its ID `transactionId`.
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: path
+        name: transactionId
+        required: true
+        schema:
+          $ref: '#/components/schemas/TransactionId'
+      responses:
+        '200':
+          description: 'Success
+
+
+            <span style="color:#f46d2a; font-size:14px; font-family:Inter;">**Attention**</span> \
+
+            <span style="font-size:14px; font-family:Inter;">Please note that the oneOf in the **body** below, is extensible and new objects can be
+
+            returned with a new transaction **types**
+
+            in the future without a major version change. Please ensure this is factored into your
+
+            application code.</span>
+
+            '
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/PaymentTransactionV31'
+                - $ref: '#/components/schemas/FeeInterestTransactionV3'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Transactions
+  /v3/transaction-export/{transactionExportId}:
+    get:
+      operationId: GetTransactionExportV3
+      summary: Get Transaction Export V3
+      description: 'This operation retrieves the transaction export record containing `id`, `createdDateTime`, `accountId`, `status` and optional
+
+        `downloadUrl` properties. `downloadUrl` is only returned if the status of the transaction export is `COMPLETED`.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: path
+        name: transactionExportId
+        required: true
+        schema:
+          $ref: '#/components/schemas/TransactionExportId'
+      responses:
+        '200':
+          description: Transaction export
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionExportV3'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Transactions
+  /v3/transaction-export:
+    get:
+      operationId: GetTransactionExportsByAccountIdV3
+      summary: Get Transaction Exports V3
+      description: 'This operation retrieves a paginated list of transaction export records for specified account.
+
+        Note: `downloadUrl` is only returned via `GET v3/transaction-export/{export-id}`'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: query
+        name: accountId
+        required: true
+        schema:
+          $ref: '#/components/schemas/AccountId'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: 'Success
+
+            '
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionExports:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TransactionExportV3WithoutDownloadUrl'
+                  metadata:
+                    $ref: '#/components/schemas/MetaData'
+                required:
+                - transactionExports
+                - metadata
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Transactions
+    post:
+      operationId: InitiateTransactionExportV3
+      summary: Initiate Transaction Export V3
+      description: 'This operation initiates an asynchronous transaction export generation process.
+
+        Returns a record of the transaction export, containing `id`, `createdDateTime`, `accountId` and `status` properties.
+
+
+        Once transaction export generation is complete, user will be notified via web-hook and the resulting export file will
+
+        be available for download. The download url will be found by calling `GET v3/transaction-export/{export-id}`.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiateTransactionExportV3Body'
+      responses:
+        '200':
+          description: Transaction export initiated
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitiateTransactionExportV3Response'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '413':
+          $ref: '#/components/responses/413'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Transactions
+components:
+  schemas:
+    InitiateTransactionExportV3Response:
+      allOf:
+      - $ref: '#/components/schemas/TransactionBaseV3'
+      - type: object
+        description: Response body after initiating transaction export.
+        properties:
+          fileFormat:
+            $ref: '#/components/schemas/TransactionExportFileFormat'
+        required:
+        - fileFormat
+    TransactionReference:
+      type:
+      - string
+      - 'null'
+      description: Transaction reference
+      example: INV-12345
+    RequestEntityTooLargeError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 413
+          name:
+            enum:
+            - RequestEntityTooLarge
+          message:
+            example: Request entity too large
+    AccountId:
+      type: string
+      description: Bank of London account ID identifies the account within Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by Bank of London Account API.
+      example: GB-040075-12345678
+    TransactionSearch:
+      type: string
+      description: 'Enables transaction search by `sender.reference`, `recipient.reference`, `recipient.accountHolderName`, `typeDescription`, and `amount.value`.
+
+
+        The search is case-insensitive and supports partial matches. The search query must be a maximum of 30 characters.
+
+
+        You can include multiple words in the search query, separated by spaces. When multiple words are provided, the search returns transactions containing all the words in the query.
+
+
+        If an amount is specified, the search returns both credit and debit transactions matching that amount.
+
+
+        Transactions are ordered by `createdDateTime` by default. You can change the order using the `orderBy` query parameter.
+
+        '
+      maxLength: 30
+    FeeInterestTransactionRecipient:
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the recipient is a oneOf object linked to the **type** in the object.
+
+        The **recipient** oneOf is extensible and new recipient types can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Represents the details of the transaction recipient. This is populated for Interest (Credit) transactions.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/TransactionAccountIdentifierTbol'
+    FeeInterestTransactionSender:
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the sender is a oneOf object linked to the **type** in the object.
+
+        The **sender** oneOf is extensible and new sender types can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Represents the details of the transaction sender. This field is populated for Fee (Debit) transactions.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/TransactionAccountIdentifierTbol'
+    NullableTransactionFieldsV3:
+      description: 'Returns only the fields that you have specified. If not provided, all fields will be returned.
+
+        '
+      type:
+      - array
+      - 'null'
+      items:
+        type: string
+        enum:
+        - ACCOUNT_HOLDER_NAME
+        - ACCOUNT_NICKNAME
+        - ACCOUNT_NUMBER
+        - ACCOUNT_SORT_CODE
+        - AMOUNT
+        - BALANCE
+        - CHANNEL
+        - COUNTERPARTY_ACCOUNT_BIC
+        - COUNTERPARTY_ACCOUNT_IBAN
+        - COUNTERPARTY_ACCOUNT_NUMBER
+        - COUNTERPARTY_ACCOUNT_SORT_CODE
+        - CURRENCY
+        - DATE
+        - IS_RETURN
+        - PRODUCT_TYPE
+        - REFERENCE
+        - SCHEME
+        - TIME
+        - TRANSACTION_ID
+        - TYPE
+        - TYPE_DESCRIPTION
+        - FX_DETAILS_EXCHANGE_RATE
+        - FX_DETAILS_SELL_CURRENCY
+        - FX_DETAILS_SELL_AMOUNT
+        - FX_DETAILS_BUY_CURRENCY
+        - FX_DETAILS_BUY_AMOUNT
+      example:
+      - ACCOUNT_SORT_CODE
+      - ACCOUNT_NUMBER
+      - FX_DETAILS_EXCHANGE_RATE
+    UkSortCode:
+      type: string
+      description: A 6-digit identification number of the bank branch holding the account.
+      example: '123456'
+      minLength: 6
+      maxLength: 6
+    TransactionStatus:
+      type: object
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the status is a oneOf object linked to the **identifier** in the object.
+
+        The **status** oneOf, based on the **identifier** is extensible and new status identifiers can be added in the future without a
+
+        major version change. Please ensure this is factored into your application code.
+
+
+        The processing status of a single transaction.
+
+        '
+      oneOf:
+      - type: object
+        title: SUCCESSFUL
+        properties:
+          identifier:
+            type: string
+            description: The transaction has been processed and posted.
+            enum:
+            - SUCCESSFUL
+        required:
+        - identifier
+    TransactionOrderBy:
+      type: string
+      description: 'Enables transactions to be ordered by specific fields.
+
+        '
+      enum:
+      - CREATED_DATE_TIME_DESC
+      - CREATED_DATE_TIME_ASC
+      - RELEASE_DATE_TIME_DESC
+      - RELEASE_DATE_TIME_ASC
+      example: RELEASE_DATE_TIME_DESC
+      default: CREATED_DATE_TIME_DESC
+    BuyAmount:
+      type: string
+      description: 'The amount being bought in the buy currency (accepts 0, 1, or 2 decimal places).
+
+        '
+      example: '10000.00'
+      pattern: ^[0-9]+(\.[0-9]{1,2})?$
+    TransactionOriginator:
+      type:
+      - object
+      - 'null'
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the originator is a oneOf object linked to the **type** in the object.
+
+        The **originator** oneOf is extensible and new originator types can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Represents the details of the transaction originator.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/TransactionAccountIdentifierUk'
+      - $ref: '#/components/schemas/TransactionAccountIdentifierINTL'
+    ErrorResponseDetails:
+      additionalProperties: true
+      properties: {}
+      type:
+      - object
+      - 'null'
+      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
+      example:
+        body.extraProperty:
+          message: '"extraProperty" is an excess property and therefore is not allowed'
+          value: extraProperty
+    TransactionTypeV3:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **type** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        `PAYMENT`: movement of funds which results in debit or credit on a TBOL account, but the other side of the transaction is external to TBOL (the funds were received by TBOL from external sender, or left TBOL to external beneficiary) \
+
+        `DIRECT_DEBIT`: movement of funds which requires a mandate in order to be executed. Currently only applicable to Bacs.  \
+
+        `TRANSFER`: movement of funds between accounts of the same customer within TBOL. \
+
+        `INTERNAL_TRANSFER`: movement of funds between TBOL accounts held by different customers. \
+
+        '
+      enum:
+      - PAYMENT
+      - DIRECT_DEBIT
+      - TRANSFER
+      - INTERNAL_TRANSFER
+    TransactionChannel:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **channel** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Only used for payments initiated by Bank of London clients, otherwise null is
+
+        returned. It confirms payments initiation channel used to instruct
+
+        the payment.
+
+        '
+      enum:
+      - BACK_OFFICE
+      - STANDING_ORDER
+      - ACCOUNT_CLOSURE
+      - API
+      - ONLINE_BANKING
+      - OPEN_BANKING
+    TransactionAccountIdentifierTbol:
+      type: object
+      title: TBOL
+      properties:
+        type:
+          type: string
+          enum:
+          - TBOL
+        accountId:
+          $ref: '#/components/schemas/AccountId'
+        accountHolderName:
+          type: string
+          description: Name of the account holder which is issuing or receiving a payment.
+          example: Pay Ment
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+      required:
+      - type
+      - accountId
+      - sortCode
+      - accountNumber
+      - accountHolderName
+    TransactionExportCreatedDateTime:
+      type: string
+      description: The date and time when the transaction export was created.
+      format: date-time
+      example: '2024-07-30T08:30:00Z'
+    InternalServerError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          name:
+            enum:
+            - InternalServerError
+          status:
+            enum:
+            - 500
+          message:
+            example: Request failed with status code 500
+    TransactionAccountIdentifierUk:
+      type: object
+      title: UK
+      properties:
+        type:
+          type: string
+          enum:
+          - UK
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+        accountHolderName:
+          type: string
+          description: Name of the account holder which is issuing or receiving a payment.
+          example: Pay Ment
+      required:
+      - type
+      - sortCode
+      - accountNumber
+      - accountHolderName
+    PaymentOrderId:
+      type:
+      - string
+      - 'null'
+      description: An ID that allows the linkage of a transaction and a payment
+      example: S4B1  20240510000000065638
+    TransactionCreatedDateTime:
+      type: string
+      description: The date when the transaction was created.
+      format: date-time
+      example: '2022-10-07T08:55:33.213Z'
+    TransactionIsCreditQueryParam:
+      type: boolean
+      description: 'Returns the transactions that are credit (`isCredit=true`) or debit (`isCredit=false`). If not provided, both credit and debit transactions are returned.
+
+        '
+      example: true
+    TransactionIsCredit:
+      type: boolean
+      description: 'Boolean, where `true` means credit, `false` stands for debit.
+
+        '
+      example: true
+    TransactionExportV3:
+      allOf:
+      - $ref: '#/components/schemas/TransactionBaseV3'
+      - type: object
+        description: A transaction export object
+        properties:
+          scheme:
+            $ref: '#/components/schemas/TransactionScheme'
+          fileFormat:
+            $ref: '#/components/schemas/TransactionExportFileFormat'
+          downloadUrl:
+            $ref: '#/components/schemas/TransactionExportDownloadUrl'
+        required:
+        - fileFormat
+    MetaData:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of available records for the query.
+          example: 100
+        page:
+          type: integer
+          description: The page number returned for the query.
+          example: 1
+        pageSize:
+          type: integer
+          description: The number of records per page for the query.
+          example: 20
+      required:
+      - totalRecords
+      - page
+      - pageSize
+    AccountBalance:
+      type: number
+      format: double
+      example: 5000
+    TransactionIsReturn:
+      type: boolean
+      description: Boolean, where `true` means the funds are returned (depending on the original payment direction could be a debit or a credit), otherwise `false` implying a fresh payment.
+    BadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 400
+          name:
+            enum:
+            - BadRequest
+          message:
+            example: The request has validation errors
+    TransactionFeeScheme:
+      type: string
+      description: 'Payment rails for underlying transaction.
+
+        '
+      enum:
+      - INTERNAL
+    PaymentTransactionV31:
+      type: object
+      title: Payment Transaction
+      description: An incoming or outgoing transaction with a sender and recipient.
+      properties:
+        id:
+          $ref: '#/components/schemas/TransactionId'
+        type:
+          $ref: '#/components/schemas/TransactionTypeV3'
+        typeDescription:
+          $ref: '#/components/schemas/TransactionTypeDescription'
+        scheme:
+          $ref: '#/components/schemas/TransactionScheme'
+        channel:
+          $ref: '#/components/schemas/TransactionChannel'
+        sender:
+          $ref: '#/components/schemas/TransactionSenderV3'
+        recipient:
+          $ref: '#/components/schemas/TransactionRecipientV3'
+        originator:
+          $ref: '#/components/schemas/TransactionOriginator'
+        reference:
+          $ref: '#/components/schemas/TransactionReference'
+        mandateReference:
+          $ref: '#/components/schemas/TransactionMandateReference'
+        notes:
+          $ref: '#/components/schemas/TransactionNotes'
+        amount:
+          $ref: '#/components/schemas/schemas-TransactionAmount'
+        postingDate:
+          $ref: '#/components/schemas/TransactionPostingDate'
+        releaseDateTime:
+          $ref: '#/components/schemas/TransactionReleaseDateTime'
+        valueDate:
+          $ref: '#/components/schemas/TransactionValueDate'
+        createdDateTime:
+          $ref: '#/components/schemas/TransactionCreatedDateTime'
+        fxDetails:
+          allOf:
+          - $ref: '#/components/schemas/TransactionFxDetails'
+          - type:
+            - object
+            - 'null'
+        account:
+          $ref: '#/components/schemas/Account2'
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        paymentOrderId:
+          $ref: '#/components/schemas/PaymentOrderId'
+        isCredit:
+          $ref: '#/components/schemas/TransactionIsCredit'
+        isReturn:
+          $ref: '#/components/schemas/TransactionIsReturn'
+      required:
+      - id
+      - sender
+      - recipient
+      - amount
+      - valueDate
+      - postingDate
+      - createdDateTime
+      - account
+      - status
+      - isCredit
+      - isReturn
+      - type
+      - scheme
+      - typeDescription
+    TransactionId:
+      type: string
+      description: Bank of London transaction ID identifies the transaction within Bank of London API platform.
+      example: 0022484107DB1EED9D85FA3B8119427D001
+    UkAccountNumber:
+      type: string
+      description: In the UK, most bank account numbers consist of eight digits. Some UK banks have shorter account numbers, the number `0` should not be prefixed in those cases. Generally, an account number is only relevant in conjunction with a sort code.
+      example: '12345678'
+      minLength: 6
+      maxLength: 8
+    TransactionBaseV3:
+      type: object
+      description: Common properties for transactions
+      properties:
+        id:
+          $ref: '#/components/schemas/TransactionExportId'
+        createdDateTime:
+          $ref: '#/components/schemas/TransactionExportCreatedDateTime'
+        accountId:
+          $ref: '#/components/schemas/AccountId'
+        status:
+          $ref: '#/components/schemas/TransactionExportStatus'
+        fromDate:
+          $ref: '#/components/schemas/TransactionFromDate'
+        toDate:
+          $ref: '#/components/schemas/NullableTransactionToDate'
+        isCredit:
+          $ref: '#/components/schemas/NullableTransactionIsCreditQueryParam'
+        fields:
+          $ref: '#/components/schemas/NullableTransactionFieldsV3'
+      required:
+      - id
+      - createdDateTime
+      - accountId
+      - status
+      - fromDate
+    TransactionTypeDescription:
+      type: string
+      description: 'A short description of the transaction type.
+
+        '
+      example: Internal transfer
+    TransactionFeeTypeV3:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **type** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        `FEE`: any type of fee deducted for periodic billing or other operational processes. \
+
+        `INTEREST`: any type of interest applied to TBOL account`
+
+        '
+      enum:
+      - FEE
+      - INTEREST
+    TransactionMandateReference:
+      type:
+      - string
+      - 'null'
+      description: The reference to the mandate ID for Direct Debit transactions
+      example: MAND001
+    QuoteBuyCurrency:
+      type: string
+      description: 'The ISO 4217 currency code representing the currency being bought. This value must correspond to the currency of the destination account to which funds are credited.
+
+        '
+      enum:
+      - GBP
+      - EUR
+      - USD
+      example: USD
+    schemas-TransactionAmount:
+      allOf:
+      - description: The monetary value of the transaction as booked on The Bank of London account
+      - $ref: '#/components/schemas/TransactionAmount'
+    NullableTransactionToDate:
+      type:
+      - string
+      - 'null'
+      description: 'The most recent posting date from which the transactions will be
+
+        provided.
+
+        '
+      format: date
+      example: '2022-10-07'
+    NullableTransactionIsCreditQueryParam:
+      type:
+      - boolean
+      - 'null'
+      description: 'Returns the transactions that are credit (`isCredit=true`) or debit (`isCredit=false`). If not provided, both credit and debit transactions are returned.
+
+        '
+      example: true
+    TransactionExportV3WithoutDownloadUrl:
+      allOf:
+      - $ref: '#/components/schemas/TransactionBaseV3'
+      - type: object
+        description: A transaction export object without download URL
+        properties:
+          fileFormat:
+            $ref: '#/components/schemas/TransactionExportFileFormat'
+        required:
+        - fileFormat
+    TransactionPaymentOrderId:
+      type: string
+      description: 'Filters transactions associated with the specified paymentOrderId.
+
+        '
+    TransactionExportStatus:
+      type: string
+      description: The status of the transaction export.
+      enum:
+      - COMPLETED
+      - REQUESTED
+      - FAILED
+      example: COMPLETED
+    UnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 401
+          name:
+            enum:
+            - Unauthorized
+          message:
+            example: Missing x-jws-signature header
+    TransactionFromDate:
+      type: string
+      description: 'The oldest posting date from which the transactions will be
+
+        provided.
+
+        '
+      format: date
+      example: '2022-10-07'
+    TransactionToDate:
+      type: string
+      description: 'The most recent posting date from which the transactions will be
+
+        provided.
+
+        '
+      format: date
+      example: '2022-10-07'
+    TransactionAmount:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/Currency'
+        value:
+          type: number
+          description: The amounts value assuming the provided unit under currency.
+          format: double
+          example: 4320.5
+      required:
+      - currency
+      - value
+    ForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 403
+          name:
+            enum:
+            - Forbidden
+          message:
+            example: You do not have permission to access this resource
+    TransactionNotes:
+      type:
+      - string
+      - 'null'
+      description: An arbitrary string attached to the transaction. Max length is 140 characters.
+      example: My transaction
+    ExchangeRate:
+      type: string
+      description: 'FX rate rounded off to 4 decimal places
+
+        '
+      example: '1.2750'
+      pattern: ^[0-9]+\.[0-9]{4}$
+    ValidationError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 422
+          name:
+            enum:
+            - ValidationFailure
+            - UnprocessableEntity
+          message:
+            example: Validation Failed
+    InitiateTransactionExportV3Body:
+      type: object
+      description: Request body to initiate a transaction export
+      properties:
+        accountId:
+          $ref: '#/components/schemas/AccountId'
+        fromDate:
+          $ref: '#/components/schemas/TransactionFromDate'
+        fileFormat:
+          $ref: '#/components/schemas/TransactionExportFileFormat'
+        toDate:
+          $ref: '#/components/schemas/NullableTransactionToDate'
+        isCredit:
+          $ref: '#/components/schemas/NullableTransactionIsCreditQueryParam'
+        fields:
+          $ref: '#/components/schemas/NullableTransactionFieldsV3'
+        scheme:
+          $ref: '#/components/schemas/TransactionScheme'
+      required:
+      - accountId
+      - fromDate
+      - fileFormat
+    TransactionExportId:
+      type: string
+      description: 'Identifier of the transaction export within Bank of London API platform.
+
+        '
+      example: bDBqW5smsJPNpoI8u0zy2
+    TransactionExportDownloadUrl:
+      type:
+      - string
+      - 'null'
+      description: The transaction export download url - this is only available when the transaction export status is `COMPLETED`.
+      example: https://export-download-url.com
+    TransactionReleaseDateTime:
+      type:
+      - string
+      - 'null'
+      description: The date when the transaction was released. This date is generally the same as the posting date unless the transaction was delayed awaiting approval.
+      format: date-time
+      example: '2022-10-07T08:55:33.213Z'
+    TransactionQueryScheme:
+      type: string
+      description: 'Returns transactions of the specified transaction scheme.
+
+        '
+      enum:
+      - BACS
+      - CHAPS
+      - FPS
+      - INTERNAL
+      - SWIFT
+      - CROSSBORDER
+    TransactionAccountIdentifierINTL:
+      type: object
+      title: INTL
+      properties:
+        type:
+          type: string
+          enum:
+          - INTL
+        accountHolderName:
+          type: string
+          description: Name of the account holder which is issuing or receiving a payment.
+          example: Pay Ment
+        iban:
+          type:
+          - string
+          - 'null'
+          description: Account identifier in an IBAN format
+          example: GB98TBOL12345612345678
+        accountNumber:
+          type:
+          - string
+          - 'null'
+          description: Account identifier of the sender. International account numbers supported which could be up to 34 characters.
+        bic:
+          type:
+          - string
+          - 'null'
+          description: Bank Identifier Code.
+      required:
+      - type
+      - accountHolderName
+    FeeInterestTransactionV3:
+      type: object
+      title: Fee/Interest Transaction
+      description: A transaction for fee or earned interest.
+      properties:
+        id:
+          $ref: '#/components/schemas/TransactionId'
+        type:
+          $ref: '#/components/schemas/TransactionFeeTypeV3'
+        typeDescription:
+          $ref: '#/components/schemas/TransactionTypeDescription'
+        scheme:
+          $ref: '#/components/schemas/TransactionFeeScheme'
+        channel:
+          $ref: '#/components/schemas/TransactionChannel'
+        sender:
+          $ref: '#/components/schemas/FeeInterestTransactionSender'
+        recipient:
+          $ref: '#/components/schemas/FeeInterestTransactionRecipient'
+        amount:
+          $ref: '#/components/schemas/schemas-TransactionAmount'
+        postingDate:
+          $ref: '#/components/schemas/TransactionPostingDate'
+        releaseDateTime:
+          $ref: '#/components/schemas/TransactionReleaseDateTime'
+        valueDate:
+          $ref: '#/components/schemas/TransactionValueDate'
+        createdDateTime:
+          $ref: '#/components/schemas/TransactionCreatedDateTime'
+        account:
+          $ref: '#/components/schemas/Account2'
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        isCredit:
+          $ref: '#/components/schemas/TransactionIsCredit'
+        isReturn:
+          $ref: '#/components/schemas/TransactionIsReturn'
+      required:
+      - id
+      - amount
+      - valueDate
+      - postingDate
+      - createdDateTime
+      - account
+      - status
+      - isCredit
+      - isReturn
+      - type
+      - scheme
+      - typeDescription
+    TransactionExportFileFormat:
+      type: string
+      description: The file export format. PDF transaction export supports maximum of 2000 transactions.
+      enum:
+      - CSV
+      - PDF
+    TransactionScheme:
+      type: string
+      description: 'Payment rails for underlying transaction.
+
+        '
+      enum:
+      - BACS
+      - CHAPS
+      - FPS
+      - INTERNAL
+      - SWIFT
+      - CROSSBORDER
+    Account2:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/Currency'
+        balance:
+          allOf:
+          - $ref: '#/components/schemas/AccountBalance'
+          - description: The balance of the account after the transaction has been processed.
+      required:
+      - currency
+      - balance
+    QuoteSellCurrency:
+      type: string
+      description: 'The ISO 4217 currency code representing the currency being sold. This value must correspond to the currency of the source account from which funds are debited.
+
+        '
+      enum:
+      - GBP
+      - EUR
+      - USD
+      example: GBP
+    NotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 404
+          name:
+            enum:
+            - NotFound
+          message:
+            example: The requested resource was not found
+    Currency:
+      type: string
+      enum:
+      - GBP
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **currency** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        `GBP`: British Pound Sterling
+
+        '
+      example: GBP
+    TransactionPostingDate:
+      type: string
+      description: The date when the transaction was posted and is reflected on the balance of an account.
+      format: date
+      example: '2022-10-07'
+    TransactionSenderV3:
+      description: 'Represents the details of the transaction sender.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/TransactionAccountIdentifierTbol'
+      - $ref: '#/components/schemas/TransactionAccountIdentifierUk'
+      - $ref: '#/components/schemas/TransactionAccountIdentifierINTL'
+    TransactionFxDetails:
+      type: object
+      title: Transaction FX Details
+      description: 'Foreign exchange details for the transaction.
+
+        '
+      properties:
+        exchangeRate:
+          $ref: '#/components/schemas/ExchangeRate'
+        sell:
+          type: object
+          description: Sell currency details
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteSellCurrency'
+            amount:
+              $ref: '#/components/schemas/SellAmount'
+          required:
+          - currency
+          - amount
+        buy:
+          type: object
+          description: Buy currency details
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteBuyCurrency'
+            amount:
+              $ref: '#/components/schemas/BuyAmount'
+          required:
+          - currency
+          - amount
+      required:
+      - exchangeRate
+      - sell
+      - buy
+    TransactionRecipientV3:
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the recipient is a oneOf object linked to the **type** in the object.
+
+        The **recipient** oneOf is extensible and new recipient types can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Represents the details of the transaction recipient.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/TransactionAccountIdentifierTbol'
+      - $ref: '#/components/schemas/TransactionAccountIdentifierUk'
+      - $ref: '#/components/schemas/TransactionAccountIdentifierINTL'
+    SellAmount:
+      type: string
+      description: 'The amount being sold in the sell currency (accepts 0, 1, or 2 decimal places).
+
+        '
+      example: '8500.00'
+      pattern: ^[0-9]+(\.[0-9]{1,2})?$
+    ErrorResponseJSON:
+      additionalProperties: false
+      properties:
+        status:
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        details:
+          $ref: '#/components/schemas/ErrorResponseDetails'
+        code:
+          type:
+          - string
+          - 'null'
+          description: A unique code for the error, if available.
+      type: object
+    TransactionValueDate:
+      type: string
+      description: The date and time when the transaction was actually valued. This is generally the same as the posting date unless the transaction takes place on a weekend or bank holiday.
+      format: date
+      example: '2022-10-07'
+  responses:
+    '413':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RequestEntityTooLargeError'
+      description: Request Entity Too Large
+    '401':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+      description: Unauthorized
+    '422':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+      description: Validation Failed
+    '404':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+      description: Not Found
+    '403':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+      description: Forbidden
+    '400':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+      description: Bad Request
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error
+  parameters:
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+      required: false
+      description: The page number of the result set to be returned.
+    PageSize:
+      in: query
+      name: pageSize
+      required: false
+      schema:
+        type: integer
+        description: The number of items to be returned per page.
+        default: 20
+        minimum: 1
+        maximum: 50
+    JwsSignature:
+      in: header
+      name: x-jws-signature
+      description: A JSON web signature representing signed content using JSON data structures. It contains contextual information from the request signed using a private key generated within Bank of London Developer Studio application.
+      content:
+        application/json:
+          schema:
+            type: string

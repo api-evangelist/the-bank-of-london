@@ -1,0 +1,1483 @@
+openapi: 3.2.0
+info:
+  title: Bank of London Customer Management API
+  version: 2.0.0
+  description: ''
+servers:
+- description: Sandbox
+  url: https://sandbox-api.bankoflondon.com/
+- description: Live
+  url: https://api.bankoflondon.com/
+- description: Mock Server
+  url: https://developer.bankoflondon.com/api/mock/the-bank-of-london-api
+tags:
+- name: Customer Management
+paths:
+  /v2/individuals:
+    post:
+      operationId: CreateIndividual
+      summary: Create Individual
+      description: 'This operation allows you to setup your customer (individual) via our API.
+
+
+        The endpoint requires you to provide some of the details from your onboarding process
+
+        for us to be able to setup an account and process payment on behalf of your customer.
+
+
+        The endpoint''s response includes an `id`, which is future reference for created customer.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        description: The object containing data about the Individual.
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                namePrefix:
+                  $ref: '#/components/schemas/PersonNamePrefix'
+                firstName:
+                  $ref: '#/components/schemas/PersonFirstName'
+                middleName:
+                  $ref: '#/components/schemas/PersonMiddleName'
+                lastName:
+                  $ref: '#/components/schemas/PersonLastName'
+                nationality:
+                  $ref: '#/components/schemas/Nationality'
+                dateOfBirth:
+                  $ref: '#/components/schemas/DateOfBirth'
+                placeOfBirth:
+                  $ref: '#/components/schemas/PlaceOfBirth'
+                identification:
+                  $ref: '#/components/schemas/NullableIdentification'
+                address:
+                  $ref: '#/components/schemas/PersonAddress'
+                email:
+                  $ref: '#/components/schemas/NullableEmail'
+                phoneNumber:
+                  $ref: '#/components/schemas/NullablePhoneNumber'
+                organisationId:
+                  $ref: '#/components/schemas/OrganisationId'
+              required:
+              - firstName
+              - lastName
+              - nationality
+              - dateOfBirth
+              - address
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Individual'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '409':
+          $ref: '#/components/responses/409'
+        '422':
+          $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Customer Management
+    get:
+      operationId: GetIndividuals
+      summary: Get Individuals
+      description: 'This operation allows you to retrieve all customers (individuals) that have been setup via our API.
+
+        The response provides you with the details on your customers.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: query
+        name: organisationId
+        required: false
+        schema:
+          $ref: '#/components/schemas/OrganisationId'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  individuals:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Individual'
+                  metadata:
+                    $ref: '#/components/schemas/MetaData'
+                required:
+                - individuals
+                - metadata
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Customer Management
+  /v2/individuals/{id}:
+    get:
+      operationId: GetIndividual
+      summary: Get Individual
+      description: This operation allows you to retrieve details of a specific individual.
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/PersonId'
+      - $ref: '#/components/parameters/JwsSignature'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Individual'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Customer Management
+    patch:
+      operationId: PatchIndividual
+      summary: Update Individual
+      description: 'This operation allows you to update information of an existing customer (individual) and can be used
+
+        when any information on the customer you have setup in our system has changed (i.e. name, address).'
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/PersonId'
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        description: The object containing data about the Individual.
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                namePrefix:
+                  $ref: '#/components/schemas/PersonNamePrefix'
+                firstName:
+                  $ref: '#/components/schemas/NullablePersonFirstName'
+                middleName:
+                  $ref: '#/components/schemas/PersonMiddleName'
+                lastName:
+                  $ref: '#/components/schemas/NullablePersonLastName'
+                nationality:
+                  $ref: '#/components/schemas/NullableNationality'
+                dateOfBirth:
+                  $ref: '#/components/schemas/NullableDateOfBirth'
+                placeOfBirth:
+                  $ref: '#/components/schemas/NullablePlaceOfBirth'
+                identification:
+                  $ref: '#/components/schemas/NullableIdentification'
+                address:
+                  $ref: '#/components/schemas/NullablePersonAddress'
+                email:
+                  $ref: '#/components/schemas/NullableEmail'
+                phoneNumber:
+                  $ref: '#/components/schemas/NullablePhoneNumber'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Individual'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '409':
+          $ref: '#/components/responses/409'
+        '422':
+          $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Customer Management
+  /v3/organisations:
+    post:
+      operationId: CreateOrganisationV3
+      summary: Create Organisation v3
+      description: 'This operation allows you to setup your organisation via our API.
+
+
+        The endpoint''s response includes an `id`, which is future reference for created organisation.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        description: The object containing data about the Organisation.
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  $ref: '#/components/schemas/OrganisationName'
+                companyNumber:
+                  $ref: '#/components/schemas/CompanyNumber'
+                foundationDate:
+                  $ref: '#/components/schemas/NullableFoundationDate'
+                address:
+                  $ref: '#/components/schemas/OrganisationAddress'
+                clientType:
+                  $ref: '#/components/schemas/ClientType'
+                regulatoryIdentifier:
+                  $ref: '#/components/schemas/NullableRegulatoryIdentifier'
+              required:
+              - name
+              - companyNumber
+              - address
+              - clientType
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganisationV3'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Customer Management
+    get:
+      operationId: GetOrganisationsV3
+      summary: Get Organisations v3
+      description: 'This operation allows you to retrieve all organisations that have been setup via our API.
+
+        The response provides you with the details on your organisations.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  organisations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrganisationV3'
+                  metadata:
+                    $ref: '#/components/schemas/MetaData'
+                required:
+                - organisations
+                - metadata
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Customer Management
+  /v3/organisations/{id}:
+    get:
+      operationId: GetOrganisationV3
+      summary: Get Organisation v3
+      description: This operation allows you to retrieve details of a specific organisation.
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/OrganisationId1'
+      - $ref: '#/components/parameters/JwsSignature'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganisationV3'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Customer Management
+    patch:
+      operationId: PatchOrganisationV3
+      summary: Update Organisation v3
+      description: 'This operation allows you to update information of an existing organisation and can be used
+
+        when any information on the organisation you have setup in our system has changed (i.e. name, address).'
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/OrganisationId1'
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        description: The object containing data about the Organisation.
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  $ref: '#/components/schemas/NullableOrganisationName'
+                companyNumber:
+                  $ref: '#/components/schemas/NullableCompanyNumber'
+                foundationDate:
+                  $ref: '#/components/schemas/NullableFoundationDate'
+                address:
+                  $ref: '#/components/schemas/NullableOrganisationAddress'
+                clientType:
+                  $ref: '#/components/schemas/NullableClientType'
+                regulatoryIdentifier:
+                  $ref: '#/components/schemas/NullableRegulatoryIdentifier'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganisationV3'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Customer Management
+components:
+  schemas:
+    NullableFoundationDate:
+      type:
+      - string
+      - 'null'
+      description: The date the organisation/company was founded/incorporated
+      example: '1995-10-16'
+    NullableCompanyNumber:
+      type:
+      - string
+      - 'null'
+      description: 'The unique number assigned to the organisation/company when it was
+
+        founded/incorporated with the authorities - i.e. Companies House in the
+
+        UK. Note that if letters are included in the company number, they must
+
+        be upper case.
+
+        '
+      example: '123456'
+      maxLength: 8
+    NullablePersonFirstName:
+      type:
+      - string
+      - 'null'
+      description: First name
+      example: Pay
+      minLength: 1
+      maxLength: 40
+    PlaceOfBirth:
+      type:
+      - string
+      - 'null'
+      description: Place of birth
+      example: GB
+      maxLength: 40
+    NullableIdentification:
+      type:
+      - object
+      - 'null'
+      description: Individual's identification information.
+      properties:
+        type:
+          type: string
+          description: '<span style="color:#f46d2a">**Attention**</span> \
+
+            Please note that the allowed values for the **type** are
+
+            extensible and new values can be added in the future without a
+
+            major version change. Please ensure this is factored into your
+
+            application code.
+
+
+            The type of identification document
+
+            '
+          enum:
+          - DRIVER_LICENSE
+          - NATIONAL_ID
+          - PASSPORT
+        number:
+          type: string
+          description: The number of identification document. Note that if letters are used, they should be in uppercase.
+          example: 657054SM1FD01
+          maxLength: 30
+      required:
+      - type
+      - number
+    NullablePlaceOfBirth:
+      type:
+      - string
+      - 'null'
+      description: Place of birth
+      example: GB
+      maxLength: 40
+    ErrorResponseDetails:
+      additionalProperties: true
+      properties: {}
+      type:
+      - object
+      - 'null'
+      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
+      example:
+        body.extraProperty:
+          message: '"extraProperty" is an excess property and therefore is not allowed'
+          value: extraProperty
+    NullableNationality:
+      type:
+      - string
+      - 'null'
+      description: Country in ISO 3166-1 alpha-2 format
+      example: GB
+    NullableOrganisationAddress:
+      type:
+      - object
+      - 'null'
+      description: Organisation's address information
+      properties:
+        country:
+          type: string
+          description: 'Country in ISO 3166-1 alpha-2 format. By default, GB country code is
+
+            supported. If you wish to avail of other country codes the api
+
+            supports within the European Economic Area (EEA), please contact us.
+
+            '
+          enum:
+          - GB
+          - AT
+          - BE
+          - BG
+          - HR
+          - CY
+          - CZ
+          - DK
+          - EE
+          - FI
+          - FR
+          - DE
+          - GR
+          - HU
+          - IS
+          - IE
+          - IM
+          - IT
+          - LI
+          - LV
+          - LT
+          - LU
+          - MT
+          - NL
+          - 'NO'
+          - PL
+          - PT
+          - RO
+          - SK
+          - SI
+          - ES
+          - SE
+          - CH
+        city:
+          type: string
+          description: City
+          example: London
+          maxLength: 40
+        postalCode:
+          type:
+          - string
+          - 'null'
+          description: Postal code. Must be provided together with street.
+          example: EC1Y 8SY
+          maxLength: 9
+        street:
+          type:
+          - string
+          - 'null'
+          description: Street. Must be provided together with postal code.
+          example: Featherstone Street
+          maxLength: 60
+        buildingNumber:
+          type:
+          - string
+          - 'null'
+          description: House or building number
+          example: '888'
+          maxLength: 9
+      required:
+      - country
+      - city
+    OrganisationV3:
+      properties:
+        id:
+          $ref: '#/components/schemas/OrganisationId1'
+        name:
+          $ref: '#/components/schemas/OrganisationName'
+        companyNumber:
+          $ref: '#/components/schemas/CompanyNumber'
+        foundationDate:
+          $ref: '#/components/schemas/NullableFoundationDate'
+        address:
+          $ref: '#/components/schemas/OrganisationAddress'
+        clientType:
+          $ref: '#/components/schemas/NullableClientType'
+        RegulatoryIdentifier:
+          $ref: '#/components/schemas/NullableRegulatoryIdentifier'
+      required:
+      - id
+      - name
+      - companyNumber
+      - address
+    ForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 403
+          name:
+            enum:
+            - Forbidden
+          message:
+            example: You do not have permission to access this resource
+    PersonLastName:
+      type: string
+      description: Last name
+      example: Ment
+      minLength: 1
+      maxLength: 40
+    PersonId:
+      type: string
+      description: Randomly generated id
+      example: cpNBTqwaiqem3mI72UEcP
+    ValidationError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 422
+          name:
+            enum:
+            - ValidationFailure
+            - UnprocessableEntity
+          message:
+            example: Validation Failed
+    PersonNamePrefix:
+      type:
+      - string
+      - 'null'
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **namePrefix** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Name prefix
+
+        '
+      example: Mr.
+      enum:
+      - Mr.
+      - Ms.
+    TooManyRequestsError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 429
+          name:
+            enum:
+            - TooManyRequests
+          message:
+            example: Rate limiting has been applied
+    InternalServerError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          name:
+            enum:
+            - InternalServerError
+          status:
+            enum:
+            - 500
+          message:
+            example: Request failed with status code 500
+    Nationality:
+      type: string
+      description: Country in ISO 3166-1 alpha-2 format
+      example: GB
+    OrganisationAddress:
+      type: object
+      description: Organisation's address information
+      properties:
+        country:
+          type: string
+          description: 'Country in ISO 3166-1 alpha-2 format. By default, GB country code is
+
+            supported. If you wish to avail of other country codes the api
+
+            supports within the European Economic Area (EEA), please contact us.
+
+            '
+          enum:
+          - GB
+          - AT
+          - BE
+          - BG
+          - HR
+          - CY
+          - CZ
+          - DK
+          - EE
+          - FI
+          - FR
+          - DE
+          - GR
+          - HU
+          - IS
+          - IE
+          - IM
+          - IT
+          - LI
+          - LV
+          - LT
+          - LU
+          - MT
+          - NL
+          - 'NO'
+          - PL
+          - PT
+          - RO
+          - SK
+          - SI
+          - ES
+          - SE
+          - CH
+        city:
+          type: string
+          description: City
+          example: London
+          maxLength: 40
+        postalCode:
+          type:
+          - string
+          - 'null'
+          description: Postal code. Must be provided together with street.
+          example: EC1Y 8SY
+          maxLength: 9
+        street:
+          type:
+          - string
+          - 'null'
+          description: Street. Must be provided together with postal code.
+          example: Featherstone Street
+          maxLength: 60
+        buildingNumber:
+          type:
+          - string
+          - 'null'
+          description: House or building number
+          example: '888'
+          maxLength: 9
+      required:
+      - country
+      - city
+    OrganisationId1:
+      type: string
+      description: Randomly generated id
+      example: cpNBTqwaiqem3mI72UEcP
+    NullablePersonLastName:
+      type:
+      - string
+      - 'null'
+      description: Last name
+      example: Ment
+      minLength: 1
+      maxLength: 40
+    NullablePhoneNumber:
+      type:
+      - string
+      - 'null'
+      description: Phone number
+      example: '+442071234567'
+    PersonAddress:
+      type: object
+      description: Individual's address information
+      properties:
+        country:
+          type: string
+          description: 'Country in ISO 3166-1 alpha-2 format. By default, GB country code is
+
+            supported. If you wish to avail of other country codes the api
+
+            supports within the European Economic Area (EEA), please contact us.
+
+            '
+          enum:
+          - GB
+          - AT
+          - BE
+          - BG
+          - HR
+          - CY
+          - CZ
+          - DK
+          - EE
+          - FI
+          - FR
+          - DE
+          - GR
+          - HU
+          - IS
+          - IE
+          - IM
+          - IT
+          - LI
+          - LV
+          - LT
+          - LU
+          - MT
+          - NL
+          - 'NO'
+          - PL
+          - PT
+          - RO
+          - SK
+          - SI
+          - ES
+          - SE
+          - CH
+        city:
+          type: string
+          description: City
+          example: London
+          maxLength: 40
+        postalCode:
+          type:
+          - string
+          - 'null'
+          description: Postal code. Must be provided together with street.
+          example: EC1Y 8SY
+          maxLength: 9
+        street:
+          type:
+          - string
+          - 'null'
+          description: Street. Must be provided together with postal code.
+          example: Featherstone Street
+          maxLength: 60
+        buildingNumber:
+          type:
+          - string
+          - 'null'
+          description: House or building number
+          example: '888'
+          maxLength: 9
+      required:
+      - country
+      - city
+    PersonMiddleName:
+      type:
+      - string
+      - 'null'
+      description: Middle name
+      example: Patricio
+      maxLength: 40
+    NotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 404
+          name:
+            enum:
+            - NotFound
+          message:
+            example: The requested resource was not found
+    OrganisationId:
+      type:
+      - string
+      - 'null'
+      description: ID of an organisation. When it is not specified, it is then implied that individual is linked to your organisation directly.
+      example: u5vab5K9RZFTTzNJNAs3H
+    PersonFirstName:
+      type: string
+      description: First name
+      example: Pay
+      minLength: 1
+      maxLength: 40
+    ClientType:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **clientType** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        **Default allowed clients types are:** \
+
+        `GOVERNMENT_OR_NOT_FOR_PROFIT` - A government/public body, or a not-for-profit firm (e.g. charities) that is not regulated by a financial services regulator. \
+
+        `PROFESSIONAL_PRACTICE` - A professional practice such as a law firm or accountancy practice that is not regulated by a financial services regulator. \
+
+        `CORPORATE_BUSINESS_LARGE` - Any other type of firm, with a turnover or annual balance sheet that exceeds €2m and more than 10 employees that is not regulated by a financial services regulator. \
+
+        `CORPORATE_BUSINESS_SMALL` - Any other type of firm, with a turnover or annual balance sheet that does not exceed €2m and less than 10 employees that is not regulated by a financial services regulator. \
+
+        `OTHER_NON_REGULATED` - Any other type of business that does not fit into any other client type and is not regulated by a financial services regulator.
+
+
+        **If you require any of the following client types, please contact us.** \
+
+        `BANK` - A bank that is regulated by a recognised regulator. \
+
+        `BUILDING_SOCIETY_OR_CREDIT_UNION` - A building society or credit union that''s regulated by a recognised regulator. \
+
+        `PAYMENT_INSTITUTION` - A payments business that is regulated by a recognised regulator. \
+
+        `MONEY_SERVICE_BUSINESS` - A money service business that is regulated by a recognised regulator. \
+
+        `ELECTRONIC_MONEY_INSTITUTION` - A electronic money business that is regulated by a recognised regulator. \
+
+        `DIGITAL_ASSETS_STABLE_COIN_ISSUER` - A digital assets firm that issues stable coins and is regulated by the FCA. \
+
+        `DIGITAL_ASSETS_NON_STABLE_COIN_ISSUER` - A digital assets firm that does not issue stable coins and is regulated by the FCA. \
+
+        `OTHER_DIGITAL_ASSETS` - A digital assets firm that doesn''t fit into the other digital assets client types, and is regulated by a recognised regulator. \
+
+        `FUNDS` - A funds investment business that is regulated by a recognised regulator. \
+
+        `OTHER_REGULATED` - A regulated firm that doesn''t fit into the other regulated client types (e.g. an insurance broker), and is regulated by a recognised regulator. \
+
+        `DEPOSIT_AGGREGATOR` - A deposit aggregator that is regulated by a recognised regulator.
+
+        '
+      enum:
+      - GOVERNMENT_OR_NOT_FOR_PROFIT
+      - PROFESSIONAL_PRACTICE
+      - CORPORATE_BUSINESS_LARGE
+      - CORPORATE_BUSINESS_SMALL
+      - OTHER_NON_REGULATED
+      - BANK
+      - BUILDING_SOCIETY_OR_CREDIT_UNION
+      - PAYMENT_INSTITUTION
+      - MONEY_SERVICE_BUSINESS
+      - ELECTRONIC_MONEY_INSTITUTION
+      - DIGITAL_ASSETS_STABLE_COIN_ISSUER
+      - DIGITAL_ASSETS_NON_STABLE_COIN_ISSUER
+      - OTHER_DIGITAL_ASSETS
+      - FUNDS
+      - OTHER_REGULATED
+      - DEPOSIT_AGGREGATOR
+      example: GOVERNMENT_OR_NOT_FOR_PROFIT
+    NullablePersonAddress:
+      type:
+      - object
+      - 'null'
+      description: Individual's address information
+      properties:
+        country:
+          type: string
+          description: 'Country in ISO 3166-1 alpha-2 format. By default, GB country code is
+
+            supported. If you wish to avail of other country codes the api
+
+            supports within the European Economic Area (EEA), please contact us.
+
+            '
+          enum:
+          - GB
+          - AT
+          - BE
+          - BG
+          - HR
+          - CY
+          - CZ
+          - DK
+          - EE
+          - FI
+          - FR
+          - DE
+          - GR
+          - HU
+          - IS
+          - IE
+          - IM
+          - IT
+          - LI
+          - LV
+          - LT
+          - LU
+          - MT
+          - NL
+          - 'NO'
+          - PL
+          - PT
+          - RO
+          - SK
+          - SI
+          - ES
+          - SE
+          - CH
+        city:
+          type: string
+          description: City
+          example: London
+          maxLength: 40
+        postalCode:
+          type:
+          - string
+          - 'null'
+          description: Postal code. Must be provided together with street.
+          example: EC1Y 8SY
+          maxLength: 9
+        street:
+          type:
+          - string
+          - 'null'
+          description: Street. Must be provided together with postal code.
+          example: Featherstone Street
+          maxLength: 60
+        buildingNumber:
+          type:
+          - string
+          - 'null'
+          description: House or building number
+          example: '888'
+          maxLength: 9
+      required:
+      - country
+      - city
+    NullableClientType:
+      type:
+      - string
+      - 'null'
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **clientType** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        **Default allowed clients types are:** \
+
+        `GOVERNMENT_OR_NOT_FOR_PROFIT` - A government/public body, or a not-for-profit firm (e.g. charities) that is not regulated by a financial services regulator. \
+
+        `PROFESSIONAL_PRACTICE` - A professional practice such as a law firm or accountancy practice that is not regulated by a financial services regulator. \
+
+        `CORPORATE_BUSINESS_LARGE` - Any other type of firm, with a turnover or annual balance sheet that exceeds €2m and more than 10 employees that is not regulated by a financial services regulator. \
+
+        `CORPORATE_BUSINESS_SMALL` - Any other type of firm, with a turnover or annual balance sheet that does not exceed €2m and less than 10 employees that is not regulated by a financial services regulator. \
+
+        `OTHER_NON_REGULATED` - Any other type of business that does not fit into any other client type and is not regulated by a financial services regulator.
+
+
+        **If you require any of the following client types, please contact us.** \
+
+        `BANK` - A bank that is regulated by a recognised regulator. \
+
+        `BUILDING_SOCIETY_OR_CREDIT_UNION` - A building society or credit union that''s regulated by a recognised regulator. \
+
+        `PAYMENT_INSTITUTION` - A payments business that is regulated by a recognised regulator. \
+
+        `MONEY_SERVICE_BUSINESS` - A money service business that is regulated by a recognised regulator. \
+
+        `ELECTRONIC_MONEY_INSTITUTION` - A electronic money business that is regulated by a recognised regulator. \
+
+        `DIGITAL_ASSETS_STABLE_COIN_ISSUER` - A digital assets firm that issues stable coins and is regulated by the FCA. \
+
+        `DIGITAL_ASSETS_NON_STABLE_COIN_ISSUER` - A digital assets firm that does not issue stable coins and is regulated by the FCA. \
+
+        `OTHER_DIGITAL_ASSETS` - A digital assets firm that doesn''t fit into the other digital assets client types, and is regulated by a recognised regulator. \
+
+        `FUNDS` - A funds investment business that is regulated by a recognised regulator. \
+
+        `OTHER_REGULATED` - A regulated firm that doesn''t fit into the other regulated client types (e.g. an insurance broker), and is regulated by a recognised regulator. \
+
+        `DEPOSIT_AGGREGATOR` - A deposit aggregator that is regulated by a recognised regulator.
+
+        '
+      enum:
+      - GOVERNMENT_OR_NOT_FOR_PROFIT
+      - PROFESSIONAL_PRACTICE
+      - CORPORATE_BUSINESS_LARGE
+      - CORPORATE_BUSINESS_SMALL
+      - OTHER_NON_REGULATED
+      - BANK
+      - BUILDING_SOCIETY_OR_CREDIT_UNION
+      - PAYMENT_INSTITUTION
+      - MONEY_SERVICE_BUSINESS
+      - ELECTRONIC_MONEY_INSTITUTION
+      - DIGITAL_ASSETS_STABLE_COIN_ISSUER
+      - DIGITAL_ASSETS_NON_STABLE_COIN_ISSUER
+      - OTHER_DIGITAL_ASSETS
+      - FUNDS
+      - OTHER_REGULATED
+      - DEPOSIT_AGGREGATOR
+      example: GOVERNMENT_OR_NOT_FOR_PROFIT
+    MetaData:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of available records for the query.
+          example: 100
+        page:
+          type: integer
+          description: The page number returned for the query.
+          example: 1
+        pageSize:
+          type: integer
+          description: The number of records per page for the query.
+          example: 20
+      required:
+      - totalRecords
+      - page
+      - pageSize
+    NullableRegulatoryIdentifier:
+      type:
+      - string
+      - 'null'
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note this field is required property when the **clientType** is one of the following regulated client types:\n\n**Regulated client types:** \\\n`BANK` - A bank that is regulated by a recognised regulator. \\\n`BUILDING_SOCIETY_OR_CREDIT_UNION` - A building society or credit union that's regulated by a recognised regulator. \\\n`PAYMENT_INSTITUTION` - A payments business that is regulated by a recognised regulator. \\\n`MONEY_SERVICE_BUSINESS` - A money service business that is regulated by a recognised regulator. \\\n`ELECTRONIC_MONEY_INSTITUTION` - A electronic money business that is regulated by a recognised regulator. \\\n`DIGITAL_ASSETS_STABLE_COIN_ISSUER` - A digital assets firm that issues stable coins and is regulated by the FCA. \\\n`DIGITAL_ASSETS_NON_STABLE_COIN_ISSUER` - A digital assets firm that does not issue stable coins and is regulated by the FCA. \\\n`OTHER_DIGITAL_ASSETS` - A digital assets firm that doesn't fit into the other digital assets client types, and is regulated by a recognised regulator. \\\n`FUNDS` - A funds investment business that is regulated by a recognised regulator. \\\n`OTHER_REGULATED` - A regulated firm that doesn't fit into the other regulated client types (e.g. an insurance broker), and is regulated by a recognised regulator. \\\n`DEPOSIT_AGGREGATOR` - A deposit aggregator that is regulated by a recognised regulator.        \n\nThe unique identifier assigned to the organisation/company by the\nrelevant regulator. This is usually a number, but can also be a string\nof letters and numbers.\n"
+      example: '123456'
+      maxLength: 36
+    BadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 400
+          name:
+            enum:
+            - BadRequest
+          message:
+            example: The request has validation errors
+    OrganisationName:
+      type: string
+      description: Name
+      example: Test Organisation
+      maxLength: 160
+    NullableDateOfBirth:
+      type:
+      - string
+      - 'null'
+      description: Birthdate in YYYY-MM-DD format
+      format: date
+      example: '1991-06-21'
+    ConflictError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 409
+          name:
+            enum:
+            - Conflict
+          message:
+            example: Resource already exists
+    NullableEmail:
+      type:
+      - string
+      - 'null'
+      description: Email address
+      example: pay.ment@example.domain.com
+      maxLength: 80
+    CompanyNumber:
+      type: string
+      description: 'The unique number assigned to the organisation/company when it was
+
+        founded/incorporated with the authorities - i.e. Companies House in the
+
+        UK. Note that if letters are included in the company number, they must
+
+        be upper case.
+
+        '
+      example: '123456'
+      maxLength: 8
+    UnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 401
+          name:
+            enum:
+            - Unauthorized
+          message:
+            example: Missing x-jws-signature header
+    DateOfBirth:
+      type: string
+      description: Birthdate in YYYY-MM-DD format
+      format: date
+      example: '1991-06-21'
+    ErrorResponseJSON:
+      additionalProperties: false
+      properties:
+        status:
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        details:
+          $ref: '#/components/schemas/ErrorResponseDetails'
+        code:
+          type:
+          - string
+          - 'null'
+          description: A unique code for the error, if available.
+      type: object
+    Individual:
+      properties:
+        id:
+          $ref: '#/components/schemas/PersonId'
+        namePrefix:
+          $ref: '#/components/schemas/PersonNamePrefix'
+        firstName:
+          $ref: '#/components/schemas/PersonFirstName'
+        middleName:
+          $ref: '#/components/schemas/PersonMiddleName'
+        lastName:
+          $ref: '#/components/schemas/PersonLastName'
+        nationality:
+          $ref: '#/components/schemas/Nationality'
+        dateOfBirth:
+          $ref: '#/components/schemas/DateOfBirth'
+        placeOfBirth:
+          $ref: '#/components/schemas/NullablePlaceOfBirth'
+        identification:
+          $ref: '#/components/schemas/NullableIdentification'
+        address:
+          $ref: '#/components/schemas/PersonAddress'
+        email:
+          $ref: '#/components/schemas/NullableEmail'
+        phoneNumber:
+          $ref: '#/components/schemas/NullablePhoneNumber'
+        organisationId:
+          $ref: '#/components/schemas/OrganisationId'
+      required:
+      - id
+      - firstName
+      - lastName
+      - nationality
+      - dateOfBirth
+      - address
+      type: object
+      description: Response object of getting an individual
+    NullableOrganisationName:
+      type:
+      - string
+      - 'null'
+      description: Name
+      example: Test Organisation
+      maxLength: 160
+  responses:
+    '429':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TooManyRequestsError'
+      description: Too Many Requests
+    '409':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConflictError'
+      description: Conflict
+    '403':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+      description: Forbidden
+    '400':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+      description: Bad Request
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error
+    '401':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+      description: Unauthorized
+    '422':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+      description: Validation Failed
+    '404':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+      description: Not Found
+  parameters:
+    JwsSignature:
+      in: header
+      name: x-jws-signature
+      description: A JSON web signature representing signed content using JSON data structures. It contains contextual information from the request signed using a private key generated within Bank of London Developer Studio application.
+      content:
+        application/json:
+          schema:
+            type: string
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+      required: false
+      description: The page number of the result set to be returned.
+    PageSize:
+      in: query
+      name: pageSize
+      required: false
+      schema:
+        type: integer
+        description: The number of items to be returned per page.
+        default: 20
+        minimum: 1
+        maximum: 50

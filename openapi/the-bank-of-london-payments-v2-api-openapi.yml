@@ -1,0 +1,3704 @@
+openapi: 3.2.0
+info:
+  title: Bank of London Payments V2 API
+  version: 2.0.0
+  description: ''
+servers:
+- description: Sandbox
+  url: https://sandbox-api.bankoflondon.com/
+- description: Live
+  url: https://api.bankoflondon.com/
+- description: Mock Server
+  url: https://developer.bankoflondon.com/api/mock/the-bank-of-london-api
+tags:
+- name: Payments V2
+paths:
+  /v2/fx-quotes:
+    post:
+      operationId: CreateAnFXQuoteV2
+      summary: Create an FX Quote
+      description: '**Attention** \
+
+        This endpoint requires specific permissions and is restricted to clients who have been granted access. If you would like to avail of this functionality, please reach out to our customer service team at client.partners@thebankoflondon.com to enable this functionality.
+
+
+        Creates a guaranteed rate quote for a specific time period.
+
+        This endpoint provides real-time foreign exchange rates,
+
+        ensuring accurate and reliable pricing for your FX transactions.
+
+
+        The quote will include an exchange rate, quote ID for future reference,
+
+        and expiration time indicating how long the rate is guaranteed.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnFXQuoteRequest'
+            examples:
+              buyRequest:
+                summary: Buy Request - Specify amount to buy.
+                description: Request where you specify the amount you want to buy (USD 10,000) and the system calculates how much GBP you need to sell
+                value:
+                  sell:
+                    currency: GBP
+                  buy:
+                    currency: USD
+                    amount: '10000.00'
+              sellRequest:
+                summary: Sell Request - Specify amount to sell
+                description: Request where you specify the amount you want to sell (GBP 8,500) and the system calculates how much USD you will receive
+                value:
+                  sell:
+                    currency: GBP
+                    amount: '8500.00'
+                  buy:
+                    currency: USD
+      responses:
+        '200':
+          description: Quote created successfully
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAnFXQuoteResponse'
+              example:
+                quoteId: j0zMRPAN_Kl5WbKwAAe5A
+                sell:
+                  currency: GBP
+                  amount: '7843.14'
+                buy:
+                  currency: USD
+                  amount: '10000.00'
+                exchangeRate: '1.2750'
+                expiresAtDateTime: '2024-06-16T15:30:00.000Z'
+                createdDateTime: '2024-06-16T10:25:50.000Z'
+                quoteType: BUY
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Payments V2
+  /v2/fx-quotes/{quoteId}:
+    get:
+      operationId: GetAnFXQuoteV2
+      summary: Get an FX Quote
+      description: '**Attention** \
+
+        This endpoint requires specific permissions and is restricted to clients who have been granted access. If you would like to avail of this functionality, please reach out to our customer service team at client.partners@thebankoflondon.com to enable this functionality.
+
+
+        Retrieves a previously generated foreign exchange quote by its ID.
+
+        This endpoint allows you to access the details of a specific FX quote,
+
+        including the exchange rate, amounts involved, and expiration time.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      - in: path
+        name: quoteId
+        required: true
+        schema:
+          $ref: '#/components/schemas/QuoteId'
+      responses:
+        '200':
+          description: Quote retrieved successfully
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAnFXQuoteResponse'
+              example:
+                quoteId: j0zMRPAN_Kl5WbKwAAe5A
+                sell:
+                  currency: GBP
+                  amount: '7843.14'
+                buy:
+                  currency: USD
+                  amount: '10000.00'
+                exchangeRate: '1.2750'
+                expiresAtDateTime: '2024-06-16T15:30:00.000Z'
+                createdDateTime: '2024-06-16T10:25:50.000Z'
+                quoteType: BUY
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Payments V2
+  /v2/payments/internal:
+    post:
+      operationId: CreateAnInternalPayment
+      summary: Create an Internal Payment
+      description: 'This operation initiates a payment in the context of
+
+        an application registered with Bank of London Developer Studio. It takes a request body
+
+        that contains all the necessary information required to issue a single internal payment.
+
+
+        All payments must originate from a Bank of London account (`sender` field).
+
+        The `recipient` field must be a Bank of London account ID that is owned by the requesting account holder, otherwise the request will be rejected.
+
+        A customer can only transfer between two of their own accounts eg. Operating Account → Client Collateral Account.
+
+
+        ## Single Internal Debit Payment
+
+
+        The API will return the ID of the created payment along with its
+
+        status after initiation. The ID can be used to retrieve the payment
+
+        details (`GET /payments/{paymentId}`) including its current status in the
+
+        future.
+
+
+        ## Immediate and Future Payments
+
+
+        Providing `plannedExecutionDateTime` for `INTERNAL_DEBIT` payment will schedule a future payment whereas omitting the
+
+        `plannedExecutionDateTime` will result in an immediate payment.
+
+
+        The consumer application (identified by the API key) must always have
+
+        the permission to execute payments from the sender''s account.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - type: object
+                title: Internal Payment Request
+                description: Payment object that is required to initiate a single Internal Debit payment.
+                properties:
+                  type:
+                    type: string
+                    description: Represents an immediate or future dated Internal payment.
+                    enum:
+                    - INTERNAL_DEBIT
+                  sender:
+                    $ref: '#/components/schemas/PaymentSender'
+                  recipient:
+                    $ref: '#/components/schemas/PaymentRecipientTbol'
+                  amount:
+                    $ref: '#/components/schemas/PaymentAmount'
+                  reference:
+                    $ref: '#/components/schemas/PaymentReferenceRequest'
+                  notes:
+                    $ref: '#/components/schemas/PaymentNotes'
+                  plannedExecutionDateTime:
+                    $ref: '#/components/schemas/PlannedPaymentExecutionDateTime'
+                  idempotencyId:
+                    $ref: '#/components/schemas/IdempotencyId'
+                required:
+                - type
+                - sender
+                - recipient
+                - amount
+                - reference
+                - idempotencyId
+      responses:
+        '202':
+          description: "Accepted\n\n<span style=\"color:#f46d2a; font-size:14px; font-family:Inter;\">**Attention**</span> \\\n<span style=\"font-size:14px; font-family:Inter;\">Please note that the oneOf in the **body** below, is extensible and new objects can be \nreturned with a new payment **type** in the future without a major version change. Please ensure this is factored into your\napplication code.</span>\n"
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/InternalSinglePayment'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/PaymentUnauthorizedError'
+        '403':
+          $ref: '#/components/responses/PaymentForbiddenError'
+        '404':
+          $ref: '#/components/responses/BankAccountNotFoundError'
+        '409':
+          $ref: '#/components/responses/ErrorResponseConflictIdempotencyId'
+        '422':
+          $ref: '#/components/responses/CreateInternalPaymentUnprocessableError'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Payments V2
+  /v2/payments/faster-payment:
+    post:
+      operationId: CreateAFasterPayment
+      summary: Create a Faster Payment
+      description: 'This operation initiates a payment in the context of
+
+        an application registered with Bank of London Developer Studio. It takes a request body
+
+        that contains all the necessary information required to issue a single payment.
+
+
+        All payments must originate from a Bank of London account (`sender` field)
+
+        and can be transferred to either a Bank of London account or any UK domestic
+
+        account of another bank.
+
+
+        ## Single FPS Debit Payment
+
+
+        The API will return the ID of the created payment along with its
+
+        status after initiation. The ID can be used to retrieve the payment
+
+        details (`GET /payments/{paymentId}`) including its current status in the
+
+        future.
+
+
+        ## Immediate and Future Payments
+
+
+        Providing `plannedExecutionDateTime` for `FPS_DEBIT` payment will schedule a future payment whereas omitting the
+
+        `plannedExecutionDateTime` will result in an immediate payment.
+
+
+        The consumer application (identified by the API key) must always have
+
+        the permission to execute payments from the sender''s account.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - type: object
+                title: FPS Payment Request
+                description: Payment object that is required to initiate a single FPS Debit payment.
+                properties:
+                  type:
+                    type: string
+                    description: Represents an immediate or future dated FPS payment.
+                    enum:
+                    - FPS_DEBIT
+                  sender:
+                    $ref: '#/components/schemas/PaymentSender'
+                  recipient:
+                    $ref: '#/components/schemas/PaymentRecipient'
+                  amount:
+                    $ref: '#/components/schemas/PaymentAmount'
+                  reference:
+                    $ref: '#/components/schemas/PaymentReferenceRequest'
+                  notes:
+                    $ref: '#/components/schemas/PaymentNotes'
+                  plannedExecutionDateTime:
+                    $ref: '#/components/schemas/PlannedPaymentExecutionDateTime'
+                  idempotencyId:
+                    $ref: '#/components/schemas/IdempotencyId'
+                required:
+                - type
+                - sender
+                - recipient
+                - amount
+                - reference
+                - idempotencyId
+      responses:
+        '202':
+          description: "Accepted\n\n<span style=\"color:#f46d2a; font-size:14px; font-family:Inter;\">**Attention**</span> \\\n<span style=\"font-size:14px; font-family:Inter;\">Please note that the oneOf in the **body** below, is extensible and new objects can be \nreturned with a new payment **type** in the future without a major version change. Please ensure this is factored into your\napplication code.</span>\n"
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/FPSSinglePayment'
+                - $ref: '#/components/schemas/InternalSinglePayment'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/PaymentUnauthorizedError'
+        '403':
+          $ref: '#/components/responses/PaymentForbiddenError'
+        '404':
+          $ref: '#/components/responses/BankAccountNotFoundError'
+        '409':
+          $ref: '#/components/responses/ErrorResponseConflictIdempotencyId'
+        '422':
+          $ref: '#/components/responses/CreateFPSUnprocessableError'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Payments V2
+  /v2/payments/bacs:
+    post:
+      operationId: CreateABacsPayment
+      summary: Create a Bacs Payment
+      description: 'This operation initiates a Bacs payment in the context of
+
+        an application registered with Bank of London Developer Studio. It takes a request body
+
+        that contains all the necessary information required to issue either a
+
+        single or a standing order Bacs payment. The `type` field serves as a discriminator.
+
+
+        Bacs operates on a 3 working day cycle between Monday to Friday. The scheme does not operate on weekends and Bank holidays (England & Wales).
+
+
+        On successful acceptance and processing of your payments, funds will be held in your account on Day 1 and will typically be credited to the recipient''s account on Day 3.
+
+
+        You can recall a Bacs payment only up to 5.30PM on the day you initiate the payment; for any recalls, please contact the customer service team by email: `uksupport@thebankoflondon.com` or call us on `+44 3301 659 131`
+
+
+        All payments must originate from a Bank of London account (`sender` field)
+
+        and can be transferred to any UK domestic account of another bank.
+
+
+        The consumer application (identified by the API key) must always have
+
+        the permission to execute payments from the sender''s account.
+
+
+        ## Single Bacs Debit Payment
+
+
+        The API will return the ID of the created payment along with its
+
+        status after initiation. The ID can be used to retrieve the payment
+
+        details (`GET /payments/{paymentId}`) including its current status in the
+
+        future.
+
+
+        ## Immediate and Future Payments
+
+
+        Providing a future date for `plannedExecutionDate` for `BACS_DEBIT` payment will schedule a future payment. Providing today''s date for `plannedExecutionDate` will result in an immediate payment.
+
+
+        Payments are processed in the Europe/London timezone so `plannedExecutionDate` must be a UK date in the format `YYYY-MM-DD`.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/BacsDebitPaymentRequest'
+      responses:
+        '202':
+          description: "Accepted\n\n<span style=\"color:#f46d2a; font-size:14px; font-family:Inter;\">**Attention**</span> \\\n<span style=\"font-size:14px; font-family:Inter;\">Please note that the oneOf in the **body** below, is extensible and new objects can be \nreturned with a new payment **type** in the future without a major version change. Please ensure this is factored into your\napplication code.</span>\n"
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/BacsSinglePayment'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/PaymentUnauthorizedError'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/BankAccountNotFoundError'
+        '409':
+          $ref: '#/components/responses/ErrorResponseConflictIdempotencyId'
+        '422':
+          $ref: '#/components/responses/CreateBacsPaymentUnprocessableError'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Payments V2
+  /v2/payments/chaps:
+    post:
+      operationId: CreateACHAPSPayment
+      summary: Create a CHAPS Payment
+      description: 'This operation initiates a CHAPS payment in the context of
+
+        an application registered with Bank of London Developer Studio. It takes a request body
+
+        that contains all the necessary information required to issue a
+
+        single CHAPS payment.
+
+
+        CHAPS operates same day processing between Monday to Friday; our current cut off for same day payment is 4:00 PM,
+
+        and payments submitted after this cut-off time will be processed the next working day. The scheme does not
+
+        operate on weekends and bank holidays (England & Wales).
+
+
+        Please ensure that any CHAPS payments are only made on your behalf and not on behalf of your clients
+
+        (if applicable).
+
+
+        Virtual Accounts cannot be used for CHAPS payments.
+
+
+        TBOL uses an agency bank to process CHAPS payments on its behalf; CHAPS payments cannot be reversed. If you need
+
+        any assistance, please contact us as soon as possible at uksupport@thebankoflondon.com or call us on
+
+        +443301 659 131
+
+
+        ## Single CHAPS Payment
+
+
+        The API will return details of the created payment along with its status after initiation. The ID can be used to
+
+        retrieve the payment details (`GET /payments/{paymentId}`) including its current status in the future.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - type: object
+                title: CHAPS Payment Request
+                description: Payment object that is required to initiate a single CHAPS payment.
+                properties:
+                  type:
+                    type: string
+                    description: Represents an immediate or future dated CHAPS payment.
+                    enum:
+                    - CHAPS_DEBIT
+                  sender:
+                    $ref: '#/components/schemas/PaymentSender'
+                  recipient:
+                    $ref: '#/components/schemas/PaymentRecipient'
+                  amount:
+                    $ref: '#/components/schemas/ChapsPaymentAmount'
+                  reference:
+                    $ref: '#/components/schemas/PaymentReferenceRequest'
+                  notes:
+                    $ref: '#/components/schemas/PaymentNotes'
+                  plannedExecutionDateTime:
+                    $ref: '#/components/schemas/PlannedChapsPaymentExecutionDateTime'
+                  idempotencyId:
+                    $ref: '#/components/schemas/IdempotencyId'
+                required:
+                - type
+                - sender
+                - recipient
+                - amount
+                - reference
+                - idempotencyId
+      responses:
+        '202':
+          description: Accepted
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/CHAPSSinglePayment'
+        '400':
+          $ref: '#/components/responses/CreateChapsBadRequestError'
+        '401':
+          $ref: '#/components/responses/PaymentUnauthorizedError'
+        '403':
+          $ref: '#/components/responses/PaymentForbiddenError'
+        '404':
+          $ref: '#/components/responses/BankAccountNotFoundError'
+        '409':
+          $ref: '#/components/responses/ErrorResponseConflictIdempotencyId'
+        '422':
+          $ref: '#/components/responses/CreateChapsPaymentUnprocessableError'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Payments V2
+  /v2/payments/agency:
+    post:
+      operationId: CreateAgencyPayment
+      summary: Create an Agency Payment
+      description: '**Attention** \
+
+        This endpoint requires specific permissions and is restricted to clients who have been granted access.
+
+
+        This operation initiates a payment in the context of
+
+        an application registered with Bank of London Developer Studio. It takes a request body
+
+        that contains all the necessary information required to issue a single payment.
+
+
+        This endpoint is used to initiate a Faster Payment (FPS) on behalf of your end customer,
+
+        where you (the agency client) are not the actual payer, but act as the conduit for clearing and settlement via the Bank of London.
+
+        This model supports regulated financial institutions that offer embedded payment services to their own customers - such as fintech platforms,
+
+        EMIs, or payment institutions - without requiring direct access to UK payment schemes.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - type: object
+                title: Nested Payment Request
+                description: Payment object that is required to initiate a single Nested Debit payment.
+                properties:
+                  type:
+                    type: string
+                    enum:
+                    - FPS_DEBIT
+                  paymentType:
+                    $ref: '#/components/schemas/PaymentType'
+                  sender:
+                    $ref: '#/components/schemas/PaymentSender'
+                  recipient:
+                    $ref: '#/components/schemas/PaymentRecipient'
+                  originator:
+                    $ref: '#/components/schemas/PaymentOriginator'
+                  amount:
+                    $ref: '#/components/schemas/PaymentAmount'
+                  reference:
+                    $ref: '#/components/schemas/PaymentReferenceRequest'
+                  notes:
+                    $ref: '#/components/schemas/PaymentNotes'
+                  idempotencyId:
+                    $ref: '#/components/schemas/IdempotencyId'
+                required:
+                - type
+                - paymentType
+                - sender
+                - recipient
+                - originator
+                - amount
+                - reference
+                - idempotencyId
+      responses:
+        '202':
+          description: "Accepted\n\n<span style=\"color:#f46d2a; font-size:14px; font-family:Inter;\">**Attention**</span> \\\n<span style=\"font-size:14px; font-family:Inter;\">Please note that the oneOf in the **body** below, is extensible and new objects can be \nreturned with a new payment **type** in the future without a major version change. Please ensure this is factored into your\napplication code.</span>\n"
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/InternalSinglePayment'
+                - $ref: '#/components/schemas/FPSSinglePayment'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/PaymentUnauthorizedError'
+        '403':
+          $ref: '#/components/responses/PaymentForbiddenError'
+        '404':
+          $ref: '#/components/responses/BankAccountNotFoundError'
+        '409':
+          $ref: '#/components/responses/ErrorResponseConflictIdempotencyId'
+        '422':
+          $ref: '#/components/responses/CreateFPSUnprocessableError'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Payments V2
+  /v2/payments:
+    post:
+      operationId: CreatePaymentV2
+      summary: Create a Cross-border Payment
+      description: '**Attention** \
+
+        This endpoint requires specific permissions and is restricted to clients who have been granted access. If you would like to avail of this functionality, please reach out to our customer service team at client.partners@thebankoflondon.com to enable this functionality.
+
+
+        This operation initiates a cross-border payment in the context of
+
+        an application registered with Bank of London Developer Studio. It takes a request body
+
+        that contains all the necessary information required to issue a
+
+        cross-border payment.'
+      parameters:
+      - $ref: '#/components/parameters/JwsSignature'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/CrossBorderPaymentRequest'
+            examples:
+              DirectCrossBorderPayment:
+                summary: Direct Cross-border Payment (USD to US Bank)
+                value:
+                  scheme: CROSSBORDER
+                  debtor:
+                    account:
+                      accountId: GB-040075-12345678
+                  amount:
+                    currency: USD
+                    value: '10000.50'
+                  creditorAgent:
+                    bic: CHASUS33XXX
+                  creditor:
+                    name: John Doe International Inc
+                    postalAddress:
+                      townName: New York
+                      country: US
+                    account:
+                      iban: GB29NWBK60161331926819
+                  reference:
+                    unstructured: Cross-border invoice payment for international services - USD transfer to US bank
+                  quoteId: 03967d18-5152-4f5a-9276-7f96c96f05ba
+                  endToEndId: R5T-8WV2.N9K+L4M7
+                  idempotencyId: 32ed5f75-638e-454c-a91b-ec16dc8f6e84
+      responses:
+        '202':
+          description: "Accepted\n\n<span style=\"color:#f46d2a; font-size:14px; font-family:Inter;\">**Attention**</span> \\\n<span style=\"font-size:14px; font-family:Inter;\">Please note that the oneOf in the **body** below, is extensible and new objects can be \nreturned with a new payment **type** in the future without a major version change. Please ensure this is factored into your\napplication code.</span>\n"
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/CrossBorderPaymentResponse'
+              examples:
+                DirectCrossBorderPaymentResponse:
+                  summary: Direct Cross-border Payment Response (USD to US Bank via BIC)
+                  value:
+                    id: FItJ8s2G-aOUfXUFqzRXE
+                    scheme: CROSSBORDER
+                    debtor:
+                      account:
+                        accountId: GB-040075-12345678
+                    amount:
+                      currency: USD
+                      value: '10000.50'
+                    creditorAgent:
+                      bic: CHASUS33XXX
+                    creditor:
+                      name: John Doe International Inc
+                      postalAddress:
+                        townName: New York
+                        country: US
+                      account:
+                        iban: GB29NWBK60161331926819
+                    reference:
+                      unstructured: Cross-border invoice payment for international services - USD transfer to US bank
+                    quoteId: 03967d18-5152-4f5a-9276-7f96c96f05ba
+                    fxDetails:
+                      exchangeRate: '1.2345'
+                      sell:
+                        currency: GBP
+                        amount: '8100.41'
+                      buy:
+                        currency: USD
+                        amount: '10000.50'
+                    status:
+                      identifier: PENDING
+                    createdDateTime: '2024-11-01T12:15:00.000+00:00'
+                    endToEndId: XB7K-9M2P.Q4R8+W3N5
+                    plannedExecutionDate: '2024-11-01'
+                    idempotencyId: 32ed5f75-638e-454c-a91b-ec16dc8f6e84
+                    creator:
+                      type: API
+                      key: 03967d18-5152-4f5a-9276-7f96c96f05ba
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/PaymentUnauthorizedError'
+        '403':
+          $ref: '#/components/responses/PaymentForbiddenError'
+        '404':
+          $ref: '#/components/responses/BankAccountNotFoundError'
+        '409':
+          $ref: '#/components/responses/ErrorResponseConflictIdempotencyId'
+        '422':
+          $ref: '#/components/responses/CreateCrossBorderUnprocessableError'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '503':
+          $ref: '#/components/responses/PaymentServiceUnavailableError'
+      tags:
+      - Payments V2
+    get:
+      operationId: GetPayments
+      summary: Get Payments
+      description: 'Retrieves a list of payment requests in the context of a consumer
+
+        application.
+
+
+        Payments must be filtered using the `accountId` query parameter.
+
+        There are also optional query parameters available for further filtering.
+
+
+        Payment requests may be just initiated or may have been in progress for
+
+        a while. The API returns their current status along with the payment ID
+
+        (`id`) to be able to retrieve a specific payment request later via `GET
+
+        /payments/{paymentId}`.'
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - in: query
+        name: accountId
+        required: true
+        schema:
+          $ref: '#/components/schemas/AccountId'
+      - in: query
+        name: createdDateFrom
+        required: false
+        schema:
+          type: string
+          description: The oldest date from which the payments will be provided.
+          format: date
+          example: '2022-10-06'
+      - in: query
+        name: createdDateTo
+        required: false
+        schema:
+          type: string
+          description: The most recent date from which the payments will be provided.
+          format: date
+          example: '2022-10-01'
+      - in: query
+        name: plannedExecutionDateFrom
+        required: false
+        schema:
+          type: string
+          description: The oldest date from which the payments will be provided based on the plannedExecutionDate.
+          format: date
+          example: '2022-10-06'
+      - in: query
+        name: plannedExecutionDateTo
+        required: false
+        schema:
+          type: string
+          description: The most recent date from which the payments will be provided based on the plannedExecutionDate.
+          format: date
+          example: '2022-10-01'
+      - in: query
+        name: scheme
+        required: false
+        schema:
+          $ref: '#/components/schemas/PaymentScheme'
+      - in: query
+        name: status
+        required: false
+        schema:
+          $ref: '#/components/schemas/PaymentStatusQueryParam'
+      - in: query
+        name: amount
+        required: false
+        description: The amount value of the payment.
+        schema:
+          $ref: '#/components/schemas/value'
+      - in: query
+        name: reference
+        required: false
+        description: 'Reference note that is sent along with the payment and usually contains
+
+          personal or business related information. This is visible to the sender
+
+          and the recipient. This is a query against the full reference text and is case insensitive.'
+        schema:
+          $ref: '#/components/schemas/PaymentReferenceRequest'
+      - in: query
+        name: type
+        required: false
+        description: The type of payment.
+        schema:
+          $ref: '#/components/schemas/PaymentTypeQueryParam'
+      - in: query
+        name: idempotencyId
+        required: false
+        schema:
+          type: string
+          description: The idempotency ID associated with a payment.
+          example: 32ed5f75-638e-454c-a91b-ec16dc8f6e84
+      - in: query
+        name: standingOrderId
+        required: false
+        schema:
+          $ref: '#/components/schemas/PaymentStandingOrderId'
+      - in: query
+        name: endToEndId
+        required: false
+        schema:
+          $ref: '#/components/schemas/CrossBorderEndToEndId'
+      - $ref: '#/components/parameters/JwsSignature'
+      responses:
+        '200':
+          description: "Success\n\n<span style=\"color:#f46d2a; font-size:14px; font-family:Inter;\">**Attention**</span> \\\n<span style=\"font-size:14px; font-family:Inter;\">Please note that the oneOf payments in the **body** below, is extensible and new objects can be \nreturned with a new payment **type** and **scheme**\nin the future without a major version change. Please ensure this is factored into your application code.\n"
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      oneOf:
+                      - $ref: '#/components/schemas/InternalSinglePayment'
+                      - $ref: '#/components/schemas/FPSSinglePayment'
+                      - $ref: '#/components/schemas/CHAPSSinglePayment'
+                      - $ref: '#/components/schemas/BacsSinglePayment'
+                      - $ref: '#/components/schemas/CrossBorderPaymentResponse'
+                  metadata:
+                    $ref: '#/components/schemas/MetaData'
+                required:
+                - payments
+                - metadata
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '504':
+          $ref: '#/components/responses/504'
+      tags:
+      - Payments V2
+  /v2/payments/{paymentId}:
+    get:
+      operationId: GetPayment
+      summary: Get Payment
+      description: Retrieves a single payment by its ID `paymentId`.
+      parameters:
+      - in: path
+        name: paymentId
+        required: true
+        schema:
+          $ref: '#/components/schemas/PaymentId'
+      - $ref: '#/components/parameters/JwsSignature'
+      responses:
+        '200':
+          description: "Success\n\n<span style=\"color:#f46d2a; font-size:14px; font-family:Inter;\">**Attention**</span> \\\n<span style=\"font-size:14px; font-family:Inter;\">Please note that the oneOf payments in the **body** below, is extensible and new objects can be \nreturned with a new payment **type** and **scheme**\nin the future without a major version change. Please ensure this is factored into your application code.\n"
+          headers:
+            x-correlation-id:
+              description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+              schema:
+                type: string
+              example: '2579248247516384065'
+              required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                oneOf:
+                - $ref: '#/components/schemas/InternalSinglePayment'
+                - $ref: '#/components/schemas/FPSSinglePayment'
+                - $ref: '#/components/schemas/CHAPSSinglePayment'
+                - $ref: '#/components/schemas/BacsSinglePayment'
+                - $ref: '#/components/schemas/CrossBorderPaymentResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/PaymentNotFound'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+      - Payments V2
+components:
+  schemas:
+    BacsExecutionDateTime:
+      type:
+      - string
+      - 'null'
+      description: The UTC date time detailing when the payment will settle. This field is populated once the payment has successfully passed our checks and prepared for the payment scheme.
+      format: date-time
+      example: '2022-10-05T11:01:00.000Z'
+    FPSSinglePayment:
+      type: object
+      title: FPS Payment
+      description: 'Payment object that represents a FPS payment.
+
+        '
+      properties:
+        id:
+          $ref: '#/components/schemas/PaymentId'
+        type:
+          $ref: '#/components/schemas/FPSDebitPaymentType'
+        scheme:
+          $ref: '#/components/schemas/FPSPaymentScheme'
+        sender:
+          $ref: '#/components/schemas/PaymentSenderResponse'
+        recipient:
+          $ref: '#/components/schemas/PaymentRecipientFPSResponse'
+        amount:
+          $ref: '#/components/schemas/PaymentAmount'
+        reference:
+          $ref: '#/components/schemas/PaymentReference'
+        notes:
+          $ref: '#/components/schemas/PaymentNotes'
+        plannedExecutionDateTime:
+          $ref: '#/components/schemas/PlannedPaymentExecutionDateTime'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        executionDateTime:
+          $ref: '#/components/schemas/ExecutionDateTime'
+        createdDateTime:
+          $ref: '#/components/schemas/CreatedDateTime'
+        createdBy:
+          $ref: '#/components/schemas/CreatedBy'
+        paymentOrderId:
+          $ref: '#/components/schemas/PaymentOrderId'
+        idempotencyId:
+          $ref: '#/components/schemas/IdempotencyId'
+        standingOrderId:
+          $ref: '#/components/schemas/PaymentStandingOrderId'
+        creator:
+          $ref: '#/components/schemas/PaymentCreator'
+        paymentType:
+          $ref: '#/components/schemas/PaymentType'
+        originator:
+          $ref: '#/components/schemas/PaymentOriginator'
+      required:
+      - id
+      - type
+      - scheme
+      - sender
+      - recipient
+      - amount
+      - reference
+      - status
+      - createdDateTime
+      - createdBy
+      - idempotencyId
+      - creator
+    AccountId:
+      type: string
+      description: Bank of London account ID identifies the account within Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by Bank of London Account API.
+      example: GB-040075-12345678
+    CrossBorderEndToEndId:
+      type: string
+      description: "Unique identifier that must be unique for the entire end-to-end payment journey.\nThis identifier is used to track the payment across all systems and institutions \ninvolved in the cross-border payment process. While a format is not required, it is strongly recommended to ensure global uniqueness across \nall payment networks and correspondent banks.\n"
+      minLength: 1
+      maxLength: 35
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ ]+$
+      example: F8N-3KL9.M7P+Q2X6
+    PaymentAmount:
+      allOf:
+      - description: The amount to be paid from the senders account to the recipient's account.
+      - $ref: '#/components/schemas/Amount'
+    PaymentScheme:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **scheme** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Payment scheme. \
+
+        `FPS`: Faster payment \
+
+        `INTERNAL`: Internal payment between accounts  \
+
+        `BACS`: Bankers'' automated clearing system \
+
+        `CHAPS`: Clearing house automated payment system \
+
+        `CROSSBORDER`: Cross-border payment`
+
+        '
+      enum:
+      - FPS
+      - INTERNAL
+      - BACS
+      - CHAPS
+      - CROSSBORDER
+    CrossBorderPaymentRequest:
+      oneOf:
+      - $ref: '#/components/schemas/CrossBorderDirectPaymentRequest'
+    PostalAddressTownLocationName:
+      type: string
+      description: Town location name
+      minLength: 1
+      maxLength: 35
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+      example: New York
+    FXQuoteBuyRequest:
+      type: object
+      title: FX Quote Buy Request
+      description: "Request where you specify the amount you want to buy. The system will \ncalculate how much you need to sell in the source currency.\n"
+      properties:
+        sell:
+          type: object
+          description: Sell details specifying the source currency
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteSellCurrency'
+          required:
+          - currency
+        buy:
+          type: object
+          description: Buy details with the amount you want to buy
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteBuyCurrency'
+            amount:
+              $ref: '#/components/schemas/BuyAmount'
+          required:
+          - currency
+          - amount
+      required:
+      - sell
+      - buy
+    CrossBorderPlannedExecutionDate:
+      type: string
+      description: "Date on which the payment has to be executed \n(ISO 8601 YYYY-MM-DD format -> e.g., 2025-06-16).\nSystem generated.\n"
+      format: date
+      example: '2025-06-16'
+    CrossBorderCreditorAgent:
+      description: 'Creditor Agent''s Business Identifier Code.
+
+        Either BIC or Other identification must be present.
+
+        '
+      oneOf:
+      - type: object
+        title: BIC
+        properties:
+          bic:
+            $ref: '#/components/schemas/FinancialInstitutionBIC'
+        required:
+        - bic
+      - type: object
+        title: Other
+        properties:
+          country:
+            $ref: '#/components/schemas/CreditorAgentCountry'
+          bankIdentifier:
+            $ref: '#/components/schemas/CreditorAgentBankIdentifier'
+        required:
+        - country
+        - bankIdentifier
+    PlannedChapsPaymentExecutionDateTime:
+      type:
+      - string
+      - 'null'
+      description: The date when the payment should be executed by Bank of London. Today's date or the next working day can be provided. The date time should be formatted to the UTC date format (ISO8601). The time element will be ignored on the date time. `2022-10-05T11:01:00.000Z` is a valid example. If no date time is provided, this will be defaulted to the current date at midnight.
+      format: date-time
+      example: '2022-10-05T11:01:00.000Z'
+    CreatedDateTime:
+      type: string
+      description: The UTC date time when the payment was created `2022-10-05T11:01:00.000Z` is a valid example.
+      format: date-time
+      example: '2022-10-05T11:01:00.000Z'
+    PaymentCreator:
+      oneOf:
+      - $ref: '#/components/schemas/PaymentCreatorUser'
+      - $ref: '#/components/schemas/PaymentCreatorApi'
+      - $ref: '#/components/schemas/PaymentCreatorSystem'
+    IdempotencyId:
+      type: string
+      description: Idempotency ID is a unique identifier that will guarantee that a payment or standing order containing a specific ID will be processed only once.
+      example: 32ed5f75-638e-454c-a91b-ec16dc8f6e84
+      minLength: 5
+      maxLength: 72
+    PaymentRecipientTbolResponse:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the recipient is a oneOf object linked to the **type** in the object. \nCurrently `TBOL` is the only available oneOf object\nbut the **recipient** oneOf is extensible and new recipient types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment recipient.\n"
+      allOf:
+      - oneOf:
+        - $ref: '#/components/schemas/AccountIdentifierTbolResponse'
+    PaymentCreatorKey:
+      type: string
+      description: The API key that created the payment.
+      example: 03967d18-5152-4f5a-9276-7f96c96f05ba
+    PaymentSender:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the sender is a oneOf object linked to the **type** in the object. \nCurrently `TBOL` is the only available oneOf object\nbut the **sender** oneOf is extensible and new sender types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment sender.\n"
+      allOf:
+      - $ref: '#/components/schemas/AccountIdentifierTbol'
+    ExecutionDateTime:
+      type:
+      - string
+      - 'null'
+      description: The UTC date time when the payment was executed. This field is only populated once the payment has been settled and status identifier is `SUCCESSFUL`.
+      format: date-time
+      example: '2022-10-05T11:01:00.000Z'
+    CrossBorderQuoteId:
+      type: string
+      description: 'Quote Id is not a required field for cross-border payments. \
+
+        A Quote Id can be provided by the FX quote API, in order to guarantee the rate. The quoteId must not be expired and must align to the details provided in the payment request, i.e., the amount.
+
+        '
+      example: V1StGXR8_Z5jdHi6B-myT
+    UkSortCode:
+      type: string
+      description: A 6-digit identification number of the bank branch holding the account.
+      example: '123456'
+      minLength: 6
+      maxLength: 6
+    CHAPSSinglePayment:
+      type: object
+      title: CHAPS Payment
+      description: 'Payment object that is required to initiate a CHAPS payment.
+
+        '
+      properties:
+        id:
+          $ref: '#/components/schemas/PaymentId'
+        type:
+          $ref: '#/components/schemas/CHAPSDebitPaymentType'
+        scheme:
+          $ref: '#/components/schemas/CHAPSPaymentScheme'
+        sender:
+          $ref: '#/components/schemas/PaymentSenderResponse'
+        recipient:
+          $ref: '#/components/schemas/PaymentRecipient'
+        amount:
+          $ref: '#/components/schemas/ChapsPaymentAmount'
+        reference:
+          $ref: '#/components/schemas/PaymentReference'
+        notes:
+          $ref: '#/components/schemas/PaymentNotes'
+        plannedExecutionDateTime:
+          $ref: '#/components/schemas/PlannedChapsPaymentExecutionDateTime'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        executionDateTime:
+          $ref: '#/components/schemas/ExecutionDateTime'
+        createdDateTime:
+          $ref: '#/components/schemas/CreatedDateTime'
+        createdBy:
+          $ref: '#/components/schemas/CreatedBy'
+        paymentOrderId:
+          $ref: '#/components/schemas/PaymentOrderId'
+        idempotencyId:
+          $ref: '#/components/schemas/IdempotencyId'
+        creator:
+          $ref: '#/components/schemas/PaymentCreator'
+      required:
+      - id
+      - type
+      - scheme
+      - sender
+      - recipient
+      - amount
+      - reference
+      - status
+      - createdDateTime
+      - createdBy
+      - idempotencyId
+      - creator
+    PostalAddressTownName:
+      type: string
+      description: Town name (mandatory for postal address)
+      minLength: 1
+      maxLength: 35
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+    AccountIdentifierUk:
+      type: object
+      title: UK
+      properties:
+        type:
+          type: string
+          enum:
+          - UK
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+        accountHolderName:
+          $ref: '#/components/schemas/AccountHolderName'
+      required:
+      - type
+      - sortCode
+      - accountNumber
+      - accountHolderName
+    PostalAddressSubDepartment:
+      type: string
+      description: Sub-department information
+      minLength: 1
+      maxLength: 70
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+    PaymentType:
+      type: string
+      description: 'Represents payment type for agency payments.
+
+
+        `SIP`: Single Immediate Payment \
+
+        `FDP`: Forward Dated Payment \
+
+        `SOP`: Standing Order Payment.
+
+        '
+      enum:
+      - SIP
+      - FDP
+      - SOP
+    CrossBorderReference:
+      description: 'Reference for cross-border payments.
+
+        Currently supports unstructured format only.
+
+        '
+      oneOf:
+      - type: object
+        title: Unstructured
+        properties:
+          unstructured:
+            $ref: '#/components/schemas/UnstructuredReference'
+        required:
+        - unstructured
+    CreateAnFXQuoteResponse:
+      type: object
+      title: Create an FX Quote Response
+      properties:
+        quoteId:
+          $ref: '#/components/schemas/QuoteId'
+        sell:
+          type: object
+          description: Sell details for FX quote
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteSellCurrency'
+            amount:
+              $ref: '#/components/schemas/SellAmount'
+          required:
+          - currency
+          - amount
+        buy:
+          type: object
+          description: Buy details for FX quote
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteBuyCurrency'
+            amount:
+              $ref: '#/components/schemas/BuyAmount'
+          required:
+          - currency
+          - amount
+        exchangeRate:
+          $ref: '#/components/schemas/ExchangeRate'
+        expiresAtDateTime:
+          $ref: '#/components/schemas/QuoteExpiresAtDateTime'
+        createdDateTime:
+          $ref: '#/components/schemas/QuoteCreatedDateTime'
+        quoteType:
+          $ref: '#/components/schemas/QuoteType'
+      required:
+      - quoteId
+      - sell
+      - buy
+      - exchangeRate
+      - expiresAtDateTime
+      - createdDateTime
+      - quoteType
+    InternalSinglePayment:
+      type: object
+      title: Internal Payment
+      description: 'Payment object that represents an Internal payment.
+
+        '
+      properties:
+        id:
+          $ref: '#/components/schemas/PaymentId'
+        type:
+          $ref: '#/components/schemas/InternalDebitPaymentType'
+        scheme:
+          $ref: '#/components/schemas/InternalPaymentScheme'
+        sender:
+          $ref: '#/components/schemas/PaymentSenderResponse'
+        recipient:
+          $ref: '#/components/schemas/PaymentRecipientTbolResponse'
+        amount:
+          $ref: '#/components/schemas/PaymentAmount'
+        reference:
+          $ref: '#/components/schemas/PaymentReference'
+        notes:
+          $ref: '#/components/schemas/PaymentNotes'
+        plannedExecutionDateTime:
+          $ref: '#/components/schemas/PlannedPaymentExecutionDateTime'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        executionDateTime:
+          $ref: '#/components/schemas/ExecutionDateTime'
+        createdDateTime:
+          $ref: '#/components/schemas/CreatedDateTime'
+        createdBy:
+          $ref: '#/components/schemas/CreatedBy'
+        paymentOrderId:
+          $ref: '#/components/schemas/PaymentOrderId'
+        idempotencyId:
+          $ref: '#/components/schemas/IdempotencyId'
+        standingOrderId:
+          $ref: '#/components/schemas/PaymentStandingOrderId'
+        creator:
+          $ref: '#/components/schemas/PaymentCreator'
+        paymentType:
+          $ref: '#/components/schemas/PaymentType'
+        originator:
+          $ref: '#/components/schemas/PaymentOriginator'
+      required:
+      - id
+      - type
+      - scheme
+      - sender
+      - recipient
+      - amount
+      - reference
+      - status
+      - createdDateTime
+      - createdBy
+      - idempotencyId
+      - creator
+    RedirectedAccountNumber:
+      type: string
+      description: 'Provided along with `redirectedSortCode` if the original payment was redirected to a different account than originally instructed, due to the recipient’s account switch to a different provider (using Current Account Switch Service). Please ensure that any payee records, Standing Orders or future dated payments are updated to reflect these new details.
+
+        '
+    ConflictError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 409
+          name:
+            enum:
+            - Conflict
+          message:
+            example: Resource already exists
+    CrossBorderCreditorAccount:
+      description: 'IBAN details for the creditor account or account number.
+
+
+        **Important Conditional Requirements:**
+
+        - If Other is selected for creditorAgent, then IBAN cannot be selected for creditor account. Only accountNumber is allowed.
+
+        - If BIC is selected for creditorAgent, then either IBAN or accountNumber can be used for creditor account.
+
+        '
+      oneOf:
+      - type: object
+        title: IBAN
+        description: '<span style="color:#f46d2a">**Attention**</span> \
+
+          Use only when **creditorAgent** uses **BIC** identification
+
+          '
+        properties:
+          iban:
+            $ref: '#/components/schemas/CrossBorderAccountIBAN'
+        required:
+        - iban
+      - type: object
+        title: Account Number
+        description: '<span style="color:#f46d2a">**Attention**</span> \
+
+          Use when **creditorAgent** uses **Other** or **BIC** identification
+
+          '
+        properties:
+          accountNumber:
+            $ref: '#/components/schemas/CrossBorderAccountOther'
+        required:
+        - accountNumber
+    BacsPaymentScheme:
+      type: string
+      enum:
+      - BACS
+      description: 'Payment scheme.
+
+        `BACS`: Bacs payment
+
+        '
+    PaymentReferenceRequest:
+      type: string
+      description: Reference note that is sent along with the payment and usually contains personal or business related information. This is visible to the sender and the recipient. Reference should not contain profanities or the payment will be rejected.
+      minLength: 2
+      maxLength: 18
+      example: INV-12345
+    BuyAmount:
+      type: string
+      description: 'The amount being bought in the buy currency (accepts 0, 1, or 2 decimal places).
+
+        '
+      example: '10000.00'
+      pattern: ^[0-9]+(\.[0-9]{1,2})?$
+    PaymentTypeQueryParam:
+      type: string
+      description: Represents the type of payment.
+      enum:
+      - FPS_DEBIT
+      - FPS_STANDING_ORDER_DEBIT
+      - INTERNAL_DEBIT
+      - INTERNAL_STANDING_ORDER_DEBIT
+      - BACS_DEBIT
+      - CHAPS_DEBIT
+      - CROSSBORDER_DEBIT
+    CHAPSPaymentScheme:
+      type: string
+      enum:
+      - CHAPS
+      description: 'Payment scheme.
+
+        `CHAPS`: CHAPS payment
+
+        '
+    QuoteExpiresAtDateTime:
+      type: string
+      description: Quote expiration date time in ISO 8601 format. This indicates the time at which the quote will expire and is no longer valid. An cross-border payment must be created before the quote expires.
+      format: date-time
+      example: '2024-06-16T15:30:00.000Z'
+    PlannedPaymentExecutionDateTime:
+      type:
+      - string
+      - 'null'
+      description: The date and time when the payment should be executed by The Bank of London. Future date and time up to 90 days can be provided to schedule a future payment. The date time should be formatted to the UTC date format (ISO8601). The time element is considered within 1 minute intervals, and payment will be released as close to the specified instructed time as possible. 2024-11-01T12:15:00.000Z is a valid example. If no date time is provided, this will be defaulted to the current date time.
+      format: date-time
+      example: '2024-11-01T11:10:00.000Z'
+    PostalAddressDepartment:
+      type: string
+      description: Department information
+      minLength: 1
+      maxLength: 70
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+    CreditorAgentCountry:
+      type: string
+      description: 'Country code (ISO) for the associated bank identifier provided.
+
+        '
+      minLength: 1
+      maxLength: 2
+      example: US
+    ErrorResponseDetails:
+      additionalProperties: true
+      properties: {}
+      type:
+      - object
+      - 'null'
+      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
+      example:
+        body.extraProperty:
+          message: '"extraProperty" is an excess property and therefore is not allowed'
+          value: extraProperty
+    PaymentStatusHistory:
+      type: object
+      title: Payment Status History
+      description: Represents the history of the payment status.
+      properties:
+        identifier:
+          type: string
+          description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the allowed values for the **identifier** are\nextensible and new values can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code. \n\nThe status identifier. `PENDING_APPROVAL` `APPROVED` `REJECTED` are\nonly applicable to payments that require approval via TBOL Core Web\nInterface.\n"
+          enum:
+          - PENDING_APPROVAL
+          - PENDING
+          - APPROVED
+          - REJECTED
+          - SUCCESSFUL
+          - FAILED
+          - SCHEDULED
+        dateTime:
+          type: string
+          format: date
+          description: The date and time of the status change.
+      required:
+      - identifier
+      - dateTime
+    PaymentCreatorUser:
+      type: object
+      title: Payment Creator - User
+      description: Represents the creator of the payment.
+      properties:
+        type:
+          $ref: '#/components/schemas/PaymentCreatorUserType'
+        id:
+          $ref: '#/components/schemas/PaymentCreatorId'
+      required:
+      - type
+      - id
+    InternalPaymentScheme:
+      type: string
+      description: 'Payment scheme.
+
+        `INTERNAL`: Internal payment
+
+        '
+      enum:
+      - INTERNAL
+    FPSDebitPaymentType:
+      type: string
+      description: Represents an immediate or future FPS payment.
+      enum:
+      - FPS_DEBIT
+      - FPS_STANDING_ORDER_DEBIT
+    PaymentId:
+      type: string
+      description: Payment ID identifies the payment within Bank of London API platform.
+      example: FItJ8s2G-aOUfXUFqzRXE
+    ServiceUnavailableError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 503
+          name:
+            enum:
+            - ServiceUnavailable
+          message:
+            example: Service is currently unavailable
+    RedirectedSortCode:
+      type: string
+      description: 'Provided along with `redirectedAccountNumber` if the original payment was redirected to a different account than originally instructed, due to the recipient’s account switch to a different provider (using Current Account Switch Service). Please ensure that any payee records, Standing Orders or future dated payments are updated to reflect these new details.
+
+        '
+    PaymentCreatorApiType:
+      type: string
+      description: The type of the payment creator. Created by the API.
+      enum:
+      - API
+    InternalServerError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          name:
+            enum:
+            - InternalServerError
+          status:
+            enum:
+            - 500
+          message:
+            example: Request failed with status code 500
+    PaymentOrderId:
+      type:
+      - string
+      - 'null'
+      description: An ID that allows the linkage of a transaction and a payment
+      example: S4B1  20240510000000065638
+    PostalAddressFloor:
+      type: string
+      description: Floor information
+      minLength: 1
+      maxLength: 70
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+    CrossBorderAmountValue:
+      type: string
+      description: Amount to be paid to the creditor (accepts 0, 1, or 2 decimal places)
+      pattern: ^[0-9]+(\.[0-9]{1,2})?$
+      example: '10000.50'
+    value:
+      type: number
+      description: The amounts value assuming the provided unit under currency.
+      format: double
+      minimum: 0.01
+      example: 4320.5
+    QuoteId:
+      type: string
+      description: TBOL Quote ID for referencing the generated quote. This quoteId should be used when making an international payment to guarantee the rate.
+      example: j0zMRPAN_Kl5WbKwAAe5A
+    PostalAddressBuildingNumber:
+      type: string
+      description: Building number
+      minLength: 1
+      maxLength: 16
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+    FXQuoteSellRequest:
+      type: object
+      title: FX Quote Sell Request
+      description: "Request where you specify the amount you want to sell. The system will \ncalculate how much you will receive in the target currency.\n"
+      properties:
+        sell:
+          type: object
+          description: Sell details with the amount you want to sell
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteSellCurrency'
+            amount:
+              $ref: '#/components/schemas/SellAmount'
+          required:
+          - currency
+          - amount
+        buy:
+          type: object
+          description: Buy details specifying the target currency
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteBuyCurrency'
+          required:
+          - currency
+      required:
+      - sell
+      - buy
+    CrossBorderPostalAddress:
+      type: object
+      description: Postal address information for cross-border payments
+      properties:
+        townName:
+          $ref: '#/components/schemas/PostalAddressTownName'
+        country:
+          $ref: '#/components/schemas/PostalAddressCountry'
+        department:
+          $ref: '#/components/schemas/PostalAddressDepartment'
+        subDepartment:
+          $ref: '#/components/schemas/PostalAddressSubDepartment'
+        streetName:
+          $ref: '#/components/schemas/PostalAddressStreetName'
+        buildingNumber:
+          $ref: '#/components/schemas/PostalAddressBuildingNumber'
+        buildingName:
+          $ref: '#/components/schemas/PostalAddressBuildingName'
+        floor:
+          $ref: '#/components/schemas/PostalAddressFloor'
+        postBox:
+          $ref: '#/components/schemas/PostalAddressPostBox'
+        room:
+          $ref: '#/components/schemas/PostalAddressRoom'
+        postCode:
+          $ref: '#/components/schemas/PostalAddressPostCode'
+        townLocationName:
+          $ref: '#/components/schemas/PostalAddressTownLocationName'
+        districtName:
+          $ref: '#/components/schemas/PostalAddressDistrictName'
+        countrySubDivision:
+          $ref: '#/components/schemas/PostalAddressCountrySubDivision'
+      required:
+      - townName
+      - country
+    PostalAddressRoom:
+      type: string
+      description: Room information
+      minLength: 1
+      maxLength: 70
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+    PaymentCreatorApi:
+      type: object
+      title: Payment Creator - API
+      description: Represents the creator of the payment.
+      properties:
+        type:
+          $ref: '#/components/schemas/PaymentCreatorApiType'
+        key:
+          $ref: '#/components/schemas/PaymentCreatorKey'
+      required:
+      - type
+      - key
+    CrossBorderDirectPaymentResponse:
+      allOf:
+      - $ref: '#/components/schemas/BaseCrossBorderPaymentResponse'
+      type: object
+      title: Direct Cross-border Payment Response
+      description: 'Cross-border payment response for direct payments.
+
+        '
+    UnstructuredReference:
+      type: string
+      description: 'Unstructured reference. This is available for additional information to be shared with the recipient to help them identify the payment. This is visible to the sender and may be visible to the recipient.
+
+        '
+      maxLength: 140
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+      example: Invoice payment for services
+    PaymentCreatorId:
+      type: string
+      description: The `id` of the user that created the payment.
+      example: 64e739504746e6fe27ed53b5
+    QuoteCreatedDateTime:
+      type: string
+      description: Quote creation date and time in ISO 8601 format. This indicates the time at which the quote was created.
+      format: date-time
+      example: '2024-06-16T10:25:50.000Z'
+    MetaData:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of available records for the query.
+          example: 100
+        page:
+          type: integer
+          description: The page number returned for the query.
+          example: 1
+        pageSize:
+          type: integer
+          description: The number of records per page for the query.
+          example: 20
+      required:
+      - totalRecords
+      - page
+      - pageSize
+    PaymentCreatorSystem:
+      type: object
+      title: Payment Creator - System
+      description: Represents the creator of the payment.
+      properties:
+        type:
+          $ref: '#/components/schemas/PaymentCreatorSystemType'
+      required:
+      - type
+    BadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 400
+          name:
+            enum:
+            - BadRequest
+          message:
+            example: The request has validation errors
+    PostalAddressPostCode:
+      type: string
+      description: Postal code
+      minLength: 1
+      maxLength: 16
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+    PostalAddressCountrySubDivision:
+      type: string
+      description: Country subdivision
+      minLength: 1
+      maxLength: 35
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+    CrossBorderPaymentStatus:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the status is a oneOf object linked to the **identifier** in the object. \nThe **status** oneOf, based on the **identifier** is extensible and new status identifiers can be added in the future without a\nmajor version change. Please ensure this is factored into your application code.\n\nThe current status of the cross-border payment.\n"
+      oneOf:
+      - type: object
+        title: PENDING_APPROVAL
+        properties:
+          identifier:
+            type: string
+            enum:
+            - PENDING_APPROVAL
+            description: Initial status of a cross-border payment that requires approval before processing.
+        required:
+        - identifier
+      - type: object
+        title: PENDING
+        properties:
+          identifier:
+            type: string
+            enum:
+            - PENDING
+            description: Cross-border payment is currently being processed within Bank of London system.
+        required:
+        - identifier
+      - type: object
+        title: APPROVED
+        properties:
+          identifier:
+            type: string
+            enum:
+            - APPROVED
+            description: The cross-border payment has been approved by an authorised payment approver.
+        required:
+        - identifier
+      - type: object
+        title: REJECTED
+        properties:
+          identifier:
+            type: string
+            enum:
+            - REJECTED
+            description: The cross-border payment has been rejected by an authorised payment approver.
+        required:
+        - identifier
+      - type: object
+        title: SUCCESSFUL
+        properties:
+          identifier:
+            type: string
+            enum:
+            - SUCCESSFUL
+            description: Cross-border payment has been processed and passed all checks.
+        required:
+        - identifier
+      - type: object
+        title: FAILED
+        properties:
+          identifier:
+            type: string
+            enum:
+            - FAILED
+            description: One or more checks failed whilst processing the cross-border payment.
+          reasonCode:
+            type: string
+            description: 'Cross-border payment rejection reason code. \
+
+              `AB01`: Clearing process aborted due to timeout. \
+
+              `AB02`: Clearing process aborted due to a fatal error. \
+
+              `AB03`: Settlement aborted due to timeout. \
+
+              `AB05`: Transaction stopped due to timeout at the Creditor Agent. \
+
+              `AB08`: Creditor Agent is not online. \
+
+              `AC03`: Creditor account number invalid or missing. \
+
+              `AC05`: Debtor account number closed. \
+
+              `AC06`: Specified account is blocked, prohibiting posting of transactions against it. \
+
+              `AC07`: Creditor account number closed. \
+
+              `AC08`: Branch code is invalid or missing. \
+
+              `AC10`: Debtor account currency is invalid or missing. \
+
+              `AC11`: Creditor account currency is invalid or missing. \
+
+              `AC13`: Debtor account type missing or invalid. \
+
+              `AC14`: Creditor account type missing or invalid. \
+
+              `AC15`: The account details for the counterparty have changed. \
+
+              `AG01`: Transaction forbidden on this type of account. \
+
+              `AG10`: Agent of message is suspended from the Real Time Payment system. \
+
+              `AG11`: Creditor Agent of message is suspended from the Real Time Payment system. \
+
+              `AM04`: Amount of funds available to cover specified message amount is insufficient. \
+
+              `AM14`: Transaction amount exceeds limits agreed between bank and client. \
+
+              `AM23`: Transaction amount exceeds settlement limit. \
+
+              `BE01`: Identification of end customer is not consistent with associated account number. \
+
+              `BE04`: Specification of creditor''s address, which is required for payment, is missing/not correct. \
+
+              `BE05`: Party who initiated the message is not recognised by the end customer. \
+
+              `BE06`: End customer specified is not known at associated Sort/National Bank Identifier or does no longer exist in the books. \
+
+              `BE15`: Identification code missing or invalid. \
+
+              `BE17`: Creditor or Ultimate Creditor identification code missing or invalid. \
+
+              `BE20`: Name length exceeds local rules for payment type. \
+
+              `BE21`: Name missing or invalid. \
+
+              `BE22`: Creditor name is missing. \
+
+              `DU01`: Message identification is not unique, \
+
+              `DU03`: Transaction is not unique. \
+
+              `FF02`: Syntax error. \
+
+              `MD07`: End customer is deceased. \
+
+              `MS03`: Reason has not been specified by agent. \
+
+              `RC11`: Intermediary Agent is invalid or missing.
+
+              '
+            enum:
+            - AB01
+            - AB02
+            - AB03
+            - AB05
+            - AB08
+            - AC03
+            - AC05
+            - AC06
+            - AC07
+            - AC08
+            - AC10
+            - AC11
+            - AC13
+            - AC14
+            - AC15
+            - AG01
+            - AG10
+            - AG11
+            - AM04
+            - AM14
+            - AM23
+            - BE01
+            - BE04
+            - BE05
+            - BE06
+            - BE15
+            - BE17
+            - BE20
+            - BE21
+            - BE22
+            - DU01
+            - DU03
+            - FF02
+            - MD07
+            - MS03
+            - RC11
+          reasonDescription:
+            type: string
+            description: Readable description of the reason code.
+        required:
+        - identifier
+    CrossBorderDirectPaymentRequest:
+      type: object
+      title: Direct Cross-border Payment Request
+      description: Cross-border payment request for direct payments (non-agency)
+      properties:
+        scheme:
+          $ref: '#/components/schemas/CrossBorderPaymentScheme'
+        quoteId:
+          $ref: '#/components/schemas/CrossBorderQuoteId'
+        debtor:
+          $ref: '#/components/schemas/CrossBorderDebtor'
+        amount:
+          $ref: '#/components/schemas/CrossBorderAmount'
+        creditorAgent:
+          $ref: '#/components/schemas/CrossBorderCreditorAgent'
+        creditor:
+          $ref: '#/components/schemas/CrossBorderCreditor'
+        reference:
+          $ref: '#/components/schemas/CrossBorderReference'
+        endToEndId:
+          $ref: '#/components/schemas/CrossBorderEndToEndId'
+        idempotencyId:
+          $ref: '#/components/schemas/IdempotencyId'
+      required:
+      - scheme
+      - debtor
+      - amount
+      - creditorAgent
+      - creditor
+      - reference
+      - idempotencyId
+    CrossBorderPaymentResponse:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the response is a oneOf object. \nThe **response** oneOf is extensible and new response types can be added in the future without a\nmajor version change. Please ensure this is factored into your application code.\n\nCross-border payment response object.\n"
+      oneOf:
+      - $ref: '#/components/schemas/CrossBorderDirectPaymentResponse'
+    PaymentRecipientTbol:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the recipient is a oneOf object linked to the **type** in the object. \nCurrently `TBOL` is the only available oneOf object\nbut the **recipient** oneOf is extensible and new recipient types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment recipient.\n"
+      allOf:
+      - oneOf:
+        - $ref: '#/components/schemas/AccountIdentifierTbol'
+    AccountHolderName:
+      type: string
+      description: Name of the account holder which is issuing or receiving a payment.
+      example: Pay Ment
+    PostalAddressCountry:
+      type: string
+      description: Two-letter ISO country code (mandatory for postal address)
+      pattern: ^[A-Z]{2,2}$
+      example: US
+    PaymentRecipientFPSResponse:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the recipient is a oneOf object linked to the **type** in the object. \nCurrently `UK` is the only available oneOf object\nbut the **recipient** oneOf is extensible and new recipient types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment recipient.\n"
+      allOf:
+      - oneOf:
+        - $ref: '#/components/schemas/AccountIdentifierFPS'
+    PaymentOriginator:
+      description: 'Represents the details of the payment originator for agency payments.
+
+        '
+      allOf:
+      - oneOf:
+        - $ref: '#/components/schemas/AccountIdentifierUk'
+    AccountIdentifierTbol:
+      type: object
+      title: TBOL
+      properties:
+        type:
+          type: string
+          enum:
+          - TBOL
+        accountId:
+          $ref: '#/components/schemas/AccountId'
+      required:
+      - type
+      - accountId
+    PaymentStatus:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the status is a oneOf object linked to the **identifier** in the object. \nThe **status** oneOf, based on the **identifier** is extensible and new status identifiers can be added in the future without a\nmajor version change. Please ensure this is factored into your application code.\n\nThe current status of the payment.\n"
+      oneOf:
+      - type: object
+        title: PENDING_APPROVAL
+        properties:
+          identifier:
+            type: string
+            enum:
+            - PENDING_APPROVAL
+            description: Initial status of a payment that requires approval before processing.
+          detailedStatusIdentifier:
+            description: '<span style="color:#f46d2a">**Attention**</span> \
+
+              Please note that the allowed values for the **detailedStatusIdentifier** are
+
+              extensible and new values can be added in the future without a
+
+              major version change. Please ensure this is factored into your
+
+              application code.
+
+              '
+            enum:
+            - PENDING_APPROVAL
+          history:
+            type: array
+            items:
+              $ref: '#/components/schemas/PaymentStatusHistory'
+        required:
+        - identifier
+        - detailedStatusIdentifier
+        - history
+      - type: object
+        title: PENDING
+        properties:
+          identifier:
+            type: string
+            enum:
+            - PENDING
+            description: Payment is currently being processed within Bank of London system.
+          detailedStatusIdentifier:
+            description: '<span style="color:#f46d2a">**Attention**</span> \
+
+              Please note that the allowed values for the **detailedStatusIdentifier** are
+
+              extensible and new values can be added in the future without a
+
+              major version change. Please ensure this is factored into your
+
+              application code.
+
+              '
+            enum:
+            - ACCEPTED_CUSTOMER_PROFILE
+            - ACCEPTED_SETTLEMENT_IN_PROCESS
+            - ACCEPTED_TECHNICAL_VALIDATION
+            - INFORMATORY
+            - RECEIVED
+            - PENDING
+            - WAITING
+          history:
+            type: array
+            items:
+              $ref: '#/components/schemas/PaymentStatusHistory'
+        required:
+        - identifier
+        - detailedStatusIdentifier
+        - history
+      - type: object
+        title: APPROVED
+        properties:
+          identifier:
+            type: string
+            enum:
+            - APPROVED
+            description: The payment has been approved by an authorised payment approver.
+          detailedStatusIdentifier:
+            description: '<span style="color:#f46d2a">**Attention**</span> \
+
+              Please note that the allowed values for the **detailedStatusIdentifier** are
+
+              extensible and new values can be added in the future without a
+
+              major version change. Please ensure this is factored into your
+
+              application code.
+
+              '
+            type: string
+            enum:
+            - APPROVED
+          history:
+            type: array
+            items:
+              $ref: '#/components/schemas/PaymentStatusHistory'
+        required:
+        - identifier
+        - detailedStatusIdentifier
+        - history
+      - type: object
+        title: REJECTED
+        properties:
+          identifier:
+            type: string
+            enum:
+            - REJECTED
+            description: The payment has been rejected by an authorised payment approver.
+          detailedStatusIdentifier:
+            description: '<span style="color:#f46d2a">**Attention**</span> \
+
+              Please note that the allowed values for the **detailedStatusIdentifier** are
+
+              extensible and new values can be added in the future without a
+
+              major version change. Please ensure this is factored into your
+
+              application code.
+
+              '
+            type: string
+            enum:
+            - REJECTED
+          history:
+            type: array
+            items:
+              $ref: '#/components/schemas/PaymentStatusHistory'
+        required:
+        - identifier
+        - detailedStatusIdentifier
+        - history
+      - type: object
+        title: SUCCESSFUL
+        properties:
+          identifier:
+            type: string
+            enum:
+            - SUCCESSFUL
+            description: Payment has been processed and passed all checks.
+          detailedStatusIdentifier:
+            description: '<span style="color:#f46d2a">**Attention**</span> \
+
+              Please note that the allowed values for the **detailedStatusIdentifier** are
+
+              extensible and new values can be added in the future without a
+
+              major version change. Please ensure this is factored into your
+
+              application code.
+
+              '
+            type: string
+            enum:
+            - ACCEPTED_SETTLEMENT_COMPLETED
+            - ACCEPTED_WITH_CHANGE
+            - FPS_ACCEPTED_AFTER_NEXT_WORKING_DAY
+            - FPS_ACCEPTED_NEXT_CALENDAR_DAY
+            - FPS_ACCEPTED_NEXT_WORKING_DAY
+            - FPS_ACCEPTED_SAME_DAY
+            - FPS_ACCEPTED_WITHOUT_QUALIFICATION_IMMEDIATE
+            - FPS_ACCEPTED_WITH_UNSPECIFIED_TIME
+            - PARTIALLY_ACCEPTED
+          history:
+            type: array
+            items:
+              $ref: '#/components/schemas/PaymentStatusHistory'
+        required:
+        - identifier
+        - detailedStatusIdentifier
+        - history
+      - type: object
+        title: FAILED
+        properties:
+          identifier:
+            type: string
+            enum:
+            - FAILED
+            description: One or more checks failed whilst processing the payment.
+          detailedStatusIdentifier:
+            description: '<span style="color:#f46d2a">**Attention**</span> \
+
+              Please note that the allowed values for the **detailedStatusIdentifier** are
+
+              extensible and new values can be added in the future without a
+
+              major version change. Please ensure this is factored into your
+
+              application code.
+
+              '
+            type: string
+            enum:
+            - FPS_ACCOUNT_IN_WRONG_CURRENCY
+            - FPS_ACCOUNT_TERMS_AND_CONDITIONS_VIOLATION
+            - FPS_ACCOUNT_TRANSFERRED
+            - FPS_BENEFICIARY_ACCOUNT_CANNOT_BE_IDENTIFIED
+            - FPS_BENEFICIARY_ACCOUNT_CLOSED
+            - FPS_BENEFICIARY_ACCOUNT_NAME_AND_NUMBER_MISMATCH
+            - FPS_BENEFICIARY_ACCOUNT_NAME_MISSING
+            - FPS_BENEFICIARY_ACCOUNT_STOPPED
+            - FPS_BENEFICIARY_DECEASED
+            - FPS_BENEFICIARY_SENSITIVITIES_ERROR
+            - FPS_CANNOT_DETERMINE_ROUTE_FOR_PAYMENT
+            - FPS_DUPLICATE_FPID
+            - FPS_FUNDS_NOT_AVAILABLE
+            - FPS_INCORRECT_REFERENCE_INFORMATION
+            - FPS_RECEIVING_AGENCY_3RD_PARTY_BENEFICIARY_ACCOUNT_TRANSFERRED
+            - FPS_RECEIVING_AGENCY_ACCOUNT_CLOSED
+            - FPS_RECEIVING_AGENCY_ACCOUNT_STOPPED
+            - FPS_RECEIVING_AGENCY_ACCOUNT_TRANSFERRED
+            - FPS_RECEIVING_AGENCY_SORT_CODE_ACCOUNT_UNKNOWN
+            - FPS_SCHEME_IS_DOWN
+            - FPS_SENDING_AGENCY_ACCOUNT_CLOSED
+            - FPS_SENDING_AGENCY_ACCOUNT_STOPPED
+            - FPS_SENDING_AGENCY_SORT_CODE_ACCOUNT_UNKNOWN
+            - FPS_SENDING_INSTITUTION_ACTION_REQUIRED
+            - FPS_SYNTAX_ERROR
+            - FPS_SYSTEM_MALFUNCTION
+            - FPS_UNABLE_TO_SEND_PAYMENT
+            - EXECUTION_DATE_CANNOT_BE_IN_PAST
+            - RECALLED
+            - REJECTED
+            - FAILED
+          reasonCode:
+            type: string
+            description: 'Payment rejection reason code. \
+
+              `ACSP`: Invalid creditor account number. \
+
+              `AC03`: Creditor account number invalid or missing. \
+
+              `AC06`: Specified account is blocked, prohibiting posting of transactions against it. \
+
+              `AC07`: Creditor account number closed. \
+
+              `AG01`: Transaction forbidden on this type of account. \
+
+              `AG02`: Invalid bank operation code. \
+
+              `AG11`: Creditor Agent of message is suspended from the Real Time Payment system. \
+
+              `AM01`: Amount is zero. \
+
+              `AM02`: Specified transaction/message amount is greater than allowed maximum. \
+
+              `AM04`: Amount of funds available to cover specified message amount is insufficient. \
+
+              `AM05`: Duplication of payment. \
+
+              `AM06`: Specified transaction amount is less than agreed minimum. \
+
+              `AM07`: Specified transaction amount is higher than agreed maximum. \
+
+              `AM12`: Amount is invalid or missing. \
+
+              `AM18`: Specified message amount is equal to zero. \
+
+              `AM23`: Transaction amount exceeds settlement limit. \
+
+              `BE01`: Identification of end customer is not consistent with associated account number. \
+
+              `BE04`: Specification of creditor''s address, which is required for payment, is missing/not correct. \
+
+              `BE05`: Party who initiated the message is not recognised by the end customer. \
+
+              `BE06`: End customer specified is not known at associated Sort/National Bank Identifier or does no longer exist in the books. \
+
+              `BE07`: Creditor''s address is required for payment. \
+
+              `BE15`: Identification code missing or invalid. \
+
+              `BE17`: Creditor or Ultimate Creditor identification code missing or invalid. \
+
+              `BE20`: Name length exceeds local rules for payment type. \
+
+              `BE21`: Name missing or invalid. \
+
+              `BE22`: Creditor name is missing. \
+
+              `CH07`: Debtor Agent is not reachable. \
+
+              `CH09`: Bank identifier incorrect. \
+
+              `CH11`: Currency not supported by receiving agent. \
+
+              `CH16`: Creditor Agent is not reachable. \
+
+              `CH17`: Invalid or missing identification required within a particular country or payment type. \
+
+              `DT01`: Invalid date. \
+
+              `FF01`: Operation/transaction code incorrect or invalid file format. \
+
+              `FF05`: Invalid Local Instrument. \
+
+              `FOCR`: Return following investigation. \
+
+              `FRAD`: Fraudulent originated payment. \
+
+              `MD01`: No mandate. \
+
+              `MD02`: Missing mandatory information in mandate. \
+
+              `MD06`: Return of payment for technical reasons. \
+
+              `MD07`: End customer is deceased. \
+
+              `MS02`: Reason has not been specified by end customer. \
+
+              `MS03`: Reason has not been specified by agent. \
+
+              `NARR`: Reason is provided in additional information. \
+
+              `RC01`: Bank identifier incorrect. \
+
+              `RC04`: Invalid creditor account number. \
+
+              `RF01`: Operation/transaction code incorrect or invalid file format. \
+
+              `RR01`: Regulatory reason. \
+
+              `RR02`: Invalid bank operation code. \
+
+              `RR03`: Invalid transaction/operation code. \
+
+              `RR04`: Regulatory reason. \
+
+              `SL01`: Specific service offered by the debtor agent. \
+
+              `TM01`: Cut-off time. \
+
+              `UPAY`: Payment is not justified.
+
+              '
+            enum:
+            - ACSP
+            - AC03
+            - AC06
+            - AC07
+            - AG01
+            - AG02
+            - AG11
+            - AM01
+            - AM02
+            - AM04
+            - AM05
+            - AM06
+            - AM07
+            - AM12
+            - AM18
+            - AM23
+            - BE01
+            - BE04
+            - BE05
+            - BE06
+            - BE07
+            - BE15
+            - BE17
+            - BE20
+            - BE21
+            - BE22
+            - CH07
+            - CH09
+            - CH11
+            - CH16
+            - CH17
+            - DT01
+            - FF01
+            - FF05
+            - FOCR
+            - FRAD
+            - MD01
+            - MD02
+            - MD06
+            - MD07
+            - MS02
+            - MS03
+            - NARR
+            - RC01
+            - RC04
+            - RF01
+            - RR01
+            - RR02
+            - RR03
+            - RR04
+            - SL01
+            - TM01
+            - UPAY
+          reasonDescription:
+            type: string
+            description: Readable description of the reason code.
+          history:
+            type: array
+            items:
+              $ref: '#/components/schemas/PaymentStatusHistory'
+        required:
+        - identifier
+        - detailedStatusIdentifier
+        - history
+      - type: object
+        title: SCHEDULED
+        properties:
+          identifier:
+            type: string
+            enum:
+            - SCHEDULED
+            description: The payment has been processed and all checks have passed. Payment awaiting execution date to complete the payment.
+          detailedStatusIdentifier:
+            description: '<span style="color:#f46d2a">**Attention**</span> \
+
+              Please note that the allowed values for the **detailedStatusIdentifier** are
+
+              extensible and new values can be added in the future without a
+
+              major version change. Please ensure this is factored into your
+
+              application code.
+
+              '
+            type: string
+            enum:
+            - SCHEDULED
+          history:
+            type: array
+            items:
+              $ref: '#/components/schemas/PaymentStatusHistory'
+        required:
+        - identifier
+        - detailedStatusIdentifier
+        - history
+    PaymentRecipient:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the recipient is a oneOf object linked to the **type** in the object. \nCurrently `UK` is the only available oneOf object\nbut the **recipient** oneOf is extensible and new recipient types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment recipient.\n"
+      allOf:
+      - oneOf:
+        - $ref: '#/components/schemas/AccountIdentifierUk'
+    UkAccountNumber:
+      type: string
+      description: In the UK, most bank account numbers consist of eight digits. Some UK banks have shorter account numbers, the number `0` should not be prefixed in those cases. Generally, an account number is only relevant in conjunction with a sort code.
+      example: '12345678'
+      minLength: 6
+      maxLength: 8
+    BacsDebitPaymentType:
+      type: string
+      description: Represents a Bacs payment.
+      enum:
+      - BACS_DEBIT
+    QuoteType:
+      type: string
+      description: 'Indicates which amount was specified in the original quote request.
+
+        - `BUY`: The buy amount was provided in the request
+
+        - `SELL`: The sell amount was provided in the request
+
+        '
+      enum:
+      - BUY
+      - SELL
+      example: BUY
+    TooManyRequestsError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 429
+          name:
+            enum:
+            - TooManyRequests
+          message:
+            example: Rate limiting has been applied
+    AccountIdentifierTbolResponse:
+      type: object
+      title: TBOL
+      properties:
+        type:
+          type: string
+          enum:
+          - TBOL
+        accountId:
+          $ref: '#/components/schemas/AccountId'
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+        accountHolderName:
+          $ref: '#/components/schemas/AccountHolderName'
+      required:
+      - type
+      - accountId
+      - sortCode
+      - accountNumber
+      - accountHolderName
+    PlannedPaymentExecutionDate:
+      type: string
+      description: The date when the payment should be executed by Bank of London. Any future date can be provided to schedule a future payment. Payments are processed in the Europe/London timezone so this must be a UK date in the format `YYYY-MM-DD`. `2022-10-05` is a valid example.
+      format: date
+      example: '2022-10-05'
+    QuoteBuyCurrency:
+      type: string
+      description: 'The ISO 4217 currency code representing the currency being bought. This value must correspond to the currency of the destination account to which funds are credited.
+
+        '
+      enum:
+      - GBP
+      - EUR
+      - USD
+      example: USD
+    CrossBorderAccountIBAN:
+      type: string
+      description: IBAN details for the account
+      pattern: ^[A-Z]{2,2}[0-9]{2,2}[a-zA-Z0-9]{1,30}$
+      example: GB33XXXX1234567890123456
+    CrossBorderDebtor:
+      type: object
+      description: 'Debtor - The party that is sending the payment.
+
+        '
+      properties:
+        account:
+          oneOf:
+          - type: object
+            properties:
+              accountId:
+                $ref: '#/components/schemas/AccountId'
+            required:
+            - accountId
+      required:
+      - account
+    GatewayTimeoutError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 504
+          name:
+            enum:
+            - GatewayTimeout
+          message:
+            example: Gateway timeout
+    PaymentCreatorSystemType:
+      type: string
+      description: The type of the payment creator. Created by the system, usually standing order payments.
+      enum:
+      - SYSTEM
+    CrossBorderFxDetails:
+      type: object
+      title: Cross-border FX Details
+      description: 'Foreign exchange details used to create the cross-border payment. This object will only be present if the currency of the debitor account is different to the currency of the payment.
+
+        '
+      properties:
+        exchangeRate:
+          $ref: '#/components/schemas/ExchangeRate'
+        sell:
+          type: object
+          description: Sell currency details
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteSellCurrency'
+            amount:
+              $ref: '#/components/schemas/SellAmount'
+          required:
+          - currency
+          - amount
+        buy:
+          type: object
+          description: Buy currency details
+          properties:
+            currency:
+              $ref: '#/components/schemas/QuoteBuyCurrency'
+            amount:
+              $ref: '#/components/schemas/BuyAmount'
+          required:
+          - currency
+          - amount
+      required:
+      - exchangeRate
+      - sell
+      - buy
+    CrossBorderAmount:
+      type: object
+      description: 'Amount you want to send to the creditor and is expressed in the currency you are sending.
+
+        '
+      properties:
+        currency:
+          $ref: '#/components/schemas/CrossBorderAmountCurrency'
+        value:
+          $ref: '#/components/schemas/CrossBorderAmountValue'
+      required:
+      - currency
+      - value
+    Amount:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/Currency'
+        value:
+          type: number
+          description: The amounts value assuming the provided unit under currency.
+          format: double
+          minimum: 0.01
+          example: 4320.5
+      required:
+      - currency
+      - value
+    PaymentCreatorUserType:
+      type: string
+      description: The type of the payment creator. Created by a user.
+      enum:
+      - USER
+    CrossBorderCreditor:
+      type: object
+      description: Information about the creditor of the transaction.
+      properties:
+        name:
+          $ref: '#/components/schemas/PartyName'
+        postalAddress:
+          $ref: '#/components/schemas/CrossBorderPostalAddress'
+        account:
+          $ref: '#/components/schemas/CrossBorderCreditorAccount'
+      required:
+      - name
+      - postalAddress
+      - account
+    BacsSinglePayment:
+      type: object
+      title: Bacs Payment
+      description: 'Payment object that is required to initiate a single Bacs payment.
+
+        '
+      properties:
+        id:
+          $ref: '#/components/schemas/PaymentId'
+        type:
+          $ref: '#/components/schemas/BacsDebitPaymentType'
+        scheme:
+          $ref: '#/components/schemas/BacsPaymentScheme'
+        sender:
+          $ref: '#/components/schemas/PaymentSenderResponse'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/BacsSinglePaymentItem'
+        plannedExecutionDate:
+          $ref: '#/components/schemas/PlannedPaymentExecutionDate'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        executionDateTime:
+          $ref: '#/components/schemas/BacsExecutionDateTime'
+        createdDateTime:
+          $ref: '#/components/schemas/CreatedDateTime'
+        createdBy:
+          $ref: '#/components/schemas/CreatedBy'
+        paymentOrderId:
+          $ref: '#/components/schemas/PaymentOrderId'
+        idempotencyId:
+          $ref: '#/components/schemas/IdempotencyId'
+        creator:
+          $ref: '#/components/schemas/PaymentCreator'
+      required:
+      - id
+      - type
+      - scheme
+      - sender
+      - payments
+      - plannedExecutionDate
+      - status
+      - createdDateTime
+      - createdBy
+      - idempotencyId
+      - creator
+    BacsDebitPaymentRequest:
+      type: object
+      title: Bacs Payment Request
+      description: Payment object that is required to initiate a single Bacs Debit payment.
+      properties:
+        type:
+          type: string
+          description: Represents an immediate or future dated Bacs payment.
+          enum:
+          - BACS_DEBIT
+        sender:
+          $ref: '#/components/schemas/PaymentSender'
+        payments:
+          type: array
+          description: 'Array of payment objects that represent a single Bacs payment item. For now, only one item in this array is supported. In the future, multiple payment items will be supported.
+
+            '
+          items:
+            $ref: '#/components/schemas/BacsSinglePaymentItem'
+        plannedExecutionDate:
+          $ref: '#/components/schemas/PlannedPaymentExecutionDate'
+        idempotencyId:
+          $ref: '#/components/schemas/IdempotencyId'
+      required:
+      - type
+      - sender
+      - payments
+      - plannedExecutionDate
+      - idempotencyId
+    PostalAddressStreetName:
+      type: string
+      description: Street name
+      minLength: 1
+      maxLength: 70
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+    UnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 401
+          name:
+            enum:
+            - Unauthorized
+          message:
+            example: Missing x-jws-signature header
+    CreatedBy:
+      type: string
+      description: The `id` of the user or application that created the payment. System generated payments use a reserved value of `SYSTEM`.
+      example: 64e739504746e6fe27ed53b5
+    PartyName:
+      type: string
+      description: Name of the party
+      minLength: 1
+      maxLength: 140
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+      example: John Doe Inc
+    FPSPaymentScheme:
+      type: string
+      description: 'Payment scheme.
+
+        `FPS`: Faster payment
+
+        '
+      enum:
+      - FPS
+    CrossBorderPaymentScheme:
+      type: string
+      description: 'Payment scheme.
+
+        `CROSSBORDER`: Cross-border payment
+
+        '
+      enum:
+      - CROSSBORDER
+    PaymentSenderResponse:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the sender is a oneOf object linked to the **type** in the object. \nCurrently `TBOL` is the only available oneOf object\nbut the **sender** oneOf is extensible and new sender types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment sender.\n    type: object\n"
+      title: TBOL
+      properties:
+        type:
+          type: string
+          enum:
+          - TBOL
+        accountId:
+          $ref: '#/components/schemas/AccountId'
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+      required:
+      - type
+      - accountId
+      - sortCode
+      - accountNumber
+    PostalAddressDistrictName:
+      type: string
+      description: District name
+      minLength: 1
+      maxLength: 35
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+    ForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 403
+          name:
+            enum:
+            - Forbidden
+          message:
+            example: You do not have permission to access this resource
+    ExchangeRate:
+      type: string
+      description: 'FX rate rounded off to 4 decimal places
+
+        '
+      example: '1.2750'
+      pattern: ^[0-9]+\.[0-9]{4}$
+    CreditorAgentBankIdentifier:
+      type: string
+      description: 'Bank identifier for the payment based on the region where the payment is identified.
+
+        Examples include:
+
+        - U.S. ABA routing number (e.g., 021000021)
+
+        - Australia BSB (Bank State Branch) code
+
+        - India IFSC (Indian Financial System Code)
+
+        - Brazil COMPE code
+
+        - UK Sort Code for UK destined payments
+
+        '
+      minLength: 1
+      maxLength: 28
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ ]+$
+      example: '021000021'
+    ValidationError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 422
+          name:
+            enum:
+            - ValidationFailure
+            - UnprocessableEntity
+          message:
+            example: Validation Failed
+    PaymentStandingOrderId:
+      type: string
+      description: Standing order ID identifies a standing order linked to a payment. Only payments of type `INTERNAL_STANDING_ORDER_DEBIT` or `FPS_STANDING_ORDER_DEBIT` will have a standing order ID.
+      example: VkfAIi3VOVO3ssMGHmt6P
+    PaymentStatusQueryParam:
+      type: string
+      description: "Payment statuses listed below can be used as query values. In order to query for \\\nmultiple statuses, the query param can be repeated \\\ne.g ...?status=PENDING&status=SUCCESSFUL \\\n \\\n`PENDING_APPROVAL`: Initial status of a payment that requires approval before processing. \\\n`PENDING`: Payment is currently being processed within Bank of London system.  \\\n`APPROVED`: The payment has been approved by an authorised payment approver  \\\n`REJECTED`: The payment has been rejected by an authorised payment approver  \\\n`SUCCESSFUL`: Payment has been processed and passed all checks.  \\\n`FAILED`: One or more checks failed whilst processing the payment.\n"
+      enum:
+      - PENDING_APPROVAL
+      - PENDING
+      - APPROVED
+      - REJECTED
+      - SUCCESSFUL
+      - FAILED
+    BacsSinglePaymentItem:
+      type: object
+      title: Bacs Payment Item
+      description: Payment object that represents a single Bacs payment item.
+      properties:
+        recipient:
+          description: Represents the details of the payment recipient.
+          allOf:
+          - $ref: '#/components/schemas/AccountIdentifierUk'
+        amount:
+          $ref: '#/components/schemas/PaymentAmount'
+        reference:
+          $ref: '#/components/schemas/PaymentReferenceRequest'
+        notes:
+          $ref: '#/components/schemas/PaymentNotes'
+      required:
+      - recipient
+      - amount
+      - reference
+    CHAPSDebitPaymentType:
+      type: string
+      description: Represents a CHAPS payment.
+      enum:
+      - CHAPS_DEBIT
+    FinancialInstitutionBIC:
+      type: string
+      description: Business Identifier Code of the financial institution
+      pattern: ^[A-Z0-9]{4,4}[A-Z]{2,2}[A-Z0-9]{2,2}([A-Z0-9]{3,3}){0,1}$
+      example: CHASUS33XXX
+    CrossBorderAmountCurrency:
+      type: string
+      description: 'Currency Code (ISO4217) of the creditor account. \
+
+        <span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **currency** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+        '
+      enum:
+      - GBP
+      - USD
+      - EUR
+      example: USD
+    PaymentReference:
+      allOf:
+      - $ref: '#/components/schemas/PaymentReferenceRequest'
+      description: Reference note that is sent along with the payment and usually contains personal or business related information. This is visible to the sender and the recipient.
+    QuoteSellCurrency:
+      type: string
+      description: 'The ISO 4217 currency code representing the currency being sold. This value must correspond to the currency of the source account from which funds are debited.
+
+        '
+      enum:
+      - GBP
+      - EUR
+      - USD
+      example: GBP
+    InternalDebitPaymentType:
+      type: string
+      description: Represents an immediate or future internal payment.
+      enum:
+      - INTERNAL_DEBIT
+      - INTERNAL_STANDING_ORDER_DEBIT
+    NotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 404
+          name:
+            enum:
+            - NotFound
+          message:
+            example: The requested resource was not found
+    CrossBorderAccountOther:
+      type: string
+      description: Account details based on clearing system (account number, ABA code, etc.)
+      minLength: 1
+      maxLength: 34
+      pattern: ^[0-9a-zA-Z\-?:().,'+ ]+(\/[0-9a-zA-Z\-?:().,'+ ]+)*$
+      example: '1234567890123456'
+    ChapsPaymentAmount:
+      allOf:
+      - description: The amount to be paid from the senders account to the recipient's account.
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/Currency'
+        value:
+          type: number
+          description: The amounts value assuming the provided unit under currency.
+          format: double
+          example: 1200000.5
+      required:
+      - currency
+      - value
+    PostalAddressBuildingName:
+      type: string
+      description: Building name
+      minLength: 1
+      maxLength: 35
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+    Currency:
+      type: string
+      enum:
+      - GBP
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **currency** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        `GBP`: British Pound Sterling
+
+        '
+      example: GBP
+    BaseCrossBorderPaymentResponse:
+      type: object
+      title: Base Cross-border Payment Response
+      description: 'Base payment response object with common properties for cross-border payments.
+
+        '
+      properties:
+        id:
+          $ref: '#/components/schemas/PaymentId'
+        scheme:
+          $ref: '#/components/schemas/CrossBorderPaymentScheme'
+        quoteId:
+          $ref: '#/components/schemas/CrossBorderQuoteId'
+        debtor:
+          $ref: '#/components/schemas/CrossBorderDebtor'
+        amount:
+          $ref: '#/components/schemas/CrossBorderAmount'
+        creditorAgent:
+          $ref: '#/components/schemas/CrossBorderCreditorAgent'
+        creditor:
+          $ref: '#/components/schemas/CrossBorderCreditor'
+        fxDetails:
+          $ref: '#/components/schemas/CrossBorderFxDetails'
+        reference:
+          $ref: '#/components/schemas/CrossBorderReference'
+        status:
+          $ref: '#/components/schemas/CrossBorderPaymentStatus'
+        createdDateTime:
+          $ref: '#/components/schemas/CrossBorderCreatedDateTime'
+        endToEndId:
+          $ref: '#/components/schemas/CrossBorderEndToEndId'
+        plannedExecutionDate:
+          $ref: '#/components/schemas/CrossBorderPlannedExecutionDate'
+        executionDateTime:
+          $ref: '#/components/schemas/ExecutionDateTime'
+        paymentOrderId:
+          $ref: '#/components/schemas/PaymentOrderId'
+        idempotencyId:
+          $ref: '#/components/schemas/IdempotencyId'
+        creator:
+          $ref: '#/components/schemas/PaymentCreator'
+      required:
+      - id
+      - scheme
+      - createdDateTime
+      - endToEndId
+      - plannedExecutionDate
+      - debtor
+      - amount
+      - creditor
+      - status
+      - reference
+      - idempotencyId
+      - creator
+    AccountIdentifierFPS:
+      type: object
+      title: UK
+      properties:
+        type:
+          type: string
+          enum:
+          - UK
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+        accountHolderName:
+          $ref: '#/components/schemas/AccountHolderName'
+        redirectedSortCode:
+          $ref: '#/components/schemas/RedirectedSortCode'
+        redirectedAccountNumber:
+          $ref: '#/components/schemas/RedirectedAccountNumber'
+      required:
+      - type
+      - sortCode
+      - accountNumber
+      - accountHolderName
+    CrossBorderCreatedDateTime:
+      type: string
+      description: 'Date and time at which the message was created.
+
+        '
+      format: date-time
+      example: '2024-11-01T12:15:00.000Z'
+    CreateAnFXQuoteRequest:
+      title: Create an FX Quote Request
+      description: "Request to create an FX quote. The request can be either a sell request \nwhere you specify the amount to sell, or a buy request where you specify \nthe amount to buy.\n"
+      oneOf:
+      - $ref: '#/components/schemas/FXQuoteSellRequest'
+      - $ref: '#/components/schemas/FXQuoteBuyRequest'
+    PaymentNotes:
+      type:
+      - string
+      - 'null'
+      description: This is available for additional information to be shared with the recipient to help them identify the payment. This is visible to the sender and may be visible to the recipient.
+      maxLength: 140
+      example: My transaction
+    SellAmount:
+      type: string
+      description: 'The amount being sold in the sell currency (accepts 0, 1, or 2 decimal places).
+
+        '
+      example: '8500.00'
+      pattern: ^[0-9]+(\.[0-9]{1,2})?$
+    ErrorResponseJSON:
+      additionalProperties: false
+      properties:
+        status:
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        details:
+          $ref: '#/components/schemas/ErrorResponseDetails'
+        code:
+          type:
+          - string
+          - 'null'
+          description: A unique code for the error, if available.
+      type: object
+    PostalAddressPostBox:
+      type: string
+      description: Post box information
+      minLength: 1
+      maxLength: 16
+      pattern: ^[0-9a-zA-Z/\-?:().,'+ !#$%&*=^_`{|}~";<>@[\\\]]+$
+  responses:
+    PaymentUnauthorizedError:
+      description: Unauthorized
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/UnauthorizedError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - BANK_ACCOUNT_LOCKED
+                  - BANK_ACCOUNT_CLOSED
+                message:
+                  type: string
+                  example: Account is locked, please contact your account administrator
+    CreateChapsPaymentUnprocessableError:
+      description: Validation Failed
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ValidationError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+                  - ONE_TIME_EXECUTION_DATE_CANNOT_BE_IN_PAST
+                  - CHAPS_EXECUTION_DATE_ON_WEEKEND
+                  - CHAPS_EXECUTION_DATE_LIMIT_EXCEEDED
+                  - PAYMENT_EXECUTION_DATE_IS_NOT_NOTICE_PERIOD_COMPLIANT
+                  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
+                  - PAYMENT_REFERENCE_VIOLATES_PROFANITY_FILTER
+                  - INVALID_SORT_CODE_PROVIDED
+                  - CHAPS_EXECUTION_DATE_CUTOFF_TIME
+                  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+                message:
+                  type: string
+                  example: CHAPS payment cannot be executed on weekend
+    CreateFPSUnprocessableError:
+      description: Validation Failed
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ValidationError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - PAYMENT_EXECUTION_DATE_IS_NOT_NOTICE_PERIOD_COMPLIANT
+                  - PAYMENT_AMOUNT_EXCEEDS_LIMIT
+                  - ONE_TIME_EXECUTION_DATE_CANNOT_BE_IN_PAST
+                  - NO_PAYMENT_EXECUTION_DATE_DEFINED
+                  - RECURRING_PAYMENT_DAY_CANNOT_BE_IN_PAST
+                  - RECURRING_PAYMENT_START_DAY_IS_LATER_THAN_END_DAY
+                  - EXECUTION_DATE_TODAY
+                  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
+                  - EXECUTION_DATE_ON_WEEKEND
+                  - EXECUTION_DATE_ON_PUBLIC_HOLIDAY
+                  - PAYMENT_REFERENCE_VIOLATES_PROFANITY_FILTER
+                  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+                  - INVALID_SORT_CODE_PROVIDED
+                  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+                  - INVALID_PLANNED_EXECUTION_DATE
+                message:
+                  type: string
+                  example: Payment amount exceeds maximum amount configured for account
+    '401':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+      description: Unauthorized
+    PaymentForbiddenError:
+      description: Forbidden
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ForbiddenError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - PAYEE_IS_NOT_A_NOMINATED_PAYEE
+                message:
+                  type: string
+                  example: Recipient bank account details do not match a nominated payee sort code & account number
+    CreateBacsPaymentUnprocessableError:
+      description: Validation Failed
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ValidationError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - BACS_EXECUTION_DATE_IN_THE_PAST
+                  - BACS_EXECUTION_DATE_LIMIT_EXCEEDED
+                  - BACS_EXECUTION_DATE_ON_WEEKEND
+                  - BACS_NO_PAYEES_PROVIDED
+                  - BACS_MULTIPLE_PAYEES_NOT_ALLOWED
+                  - BACS_INTERNAL_SORT_CODE_PROVIDED
+                  - BACS_EXECUTION_DATE_ON_PUBLIC_HOLIDAY
+                  - PAYMENT_REFERENCE_VIOLATES_PROFANITY_FILTER
+                  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+                  - INVALID_SORT_CODE_PROVIDED
+                  - BACS_EXECUTION_DATE_CUTOFF_TIME
+                  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+                message:
+                  type: string
+                  example: No payees provided for BACS payment
+    CreateCrossBorderUnprocessableError:
+      description: Validation Failed
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ValidationError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - INVALID_ACCOUNT_ID
+                  - BANK_ACCOUNT_NOT_FOUND
+                  - BANK_ACCOUNT_LOCKED
+                  - BANK_ACCOUNT_CLOSED
+                  - IDEMPOTENCY_ID_CONFLICT
+                  - FX_QUOTE_GENERATION_FAILED
+                  - FX_QUOTE_NOT_FOUND
+                  - FX_QUOTE_EXPIRED
+                  - FX_QUOTE_CURRENCY_MISMATCH
+                  - FX_QUOTE_AMOUNT_MISMATCH
+                  - INVALID_QUOTE_FOR_SAME_CURRENCY
+                  - FX_PROVIDER_DOWNTIME
+                  - FX_QUOTE_ALREADY_USED
+                  - FX_QUOTE_ALREADY_IN_USE
+                  - BIC_OR_BANK_IDENTIFIER_REQUIRED
+                  - BANK_IDENTIFIER_REQUIRED
+                  - COUNTRY_REQUIRED_FOR_BANK_IDENTIFIER
+                  - IBAN_NOT_ALLOWED_WITH_BANK_IDENTIFIER
+                  - BANK_IDENTIFIER_NOT_VALID
+                  - BIC_NOT_VALID
+                  - IBAN_REQUIRED_FOR_BIC
+                  - IBAN_NOT_ALLOWED_FOR_BIC
+                  - IBAN_OR_ACCOUNT_NUMBER_REQUIRED
+                  - IBAN_NOT_VALID
+                  - ACCOUNT_NUMBER_NOT_VALID
+                message:
+                  type: string
+                  example: 'Creditor agent BIC is not valid: INVALID_FORMAT'
+    '422':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+      description: Validation Failed
+    '404':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+      description: Not Found
+    '403':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+      description: Forbidden
+    PaymentServiceUnavailableError:
+      description: Service Unavailable
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ServiceUnavailableError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - FX_PROVIDER_DOWNTIME
+                message:
+                  type: string
+                  example: Service is currently unavailable due to scheduled downtime. Service will be available from 2025-12-17T16:30:00.000Z
+    CreateInternalPaymentUnprocessableError:
+      description: Validation Failed
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ValidationError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - PAYMENT_EXECUTION_DATE_IS_NOT_NOTICE_PERIOD_COMPLIANT
+                  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+                  - PAYMENT_AMOUNT_EXCEEDS_LIMIT
+                  - ONE_TIME_EXECUTION_DATE_CANNOT_BE_IN_PAST
+                  - NO_PAYMENT_EXECUTION_DATE_DEFINED
+                  - RECURRING_PAYMENT_DAY_CANNOT_BE_IN_PAST
+                  - RECURRING_PAYMENT_START_DAY_IS_LATER_THAN_END_DAY
+                  - EXECUTION_DATE_TODAY
+                  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
+                  - PAYMENT_REFERENCE_VIOLATES_PROFANITY_FILTER
+                  - INVALID_SORT_CODE_PROVIDED
+                  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+                  - INVALID_PLANNED_EXECUTION_DATE
+                message:
+                  type: string
+                  example: Amount exceeds available balance
+    CreateChapsBadRequestError:
+      description: Bad Request
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/BadRequestError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - CHAPS_INVALID_SORT_CODE_PROVIDED
+                  - NO_PAYMENT_EXECUTION_DATE_DEFINED
+                message:
+                  type: string
+                  example: Sending CHAPS payments from this account is not allowed
+    '429':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TooManyRequestsError'
+      description: Too Many Requests
+    '400':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+      description: Bad Request
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error
+    '504':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GatewayTimeoutError'
+      description: Gateway Timeout
+    ErrorResponseConflictIdempotencyId:
+      description: Conflict
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ConflictError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - IDEMPOTENCY_ID_CONFLICT
+                message:
+                  type: string
+                  example: Idempotency ID <id> has already been utilised by a previous request
+    BankAccountNotFoundError:
+      description: Not Found
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/NotFoundError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - BANK_ACCOUNT_NOT_FOUND
+                message:
+                  type: string
+                  example: Bank account with ID <id> not found
+    PaymentNotFound:
+      description: Not Found
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/NotFoundError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - PAYMENT_DOES_NOT_EXIST
+                message:
+                  type: string
+                  example: Payment <id> does not exist
+  parameters:
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+      required: false
+      description: The page number of the result set to be returned.
+    PageSize:
+      in: query
+      name: pageSize
+      required: false
+      schema:
+        type: integer
+        description: The number of items to be returned per page.
+        default: 20
+        minimum: 1
+        maximum: 50
+    JwsSignature:
+      in: header
+      name: x-jws-signature
+      description: A JSON web signature representing signed content using JSON data structures. It contains contextual information from the request signed using a private key generated within Bank of London Developer Studio application.
+      content:
+        application/json:
+          schema:
+            type: string

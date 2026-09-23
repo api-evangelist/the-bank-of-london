@@ -1,0 +1,38 @@
+{
+  "provider": "the-bank-of-london",
+  "sources": [
+    "_original/the-bank-of-london-api-openapi.json"
+  ],
+  "outputs": [
+    "the-bank-of-london-accounts-api-openapi.yml",
+    "the-bank-of-london-confirmation-of-payee-api-openapi.yml",
+    "the-bank-of-london-customer-management-api-openapi.yml",
+    "the-bank-of-london-mandates-direct-debits-api-openapi.yml",
+    "the-bank-of-london-payments-v2-api-openapi.yml",
+    "the-bank-of-london-standing-orders-api-openapi.yml",
+    "the-bank-of-london-statements-api-openapi.yml",
+    "the-bank-of-london-transactions-api-openapi.yml",
+    "the-bank-of-london-virtual-account-management-api-openapi.yml",
+    "the-bank-of-london-webhook-management-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "the-bank-of-london-api-openapi.json: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "the-bank-of-london-accounts-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "the-bank-of-london-confirmation-of-payee-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "the-bank-of-london-customer-management-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "the-bank-of-london-mandates-direct-debits-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "the-bank-of-london-payments-v2-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "the-bank-of-london-standing-orders-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "the-bank-of-london-statements-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "the-bank-of-london-transactions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "the-bank-of-london-virtual-account-management-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "the-bank-of-london-webhook-management-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}
