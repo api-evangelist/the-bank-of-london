@@ -45,7 +45,7 @@ tags:
 - Open Banking
 - PSD2
 - Faster Payments
-- Financial-Services
+- Financial Services
 - United Kingdom
 - Virtual Accounts
 tags_raw:
@@ -61,6 +61,7 @@ tags_raw:
 - Financial Services
 - United Kingdom
 - Virtual Accounts
+- Financial-Services
 apis:
 - name: Bank of London PSD2 / Open Banking UK API
   description: >-
