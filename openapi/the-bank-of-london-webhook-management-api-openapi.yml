@@ -390,6 +390,19 @@ components:
           schema:
             $ref: '#/components/schemas/UnauthorizedError'
       description: Unauthorized
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error
     '429':
       headers:
         x-correlation-id:
@@ -403,6 +416,19 @@ components:
           schema:
             $ref: '#/components/schemas/TooManyRequestsError'
       description: Too Many Requests
+    '400':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+      description: Bad Request
     '403':
       headers:
         x-correlation-id:
@@ -442,32 +468,6 @@ components:
           schema:
             $ref: '#/components/schemas/NotFoundError'
       description: Not Found
-    '500':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/InternalServerError'
-      description: Internal Server Error
-    '400':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/BadRequestError'
-      description: Bad Request
   schemas:
     UnauthorizedError:
       allOf:
@@ -481,6 +481,41 @@ components:
             - Unauthorized
           message:
             example: Missing x-jws-signature header
+    WebhookPublicKey:
+      type: string
+      description: 'The public key of the webhook.
+
+        '
+      example: '-----BEGIN PUBLIC KEY-----\nMvQI...SjAgEA-----END PUBLIC KEY-----
+
+        '
+    WebhookName:
+      type: string
+      description: 'The name of the webhook.
+
+
+        - <span style="font-size:14px; font-family:Inter;">Name must be unique within an environment (`sandbox` or `live`) for an account.</span>
+
+        '
+      example: My Webhook
+      minLength: 1
+      maxLength: 50
+    WebhookVersion:
+      type: number
+      description: "The version of API to subscribe to. \n\nA combination of the `url` and `version` must be unique within an environment (`sandbox` or `live`) for an account.\n"
+      example: 2
+      enum:
+      - 2
+      - 3
+    RegenerateWebhookKeyResponse:
+      properties:
+        id:
+          $ref: '#/components/schemas/WebhookId'
+        publicKey:
+          $ref: '#/components/schemas/WebhookPublicKey'
+      required:
+      - id
+      - publicKey
     ErrorResponseDetails:
       additionalProperties: true
       properties: {}
@@ -492,27 +527,21 @@ components:
         body.extraProperty:
           message: '"extraProperty" is an excess property and therefore is not allowed'
           value: extraProperty
-    RegenerateWebhookKeyResponse:
-      properties:
-        id:
-          $ref: '#/components/schemas/WebhookId'
-        publicKey:
-          $ref: '#/components/schemas/WebhookPublicKey'
-      required:
-      - id
-      - publicKey
-    TooManyRequestsError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 429
-          name:
-            enum:
-            - TooManyRequests
-          message:
-            example: Rate limiting has been applied
+    WebhookId:
+      type: string
+      description: The id of the webhook
+      example: cpNBTqwaiqem3mI72UEcP
+    Url:
+      type: string
+      description: 'The url of webhook target.
+
+
+        - <span style="font-size:14px; font-family:Inter;">Url must be `https`.</span>
+
+        - <span style="font-size:14px; font-family:Inter;">A combination of the `version` and `url` must be unique within an environment (`sandbox` or `live`) for an account.</span>
+
+        '
+      example: https://www.your-webhook-handling-url.com/api/callback
     InternalServerError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
@@ -525,6 +554,165 @@ components:
             - 500
           message:
             example: Request failed with status code 500
+    ForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 403
+          name:
+            enum:
+            - Forbidden
+          message:
+            example: You do not have permission to access this resource
+    WebhookEvent:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **events** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        The type of event. \
+
+        `PAYMENT_PENDING` - payment has been created and is `PENDING` or `SCHEDULED`. \
+
+        `PAYMENT_SUCCESSFUL` - payment has become `SUCCESSFUL`. \
+
+        `PAYMENT_FAILED` - payment has been updated with a status of `REJECTED` or `FAILED`. \
+
+        `TRANSACTION_SUCCESSFUL` - transaction has been created and successfully settled. \
+
+        `TRANSACTION_EXPORT_SUCCESSFUL` - transaction export has completed successfully. \
+
+        `TRANSACTION_EXPORT_FAILED` - transaction export has failed.
+
+        '
+      enum:
+      - PAYMENT_PENDING
+      - PAYMENT_SUCCESSFUL
+      - PAYMENT_FAILED
+      - TRANSACTION_SUCCESSFUL
+      - TRANSACTION_EXPORT_SUCCESSFUL
+      - TRANSACTION_EXPORT_FAILED
+    NotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 404
+          name:
+            enum:
+            - NotFound
+          message:
+            example: The requested resource was not found
+    NullableUrl:
+      type:
+      - string
+      - 'null'
+      description: 'The url of webhook target.
+
+
+        - <span style="font-size:14px; font-family:Inter;">Url must be `https`.</span>
+
+        - <span style="font-size:14px; font-family:Inter;">A combination of the `version` and `url` must be unique within an environment (`sandbox` or `live`) for an account.</span>
+
+        '
+      example: https://www.your-webhook-handling-url.com/api/callback
+    ErrorResponseJSON:
+      additionalProperties: false
+      properties:
+        status:
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        details:
+          $ref: '#/components/schemas/ErrorResponseDetails'
+        code:
+          type:
+          - string
+          - 'null'
+          description: A unique code for the error, if available.
+      type: object
+    WebhookEnabledStatus:
+      type: boolean
+      description: 'Indicates whether the webhook is enabled or not.
+
+        '
+      example: true
+    TooManyRequestsError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 429
+          name:
+            enum:
+            - TooManyRequests
+          message:
+            example: Rate limiting has been applied
+    MetaData:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of available records for the query.
+          example: 100
+        page:
+          type: integer
+          description: The page number returned for the query.
+          example: 1
+        pageSize:
+          type: integer
+          description: The number of records per page for the query.
+          example: 20
+      required:
+      - totalRecords
+      - page
+      - pageSize
+    NullableWebhookEnabledStatus:
+      type:
+      - boolean
+      - 'null'
+      description: 'Indicates whether the webhook is enabled or not.
+
+        '
+      example: true
+    BadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 400
+          name:
+            enum:
+            - BadRequest
+          message:
+            example: The request has validation errors
+    WebhookCreatedDate:
+      type: string
+      format: date-time
+      description: 'The date and time the webhook was created.
+
+        '
+      example: '2023-01-01T00:00:00.000Z'
     Webhook:
       properties:
         id:
@@ -583,117 +771,6 @@ components:
       - enabled
       - publicKey
       - createdDate
-    WebhookName:
-      type: string
-      description: 'The name of the webhook.
-
-
-        - <span style="font-size:14px; font-family:Inter;">Name must be unique within an environment (`sandbox` or `live`) for an account.</span>
-
-        '
-      example: My Webhook
-      minLength: 1
-      maxLength: 50
-    MetaData:
-      type: object
-      properties:
-        totalRecords:
-          type: integer
-          description: The total number of available records for the query.
-          example: 100
-        page:
-          type: integer
-          description: The page number returned for the query.
-          example: 1
-        pageSize:
-          type: integer
-          description: The number of records per page for the query.
-          example: 20
-      required:
-      - totalRecords
-      - page
-      - pageSize
-    ErrorResponseJSON:
-      additionalProperties: false
-      properties:
-        status:
-          type:
-          - integer
-          - 'null'
-        name:
-          type:
-          - string
-          - 'null'
-        message:
-          type:
-          - string
-          - 'null'
-        details:
-          $ref: '#/components/schemas/ErrorResponseDetails'
-        code:
-          type:
-          - string
-          - 'null'
-          description: A unique code for the error, if available.
-      type: object
-    NullableWebhookName:
-      type:
-      - string
-      - 'null'
-      description: 'The name of the webhook.
-
-
-        - <span style="font-size:14px; font-family:Inter;">Name must be unique within an environment (`sandbox` or `live`) for an account.</span>
-
-        '
-      example: My Webhook
-      minLength: 1
-      maxLength: 50
-    WebhookEnabledStatus:
-      type: boolean
-      description: 'Indicates whether the webhook is enabled or not.
-
-        '
-      example: true
-    WebhookId:
-      type: string
-      description: The id of the webhook
-      example: cpNBTqwaiqem3mI72UEcP
-    WebhookCreatedDate:
-      type: string
-      format: date-time
-      description: 'The date and time the webhook was created.
-
-        '
-      example: '2023-01-01T00:00:00.000Z'
-    NullableWebhookEnabledStatus:
-      type:
-      - boolean
-      - 'null'
-      description: 'Indicates whether the webhook is enabled or not.
-
-        '
-      example: true
-    WebhookPublicKey:
-      type: string
-      description: 'The public key of the webhook.
-
-        '
-      example: '-----BEGIN PUBLIC KEY-----\nMvQI...SjAgEA-----END PUBLIC KEY-----
-
-        '
-    ForbiddenError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 403
-          name:
-            enum:
-            - Forbidden
-          message:
-            example: You do not have permission to access this resource
     ValidationError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
@@ -707,31 +784,19 @@ components:
             - UnprocessableEntity
           message:
             example: Validation Failed
-    NotFoundError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 404
-          name:
-            enum:
-            - NotFound
-          message:
-            example: The requested resource was not found
-    NullableUrl:
+    NullableWebhookName:
       type:
       - string
       - 'null'
-      description: 'The url of webhook target.
+      description: 'The name of the webhook.
 
 
-        - <span style="font-size:14px; font-family:Inter;">Url must be `https`.</span>
-
-        - <span style="font-size:14px; font-family:Inter;">A combination of the `version` and `url` must be unique within an environment (`sandbox` or `live`) for an account.</span>
+        - <span style="font-size:14px; font-family:Inter;">Name must be unique within an environment (`sandbox` or `live`) for an account.</span>
 
         '
-      example: https://www.your-webhook-handling-url.com/api/callback
+      example: My Webhook
+      minLength: 1
+      maxLength: 50
     NullableWebhookVersion:
       type:
       - number
@@ -741,71 +806,6 @@ components:
       enum:
       - 2
       - 3
-    BadRequestError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 400
-          name:
-            enum:
-            - BadRequest
-          message:
-            example: The request has validation errors
-    WebhookVersion:
-      type: number
-      description: "The version of API to subscribe to. \n\nA combination of the `url` and `version` must be unique within an environment (`sandbox` or `live`) for an account.\n"
-      example: 2
-      enum:
-      - 2
-      - 3
-    WebhookEvent:
-      type: string
-      description: '<span style="color:#f46d2a">**Attention**</span> \
-
-        Please note that the allowed values for the **events** are
-
-        extensible and new values can be added in the future without a
-
-        major version change. Please ensure this is factored into your
-
-        application code.
-
-
-        The type of event. \
-
-        `PAYMENT_PENDING` - payment has been created and is `PENDING` or `SCHEDULED`. \
-
-        `PAYMENT_SUCCESSFUL` - payment has become `SUCCESSFUL`. \
-
-        `PAYMENT_FAILED` - payment has been updated with a status of `REJECTED` or `FAILED`. \
-
-        `TRANSACTION_SUCCESSFUL` - transaction has been created and successfully settled. \
-
-        `TRANSACTION_EXPORT_SUCCESSFUL` - transaction export has completed successfully. \
-
-        `TRANSACTION_EXPORT_FAILED` - transaction export has failed.
-
-        '
-      enum:
-      - PAYMENT_PENDING
-      - PAYMENT_SUCCESSFUL
-      - PAYMENT_FAILED
-      - TRANSACTION_SUCCESSFUL
-      - TRANSACTION_EXPORT_SUCCESSFUL
-      - TRANSACTION_EXPORT_FAILED
-    Url:
-      type: string
-      description: 'The url of webhook target.
-
-
-        - <span style="font-size:14px; font-family:Inter;">Url must be `https`.</span>
-
-        - <span style="font-size:14px; font-family:Inter;">A combination of the `version` and `url` must be unique within an environment (`sandbox` or `live`) for an account.</span>
-
-        '
-      example: https://www.your-webhook-handling-url.com/api/callback
   parameters:
     JwsSignature:
       in: header

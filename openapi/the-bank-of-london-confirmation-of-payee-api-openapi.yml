@@ -69,6 +69,32 @@ components:
           schema:
             $ref: '#/components/schemas/UnauthorizedError'
       description: Unauthorized
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error
+    '400':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+      description: Bad Request
     '403':
       headers:
         x-correlation-id:
@@ -108,33 +134,31 @@ components:
           schema:
             $ref: '#/components/schemas/NotFoundError'
       description: Not Found
-    '500':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/InternalServerError'
-      description: Internal Server Error
-    '400':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/BadRequestError'
-      description: Bad Request
   schemas:
+    ConfirmationOfPayeeType:
+      type: string
+      title: Confirmation of Payee Type
+      description: The type of Confirmation of Payee check to perform.
+      enum:
+      - UK
+      example: UK
+    ConfirmationOfPayeeReason:
+      type: string
+      title: Confirmation of Payee Reason
+      description: The reason for a rejected Confirmation of Payee check.
+      enum:
+      - There is no account with the provided account number
+      - Account does not support Confirmation of Payee scheme
+      - Name does not match the account name
+      - Name is a close match to the account name. The type of account is 'Business' when 'Personal' was provided in the request
+      - Name is a match to the account name. The type of account is 'Business' when 'Personal' was provided in the request
+      - Account has been switched using the Current Account Switching Service (CASS)
+      - Unable to locate account based on secondary identification data
+      - Name is a close match to the account name
+      - Account has opted out of Confirmation of Payee scheme
+      - Name is a close match to the account name. The type of account is 'Personal' when 'Business' was provided in the request
+      - Name is a match to the account name. The type of account is 'Personal' when 'Business' was provided in the request
+      - Responder has received a Confirmation of Payee request specifying a sort code that does not belong to them
     UnauthorizedError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
@@ -147,17 +171,6 @@ components:
             - Unauthorized
           message:
             example: Missing x-jws-signature header
-    ErrorResponseDetails:
-      additionalProperties: true
-      properties: {}
-      type:
-      - object
-      - 'null'
-      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
-      example:
-        body.extraProperty:
-          message: '"extraProperty" is an excess property and therefore is not allowed'
-          value: extraProperty
     ConfirmationOfPayeeFailureCode:
       type: string
       title: Confirmation of Payee Failure Code
@@ -172,6 +185,40 @@ components:
       - RESPONDER_REQUEST_TIMEOUT
       - REQUESTER_BAD_REQUEST
       - REQUESTER_UNAVAILABLE
+    NullableConfirmationOfPayeeName:
+      type:
+      - string
+      - 'null'
+      title: Confirmation of Payee Name
+      description: The name to check against the account details. Payee name should not include titles, e.g. Mr, Mrs, Miss, Ms, Dr, etc.
+      example: Pay Ment
+      minLength: 1
+      maxLength: 140
+    ConfirmationOfPayeeName:
+      type: string
+      title: Confirmation of Payee Name
+      description: The name to check against the account details. Payee name should not include titles, e.g. Mr, Mrs, Miss, Ms, Dr, etc.
+      example: Pay Ment
+      minLength: 1
+      maxLength: 140
+    ErrorResponseDetails:
+      additionalProperties: true
+      properties: {}
+      type:
+      - object
+      - 'null'
+      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
+      example:
+        body.extraProperty:
+          message: '"extraProperty" is an excess property and therefore is not allowed'
+          value: extraProperty
+    ConfirmationOfPayeeSortCode:
+      type: string
+      title: Confirmation of Payee Sort Code
+      description: The sort code of the account to check against.
+      example: '000000'
+      minLength: 6
+      maxLength: 6
     InternalServerError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
@@ -184,67 +231,43 @@ components:
             - 500
           message:
             example: Request failed with status code 500
-    ConfirmationOfPayeeReasonCode:
+    ForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 403
+          name:
+            enum:
+            - Forbidden
+          message:
+            example: You do not have permission to access this resource
+    ConfirmationOfPayeeResultStatus.CONFIRMED:
       type: string
-      title: Confirmation of Payee Reason Code
-      description: The reason code for a rejected Confirmation of Payee check.
+      title: Confirmation of Payee Confirmed Status
+      description: The status identifier for a confirmed Confirmation of Payee check.
       enum:
-      - AC01
-      - ACNS
-      - ANNM
-      - BAMM
-      - BANM
-      - CASS
-      - IVCR
-      - MBAM
-      - OPTO
-      - PAMM
-      - PANM
-      - SCNS
-    ConfirmationOfPayeeResponse:
-      anyOf:
-      - $ref: '#/components/schemas/ConfirmationOfPayeeConfirmedResponse'
-      - $ref: '#/components/schemas/ConfirmationOfPayeeRejectedResponse'
-      - $ref: '#/components/schemas/ConfirmationOfPayeeFailedResponse'
-    ConfirmationOfPayeeFailedResponse:
-      type: object
-      title: Confirmation of Payee Failed Response
-      description: 'The response from a failed Confirmation of Payee check.
-
-        '
-      properties:
-        status:
-          type: object
-          properties:
-            identifier:
-              $ref: '#/components/schemas/ConfirmationOfPayeeResultStatus.FAILED'
-            detailedStatusIdentifier:
-              $ref: '#/components/schemas/ConfirmationOfPayeeFailureCode'
-          required:
-          - identifier
-          - detailedStatusIdentifier
-      required:
-      - status
-    ConfirmationOfPayeeName:
+      - CONFIRMED
+    ConfirmationOfPayeeAccountNumber:
       type: string
-      title: Confirmation of Payee Name
-      description: The name to check against the account details. Payee name should not include titles, e.g. Mr, Mrs, Miss, Ms, Dr, etc.
-      example: Pay Ment
-      minLength: 1
-      maxLength: 140
-    ConfirmationOfPayeeResultStatus.FAILED:
-      type: string
-      title: Confirmation of Payee Failed Status
-      description: The status identifier for a failed Confirmation of Payee check.
-      enum:
-      - FAILED
-    ConfirmationOfPayeeType:
-      type: string
-      title: Confirmation of Payee Type
-      description: The type of Confirmation of Payee check to perform.
-      enum:
-      - UK
-      example: UK
+      title: Confirmation of Payee Account Number
+      description: The account number to check against.
+      example: '00000000'
+      minLength: 8
+      maxLength: 8
+    NotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 404
+          name:
+            enum:
+            - NotFound
+          message:
+            example: The requested resource was not found
     ErrorResponseJSON:
       additionalProperties: false
       properties:
@@ -268,23 +291,6 @@ components:
           - 'null'
           description: A unique code for the error, if available.
       type: object
-    ConfirmationOfPayeeReason:
-      type: string
-      title: Confirmation of Payee Reason
-      description: The reason for a rejected Confirmation of Payee check.
-      enum:
-      - There is no account with the provided account number
-      - Account does not support Confirmation of Payee scheme
-      - Name does not match the account name
-      - Name is a close match to the account name. The type of account is 'Business' when 'Personal' was provided in the request
-      - Name is a match to the account name. The type of account is 'Business' when 'Personal' was provided in the request
-      - Account has been switched using the Current Account Switching Service (CASS)
-      - Unable to locate account based on secondary identification data
-      - Name is a close match to the account name
-      - Account has opted out of Confirmation of Payee scheme
-      - Name is a close match to the account name. The type of account is 'Personal' when 'Business' was provided in the request
-      - Name is a match to the account name. The type of account is 'Personal' when 'Business' was provided in the request
-      - Responder has received a Confirmation of Payee request specifying a sort code that does not belong to them
     ConfirmationOfPayeeConfirmedResponse:
       type: object
       title: Confirmation of Payee Confirmed Response
@@ -301,84 +307,6 @@ components:
           - identifier
       required:
       - status
-    ForbiddenError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 403
-          name:
-            enum:
-            - Forbidden
-          message:
-            example: You do not have permission to access this resource
-    ConfirmationOfPayeeAccountNumber:
-      type: string
-      title: Confirmation of Payee Account Number
-      description: The account number to check against.
-      example: '00000000'
-      minLength: 8
-      maxLength: 8
-    ConfirmationOfPayeeSortCode:
-      type: string
-      title: Confirmation of Payee Sort Code
-      description: The sort code of the account to check against.
-      example: '000000'
-      minLength: 6
-      maxLength: 6
-    ValidationError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 422
-          name:
-            enum:
-            - ValidationFailure
-            - UnprocessableEntity
-          message:
-            example: Validation Failed
-    ConfirmationOfPayeeResultStatus.REJECTED:
-      type: string
-      title: Confirmation of Payee Rejected Status
-      description: The status identifier for a rejected Confirmation of Payee check.
-      enum:
-      - REJECTED
-    NotFoundError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 404
-          name:
-            enum:
-            - NotFound
-          message:
-            example: The requested resource was not found
-    NullableConfirmationOfPayeeName:
-      type:
-      - string
-      - 'null'
-      title: Confirmation of Payee Name
-      description: The name to check against the account details. Payee name should not include titles, e.g. Mr, Mrs, Miss, Ms, Dr, etc.
-      example: Pay Ment
-      minLength: 1
-      maxLength: 140
-    BadRequestError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 400
-          name:
-            enum:
-            - BadRequest
-          message:
-            example: The request has validation errors
     ConfirmationOfPayeeRequest:
       type: object
       title: Confirmation of Payee Request
@@ -402,6 +330,11 @@ components:
       - accountType
       - sortCode
       - accountNumber
+    ConfirmationOfPayeeResponse:
+      anyOf:
+      - $ref: '#/components/schemas/ConfirmationOfPayeeConfirmedResponse'
+      - $ref: '#/components/schemas/ConfirmationOfPayeeRejectedResponse'
+      - $ref: '#/components/schemas/ConfirmationOfPayeeFailedResponse'
     ConfirmationOfPayeeRejectedResponse:
       type: object
       title: Confirmation of Payee Rejected Response
@@ -434,12 +367,79 @@ components:
       enum:
       - PERSONAL
       - BUSINESS
-    ConfirmationOfPayeeResultStatus.CONFIRMED:
+    ConfirmationOfPayeeResultStatus.FAILED:
       type: string
-      title: Confirmation of Payee Confirmed Status
-      description: The status identifier for a confirmed Confirmation of Payee check.
+      title: Confirmation of Payee Failed Status
+      description: The status identifier for a failed Confirmation of Payee check.
       enum:
-      - CONFIRMED
+      - FAILED
+    BadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 400
+          name:
+            enum:
+            - BadRequest
+          message:
+            example: The request has validation errors
+    ConfirmationOfPayeeReasonCode:
+      type: string
+      title: Confirmation of Payee Reason Code
+      description: The reason code for a rejected Confirmation of Payee check.
+      enum:
+      - AC01
+      - ACNS
+      - ANNM
+      - BAMM
+      - BANM
+      - CASS
+      - IVCR
+      - MBAM
+      - OPTO
+      - PAMM
+      - PANM
+      - SCNS
+    ConfirmationOfPayeeResultStatus.REJECTED:
+      type: string
+      title: Confirmation of Payee Rejected Status
+      description: The status identifier for a rejected Confirmation of Payee check.
+      enum:
+      - REJECTED
+    ValidationError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 422
+          name:
+            enum:
+            - ValidationFailure
+            - UnprocessableEntity
+          message:
+            example: Validation Failed
+    ConfirmationOfPayeeFailedResponse:
+      type: object
+      title: Confirmation of Payee Failed Response
+      description: 'The response from a failed Confirmation of Payee check.
+
+        '
+      properties:
+        status:
+          type: object
+          properties:
+            identifier:
+              $ref: '#/components/schemas/ConfirmationOfPayeeResultStatus.FAILED'
+            detailedStatusIdentifier:
+              $ref: '#/components/schemas/ConfirmationOfPayeeFailureCode'
+          required:
+          - identifier
+          - detailedStatusIdentifier
+      required:
+      - status
   parameters:
     JwsSignature:
       in: header
