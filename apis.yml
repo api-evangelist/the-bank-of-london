@@ -424,6 +424,9 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: CapabilityMap
+  url: capabilities/the-bank-of-london-capability-edges.yml
+  name: The Bank of London Business Capability Map
 - type: Overlay
   url: overlays/the-bank-of-london-api-overlay.yaml
 - type: Website
