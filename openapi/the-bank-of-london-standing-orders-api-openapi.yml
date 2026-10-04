@@ -515,54 +515,318 @@ paths:
       tags:
       - Standing Orders
 components:
+  responses:
+    '401':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+      description: Unauthorized
+    StandingOrderUnauthorizedError:
+      description: Unauthorized
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/UnauthorizedError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - BANK_ACCOUNT_LOCKED
+                  - BANK_ACCOUNT_CLOSED
+                message:
+                  type: string
+                  example: Account is locked, please contact your account administrator
+    BankAccountNotFoundError:
+      description: Not Found
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/NotFoundError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - BANK_ACCOUNT_NOT_FOUND
+                message:
+                  type: string
+                  example: Bank account with ID <id> not found
+    '404':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+      description: Not Found
+    StandingOrderNotFound:
+      description: Not Found
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/NotFoundError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - STANDING_ORDER_NOT_FOUND
+                message:
+                  type: string
+                  example: Standing order with ID <id> does not exist
+    '400':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+      description: Bad Request
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error
+    UpdateStandingOrderConflictError:
+      description: Conflict
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ConflictError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - STANDING_ORDER_NOT_ACTIVE
+                message:
+                  type: string
+                  example: Standing order is not active
+    CreateFPSStandingOrderUnprocessableError:
+      description: Validation Failed
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ValidationError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - RECURRING_PAYMENT_DAY_CANNOT_BE_IN_PAST
+                  - RECURRING_PAYMENT_START_DAY_IS_LATER_THAN_END_DAY
+                  - EXECUTION_DATE_TODAY
+                  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
+                  - EXECUTION_DATE_ON_WEEKEND
+                  - EXECUTION_DATE_ON_PUBLIC_HOLIDAY
+                  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+                  - INVALID_SORT_CODE_PROVIDED
+                  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+                message:
+                  type: string
+                  example: Standing order payment start date cannot be in the past
+    ErrorResponseConflictIdempotencyId:
+      description: Conflict
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ConflictError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - IDEMPOTENCY_ID_CONFLICT
+                message:
+                  type: string
+                  example: Idempotency ID <id> has already been utilised by a previous request
+    '403':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+      description: Forbidden
+    CreateInternalStandingOrderUnprocessableError:
+      description: Validation Failed
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ValidationError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - RECURRING_PAYMENT_DAY_CANNOT_BE_IN_PAST
+                  - RECURRING_PAYMENT_START_DAY_IS_LATER_THAN_END_DAY
+                  - EXECUTION_DATE_TODAY
+                  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
+                  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
+                  - INVALID_SORT_CODE_PROVIDED
+                  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
+                message:
+                  type: string
+                  example: Standing order payment start date cannot be in the past
+    CancelStandingOrderConflictError:
+      description: Conflict
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ConflictError'
+            - properties:
+                code:
+                  type: string
+                  enum:
+                  - STANDING_ORDER_CANNOT_BE_CANCELLED
+                message:
+                  type: string
+                  example: Standing order is not active
+    '422':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+      description: Validation Failed
+    '429':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TooManyRequestsError'
+      description: Too Many Requests
   schemas:
-    CreatedBy1:
+    StandingOrderStatusQueryParam:
       type: string
-      description: The `id` of the user or application that created the payment.
-      example: 64e739504746e6fe27ed53b5
-    UnauthorizedError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 401
-          name:
-            enum:
-            - Unauthorized
-          message:
-            example: Missing x-jws-signature header
-    StandingOrderInternalRecipientResponse:
+      description: "Standing order statuses listed below can be used as query values. In order to query for \\\nmultiple statuses, the query param can be repeated \\\ne.g ...?status=PENDING&status=ACTIVE \\\n \\\n`PENDING_APPROVAL`: Initial status of a standing order that requires approval before processing. \\\n`PENDING`: Standing order is currently being processed within Bank of London system.  \\\n`APPROVED`: The standing order has been approved by an authorised payment approver  \\\n`REJECTED`: The standing order has been rejected by an authorised payment approver  \\\n`ACTIVE`: The standing order instruction is active and will make payments at the cadence defined by the schedule  \\\n`FAILED`: One or more checks failed whilst processing the standing order. \\\n`INACTIVE`: The instruction has reached end-of-life, it has either executed the number of payments configured or has reached the end date \\\n`CANCELLED`: Standing order has been cancelled by the sender.\n"
+      enum:
+      - PENDING_APPROVAL
+      - PENDING
+      - APPROVED
+      - REJECTED
+      - ACTIVE
+      - FAILED
+      - INACTIVE
+      - CANCELLED
+    ErrorResponseDetails:
+      additionalProperties: true
+      properties: {}
+      type:
+      - object
+      - 'null'
+      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
+      example:
+        body.extraProperty:
+          message: '"extraProperty" is an excess property and therefore is not allowed'
+          value: extraProperty
+    StandingOrderUKRecipient:
       description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the recipient is a oneOf object linked to the **type** in the object. \nThe **recipient** oneOf is extensible and new recipient types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment recipient.\n"
       allOf:
       - oneOf:
-        - $ref: '#/components/schemas/AccountIdentifierTbolResponse'
-    Amount:
-      type: object
-      properties:
-        currency:
-          $ref: '#/components/schemas/Currency'
-        value:
-          type: number
-          description: The amounts value assuming the provided unit under currency.
-          format: double
-          minimum: 0.01
-          example: 4320.5
-      required:
-      - currency
-      - value
-    ForbiddenError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 403
-          name:
-            enum:
-            - Forbidden
-          message:
-            example: You do not have permission to access this resource
+        - $ref: '#/components/schemas/AccountIdentifierUk'
     PaymentNotes1:
       type:
       - string
@@ -570,6 +834,61 @@ components:
       description: This is available for additional information to be shared with the recipient to help them identify the related payments. This is visible to the sender and may be visible to the recipient.
       maxLength: 140
       example: My transaction
+    value:
+      type: number
+      description: The amounts value assuming the provided unit under currency.
+      format: double
+      minimum: 0.01
+      example: 4320.5
+    EndDateTime:
+      type:
+      - string
+      - 'null'
+      description: The date when the standing order payment should be executed by The Bank of London. Any future date can be provided to schedule a future payment. The date time should be formatted to the UTC date format (ISO8601). The time element will be ignored on the date time. `2022-10-05T13:01:00.000Z` is a valid example.
+      format: date-time
+      example: '2022-10-05T13:01:00.000Z'
+    ValidationError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 422
+          name:
+            enum:
+            - ValidationFailure
+            - UnprocessableEntity
+          message:
+            example: Validation Failed
+    StandingOrderInternalRecipientResponse:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the recipient is a oneOf object linked to the **type** in the object. \nThe **recipient** oneOf is extensible and new recipient types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment recipient.\n"
+      allOf:
+      - oneOf:
+        - $ref: '#/components/schemas/AccountIdentifierTbolResponse'
+    InternalServerError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          name:
+            enum:
+            - InternalServerError
+          status:
+            enum:
+            - 500
+          message:
+            example: Request failed with status code 500
+    TooManyRequestsError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 429
+          name:
+            enum:
+            - TooManyRequests
+          message:
+            example: Rate limiting has been applied
     Currency:
       type: string
       enum:
@@ -589,7 +908,13 @@ components:
 
         '
       example: GBP
-    AccountIdentifierTbol:
+    IdempotencyId:
+      type: string
+      description: Idempotency ID is a unique identifier that will guarantee that a payment or standing order containing a specific ID will be processed only once.
+      example: 32ed5f75-638e-454c-a91b-ec16dc8f6e84
+      minLength: 5
+      maxLength: 72
+    AccountIdentifierTbolResponse:
       type: object
       title: TBOL
       properties:
@@ -599,49 +924,6 @@ components:
           - TBOL
         accountId:
           $ref: '#/components/schemas/AccountId'
-      required:
-      - type
-      - accountId
-    StartDateTime:
-      type:
-      - string
-      - 'null'
-      description: The date when the standing order payment should be executed by The Bank of London. Future date and time up to 90 days can be provided to schedule a future payment with the exclusion of weekends and public holidays. The date time should be formatted to the UTC date format (ISO8601). The time element will be ignored on the date time. `2022-10-05T11:01:00.000Z` is a valid example. If no date time is provided, this will be defaulted to the current date time.
-      format: date-time
-      example: '2022-10-05T11:01:00.000Z'
-    PaymentReferenceRequest1:
-      type: string
-      description: Reference note that is sent along with the related payments and usually contains personal or business related information. This is visible to the sender and the recipient. Reference should not contain profanities or the payment will be rejected.
-      minLength: 2
-      maxLength: 18
-      example: INV-12345
-    MetaData:
-      type: object
-      properties:
-        totalRecords:
-          type: integer
-          description: The total number of available records for the query.
-          example: 100
-        page:
-          type: integer
-          description: The page number returned for the query.
-          example: 1
-        pageSize:
-          type: integer
-          description: The number of records per page for the query.
-          example: 20
-      required:
-      - totalRecords
-      - page
-      - pageSize
-    AccountIdentifierUk:
-      type: object
-      title: UK
-      properties:
-        type:
-          type: string
-          enum:
-          - UK
         sortCode:
           $ref: '#/components/schemas/UkSortCode'
         accountNumber:
@@ -650,45 +932,257 @@ components:
           $ref: '#/components/schemas/AccountHolderName'
       required:
       - type
+      - accountId
       - sortCode
       - accountNumber
       - accountHolderName
-    StandingOrderInternalRecipient:
-      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the recipient is a oneOf object linked to the **type** in the object. \nThe **recipient** oneOf is extensible and new recipient types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment recipient.\n"
-      allOf:
-      - oneOf:
-        - $ref: '#/components/schemas/AccountIdentifierTbol'
+    PaymentReferenceRequest1:
+      type: string
+      description: Reference note that is sent along with the related payments and usually contains personal or business related information. This is visible to the sender and the recipient. Reference should not contain profanities or the payment will be rejected.
+      minLength: 2
+      maxLength: 18
+      example: INV-12345
+    StandingOrderScheme:
+      type: string
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **scheme** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        Payment scheme. \
+
+        `FPS`: Faster payment \
+
+        `INTERNAL`: Internal payment between accounts
+
+        '
+      enum:
+      - FPS
+      - INTERNAL
     CreatedDateTime:
       type: string
       description: The UTC date time when the payment was created `2022-10-05T11:01:00.000Z` is a valid example.
       format: date-time
       example: '2022-10-05T11:01:00.000Z'
-    ValidationError:
+    UnauthorizedError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
       - properties:
           status:
             enum:
-            - 422
+            - 401
           name:
             enum:
-            - ValidationFailure
-            - UnprocessableEntity
+            - Unauthorized
           message:
-            example: Validation Failed
-    UkSortCode:
+            example: Missing x-jws-signature header
+    StandingOrderCreatorUserType:
       type: string
-      description: A 6-digit identification number of the bank branch holding the account.
-      example: '123456'
-      minLength: 6
-      maxLength: 6
-    InternalStartDateTime:
+      description: The type of the standing order creator. Created by a user.
+      enum:
+      - USER
+    PaymentFrequency:
+      type: string
+      description: Frequency of a standing order payment. Bank of London will use this value to set the payment execution dates after the date of first execution (`startDateTime`). Together with the end date (`endDateTime`) or the number of payments (`numberOfPayments`) the payment schedule is determined.
+      enum:
+      - WEEKLY
+      - MONTHLY
+      example: WEEKLY
+    StandingOrderStatusHistory:
+      type: object
+      title: Standing order Status History
+      description: Represents the history of the standing order status.
+      properties:
+        identifier:
+          type: string
+          description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the allowed values for the **identifier** are\nextensible and new values can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code. \n\nThe status identifier. `PENDING_APPROVAL` `APPROVED` `REJECTED` are\nonly applicable to payments that require approval via TBOL Core Web\nInterface.\n"
+          enum:
+          - PENDING_APPROVAL
+          - PENDING
+          - APPROVED
+          - REJECTED
+          - ACTIVE
+          - FAILED
+          - INACTIVE
+          - CANCELLED
+        detailedStatusIdentifier:
+          type: string
+          description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the allowed values for the **detailedStatusIdentifier** are\nextensible and new values can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code. \n\nThe detailed status identifier.\n"
+          enum:
+          - PENDING_APPROVAL
+          - PENDING
+          - APPROVED
+          - REJECTED
+          - ACTIVE
+          - FAILED
+          - INACTIVE
+          - CANCELLED
+        dateTime:
+          type: string
+          format: date
+          description: The date and time of the status change.
+      required:
+      - identifier
+      - detailedStatusIdentifier
+      - dateTime
+    ErrorResponseJSON:
+      additionalProperties: false
+      properties:
+        status:
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        details:
+          $ref: '#/components/schemas/ErrorResponseDetails'
+        code:
+          type:
+          - string
+          - 'null'
+          description: A unique code for the error, if available.
+      type: object
+    AccountHolderName:
+      type: string
+      description: Name of the account holder which is issuing or receiving a payment.
+      example: Pay Ment
+    CreatedBy1:
+      type: string
+      description: The `id` of the user or application that created the payment.
+      example: 64e739504746e6fe27ed53b5
+    AccountId:
+      type: string
+      description: Bank of London account ID identifies the account within Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by Bank of London Account API.
+      example: GB-040075-12345678
+    BadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 400
+          name:
+            enum:
+            - BadRequest
+          message:
+            example: The request has validation errors
+    NotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 404
+          name:
+            enum:
+            - NotFound
+          message:
+            example: The requested resource was not found
+    StartDateTime:
       type:
       - string
       - 'null'
-      description: The date when the standing order payment should be executed by The Bank of London. Future date and time up to 90 days can be provided to schedule a future payment. The date time should be formatted to the UTC date format (ISO8601). The time element will be ignored on the date time. `2022-10-05T11:01:00.000Z` is a valid example. If no date time is provided, this will be defaulted to the current date time.
+      description: The date when the standing order payment should be executed by The Bank of London. Future date and time up to 90 days can be provided to schedule a future payment with the exclusion of weekends and public holidays. The date time should be formatted to the UTC date format (ISO8601). The time element will be ignored on the date time. `2022-10-05T11:01:00.000Z` is a valid example. If no date time is provided, this will be defaulted to the current date time.
       format: date-time
       example: '2022-10-05T11:01:00.000Z'
+    InternalStandingOrder:
+      type: object
+      title: Internal Standing Order
+      description: 'A standing order.
+
+        '
+      properties:
+        id:
+          $ref: '#/components/schemas/StandingOrderId'
+        scheme:
+          $ref: '#/components/schemas/InternalPaymentScheme'
+        sender:
+          $ref: '#/components/schemas/StandingOrderSenderResponse'
+        recipient:
+          $ref: '#/components/schemas/StandingOrderInternalRecipientResponse'
+        amount:
+          $ref: '#/components/schemas/StandingOrderAmount'
+        schedule:
+          $ref: '#/components/schemas/InternalStandingOrderSchedule'
+        status:
+          $ref: '#/components/schemas/StandingOrderStatus'
+        createdBy:
+          $ref: '#/components/schemas/CreatedBy1'
+        createdDateTime:
+          $ref: '#/components/schemas/CreatedDateTime'
+        reference:
+          $ref: '#/components/schemas/PaymentReference1'
+        notes:
+          $ref: '#/components/schemas/PaymentNotes1'
+        cancellation:
+          $ref: '#/components/schemas/StandingOrderCancellation'
+        idempotencyId:
+          $ref: '#/components/schemas/IdempotencyId'
+        creator:
+          $ref: '#/components/schemas/StandingOrderCreator'
+      required:
+      - id
+      - scheme
+      - sender
+      - recipient
+      - amount
+      - schedule
+      - status
+      - createdBy
+      - createdDateTime
+      - reference
+      - cancellation
+      - idempotencyId
+    StandingOrderCancellation:
+      type: object
+      description: 'Represents the details of the standing order cancellation.
+
+        '
+      properties:
+        canCancel:
+          type: boolean
+          description: 'Indicates whether the standing order can be cancelled based on the current status. If the standing order can be cancelled, the value is `true`. If the standing order cannot be cancelled, the value is `false`.
+
+            '
+          example: true
+        cancelledBy:
+          type:
+          - string
+          - 'null'
+          description: The `id` of the user or application that cancelled the standing order.
+          example: 64e739504746e6fe27ed53b5
+        cancelledDateTime:
+          type:
+          - string
+          - 'null'
+          description: The UTC date time when the standing order was cancelled
+          format: date-time
+          example: '2022-10-05T11:01:00.000Z'
+      required:
+      - canCancel
+    StandingOrderAmount:
+      allOf:
+      - description: The amount to be paid from the senders account to the recipient's account.
+      - $ref: '#/components/schemas/Amount'
+    NumberOfPayments:
+      type:
+      - integer
+      - 'null'
+      description: The number of payments that should be made for a standing order.
+      minimum: 1
+      example: 5
     FPSStandingOrder:
       type: object
       title: Faster Payment Standing Order
@@ -751,158 +1245,34 @@ components:
           $ref: '#/components/schemas/EndDateTime'
       required:
       - frequency
-    StandingOrderCreatorSystem:
-      type: object
-      title: Standing Order Creator - System
-      description: Represents the creator of the standing order.
-      properties:
-        type:
-          $ref: '#/components/schemas/StandingOrderCreatorSystemType'
-      required:
-      - type
-    StandingOrderCancellation:
-      type: object
-      description: 'Represents the details of the standing order cancellation.
-
-        '
-      properties:
-        canCancel:
-          type: boolean
-          description: 'Indicates whether the standing order can be cancelled based on the current status. If the standing order can be cancelled, the value is `true`. If the standing order cannot be cancelled, the value is `false`.
-
-            '
-          example: true
-        cancelledBy:
-          type:
-          - string
-          - 'null'
-          description: The `id` of the user or application that cancelled the standing order.
-          example: 64e739504746e6fe27ed53b5
-        cancelledDateTime:
-          type:
-          - string
-          - 'null'
-          description: The UTC date time when the standing order was cancelled
-          format: date-time
-          example: '2022-10-05T11:01:00.000Z'
-      required:
-      - canCancel
+    PaymentReference1:
+      allOf:
+      - $ref: '#/components/schemas/PaymentReferenceRequest1'
+      - example: INV-12345
+      description: Reference note that is sent along with the related payments and usually contains personal or business related information. This is visible to the sender and the recipient.
+    StandingOrderCreatorSystemType:
+      type: string
+      description: The type of the standing order creator. Created by the system.
+      enum:
+      - SYSTEM
     StandingOrderCreatorKey:
       type: string
       description: The API key that created the payment.
       example: 03967d18-5152-4f5a-9276-7f96c96f05ba
-    TooManyRequestsError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 429
-          name:
-            enum:
-            - TooManyRequests
-          message:
-            example: Rate limiting has been applied
-    StandingOrderAmount:
-      allOf:
-      - description: The amount to be paid from the senders account to the recipient's account.
-      - $ref: '#/components/schemas/Amount'
-    AccountId:
-      type: string
-      description: Bank of London account ID identifies the account within Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by Bank of London Account API.
-      example: GB-040075-12345678
-    StandingOrderCreatorApi:
+    Amount:
       type: object
-      title: Standing Order Creator - API
-      description: Represents the creator of the standing order.
       properties:
-        type:
-          $ref: '#/components/schemas/StandingOrderCreatorApiType'
-        key:
-          $ref: '#/components/schemas/StandingOrderCreatorKey'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        value:
+          type: number
+          description: The amounts value assuming the provided unit under currency.
+          format: double
+          minimum: 0.01
+          example: 4320.5
       required:
-      - type
-      - key
-    StandingOrderStatusQueryParam:
-      type: string
-      description: "Standing order statuses listed below can be used as query values. In order to query for \\\nmultiple statuses, the query param can be repeated \\\ne.g ...?status=PENDING&status=ACTIVE \\\n \\\n`PENDING_APPROVAL`: Initial status of a standing order that requires approval before processing. \\\n`PENDING`: Standing order is currently being processed within Bank of London system.  \\\n`APPROVED`: The standing order has been approved by an authorised payment approver  \\\n`REJECTED`: The standing order has been rejected by an authorised payment approver  \\\n`ACTIVE`: The standing order instruction is active and will make payments at the cadence defined by the schedule  \\\n`FAILED`: One or more checks failed whilst processing the standing order. \\\n`INACTIVE`: The instruction has reached end-of-life, it has either executed the number of payments configured or has reached the end date \\\n`CANCELLED`: Standing order has been cancelled by the sender.\n"
-      enum:
-      - PENDING_APPROVAL
-      - PENDING
-      - APPROVED
-      - REJECTED
-      - ACTIVE
-      - FAILED
-      - INACTIVE
-      - CANCELLED
-    StandingOrderId:
-      type: string
-      description: Standing order ID identifies the standing order within The Bank of London API platform.
-      example: 5AsbLCDIbxHTc2eLxyrEa
-    ConflictError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 409
-          name:
-            enum:
-            - Conflict
-          message:
-            example: Resource already exists
-    StandingOrderStatusHistory:
-      type: object
-      title: Standing order Status History
-      description: Represents the history of the standing order status.
-      properties:
-        identifier:
-          type: string
-          description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the allowed values for the **identifier** are\nextensible and new values can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code. \n\nThe status identifier. `PENDING_APPROVAL` `APPROVED` `REJECTED` are\nonly applicable to payments that require approval via TBOL Core Web\nInterface.\n"
-          enum:
-          - PENDING_APPROVAL
-          - PENDING
-          - APPROVED
-          - REJECTED
-          - ACTIVE
-          - FAILED
-          - INACTIVE
-          - CANCELLED
-        detailedStatusIdentifier:
-          type: string
-          description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the allowed values for the **detailedStatusIdentifier** are\nextensible and new values can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code. \n\nThe detailed status identifier.\n"
-          enum:
-          - PENDING_APPROVAL
-          - PENDING
-          - APPROVED
-          - REJECTED
-          - ACTIVE
-          - FAILED
-          - INACTIVE
-          - CANCELLED
-        dateTime:
-          type: string
-          format: date
-          description: The date and time of the status change.
-      required:
-      - identifier
-      - detailedStatusIdentifier
-      - dateTime
-    FPSPaymentScheme:
-      type: string
-      description: 'Payment scheme.
-
-        `FPS`: Faster payment
-
-        '
-      enum:
-      - FPS
-    UkAccountNumber:
-      type: string
-      description: In the UK, most bank account numbers consist of eight digits. Some UK banks have shorter account numbers, the number `0` should not be prefixed in those cases. Generally, an account number is only relevant in conjunction with a sort code.
-      example: '12345678'
-      minLength: 6
-      maxLength: 8
+      - currency
+      - value
     StandingOrderSenderResponse:
       description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the sender is a oneOf object linked to the **type** in the object. \nCurrently `TBOL` is the only available oneOf object\nbut the **sender** oneOf is extensible and new sender types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment sender.<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the sender is a oneOf object linked to the **type** in the object. \nCurrently `TBOL` is the only available oneOf object\nbut the **sender** oneOf is extensible and new sender types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment sender.\n"
       title: TBOL
@@ -922,117 +1292,99 @@ components:
       - accountId
       - sortCode
       - accountNumber
-    InternalPaymentScheme:
+    FPSPaymentScheme:
       type: string
       description: 'Payment scheme.
 
-        `INTERNAL`: Internal payment
-
-        '
-      enum:
-      - INTERNAL
-    StandingOrderCreatorSystemType:
-      type: string
-      description: The type of the standing order creator. Created by the system.
-      enum:
-      - SYSTEM
-    StandingOrderScheme:
-      type: string
-      description: '<span style="color:#f46d2a">**Attention**</span> \
-
-        Please note that the allowed values for the **scheme** are
-
-        extensible and new values can be added in the future without a
-
-        major version change. Please ensure this is factored into your
-
-        application code.
-
-
-        Payment scheme. \
-
-        `FPS`: Faster payment \
-
-        `INTERNAL`: Internal payment between accounts
+        `FPS`: Faster payment
 
         '
       enum:
       - FPS
-      - INTERNAL
-    InternalServerError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          name:
-            enum:
-            - InternalServerError
-          status:
-            enum:
-            - 500
-          message:
-            example: Request failed with status code 500
     StandingOrderCreatorApiType:
       type: string
       description: The type of the standing order creator. Created by the API.
       enum:
       - API
-    NotFoundError:
+    StandingOrderCreatorId:
+      type: string
+      description: The `id` of the user that created the payment.
+      example: 64e739504746e6fe27ed53b5
+    StandingOrderCreatorSystem:
+      type: object
+      title: Standing Order Creator - System
+      description: Represents the creator of the standing order.
+      properties:
+        type:
+          $ref: '#/components/schemas/StandingOrderCreatorSystemType'
+      required:
+      - type
+    ForbiddenError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
       - properties:
           status:
             enum:
-            - 404
+            - 403
           name:
             enum:
-            - NotFound
+            - Forbidden
           message:
-            example: The requested resource was not found
-    ErrorResponseJSON:
-      additionalProperties: false
-      properties:
-        status:
-          type:
-          - integer
-          - 'null'
-        name:
-          type:
-          - string
-          - 'null'
-        message:
-          type:
-          - string
-          - 'null'
-        details:
-          $ref: '#/components/schemas/ErrorResponseDetails'
-        code:
-          type:
-          - string
-          - 'null'
-          description: A unique code for the error, if available.
+            example: You do not have permission to access this resource
+    StandingOrderCreatorApi:
       type: object
-    EndDateTime:
-      type:
-      - string
-      - 'null'
-      description: The date when the standing order payment should be executed by The Bank of London. Any future date can be provided to schedule a future payment. The date time should be formatted to the UTC date format (ISO8601). The time element will be ignored on the date time. `2022-10-05T13:01:00.000Z` is a valid example.
-      format: date-time
-      example: '2022-10-05T13:01:00.000Z'
-    StandingOrderSender:
-      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the sender is a oneOf object linked to the **type** in the object. \nCurrently `TBOL` is the only available oneOf object\nbut the **sender** oneOf is extensible and new sender types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment sender.\n"
-      allOf:
-      - $ref: '#/components/schemas/AccountIdentifierTbol'
-    AccountHolderName:
+      title: Standing Order Creator - API
+      description: Represents the creator of the standing order.
+      properties:
+        type:
+          $ref: '#/components/schemas/StandingOrderCreatorApiType'
+        key:
+          $ref: '#/components/schemas/StandingOrderCreatorKey'
+      required:
+      - type
+      - key
+    UkSortCode:
       type: string
-      description: Name of the account holder which is issuing or receiving a payment.
-      example: Pay Ment
-    NumberOfPayments:
-      type:
-      - integer
-      - 'null'
-      description: The number of payments that should be made for a standing order.
-      minimum: 1
-      example: 5
+      description: A 6-digit identification number of the bank branch holding the account.
+      example: '123456'
+      minLength: 6
+      maxLength: 6
+    StandingOrderCreatorUser:
+      type: object
+      title: Standing order Creator - User
+      description: Represents the creator of the standing order.
+      properties:
+        type:
+          $ref: '#/components/schemas/StandingOrderCreatorUserType'
+        id:
+          $ref: '#/components/schemas/StandingOrderCreatorId'
+      required:
+      - type
+      - id
+    StandingOrderInternalRecipient:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the recipient is a oneOf object linked to the **type** in the object. \nThe **recipient** oneOf is extensible and new recipient types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment recipient.\n"
+      allOf:
+      - oneOf:
+        - $ref: '#/components/schemas/AccountIdentifierTbol'
+    MetaData:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of available records for the query.
+          example: 100
+        page:
+          type: integer
+          description: The page number returned for the query.
+          example: 1
+        pageSize:
+          type: integer
+          description: The number of records per page for the query.
+          example: 20
+      required:
+      - totalRecords
+      - page
+      - pageSize
     InternalStandingOrderSchedule:
       description: Represents the details of the standing order schedule. `frequency` is required, then either `numberOfPayments` or `endDateTime` must be provided.
       type: object
@@ -1047,18 +1399,21 @@ components:
           $ref: '#/components/schemas/EndDateTime'
       required:
       - frequency
-    StandingOrderCreatorUserType:
+    UkAccountNumber:
       type: string
-      description: The type of the standing order creator. Created by a user.
-      enum:
-      - USER
-    PaymentFrequency:
+      description: In the UK, most bank account numbers consist of eight digits. Some UK banks have shorter account numbers, the number `0` should not be prefixed in those cases. Generally, an account number is only relevant in conjunction with a sort code.
+      example: '12345678'
+      minLength: 6
+      maxLength: 8
+    InternalPaymentScheme:
       type: string
-      description: Frequency of a standing order payment. Bank of London will use this value to set the payment execution dates after the date of first execution (`startDateTime`). Together with the end date (`endDateTime`) or the number of payments (`numberOfPayments`) the payment schedule is determined.
+      description: 'Payment scheme.
+
+        `INTERNAL`: Internal payment
+
+        '
       enum:
-      - WEEKLY
-      - MONTHLY
-      example: WEEKLY
+      - INTERNAL
     StandingOrderStatus:
       description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the status is a oneOf object linked to the **identifier** in the object. \nThe **status** oneOf, based on the **identifier** is extensible and new status identifiers can be added in the future without a\nmajor version change. Please ensure this is factored into your application code.\n\nThe current status of the standing order.\n"
       oneOf:
@@ -1308,12 +1663,35 @@ components:
         - identifier
         - detailedStatusIdentifier
         - history
-    StandingOrderUKRecipient:
-      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the recipient is a oneOf object linked to the **type** in the object. \nThe **recipient** oneOf is extensible and new recipient types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment recipient.\n"
+    StandingOrderCreator:
+      oneOf:
+      - $ref: '#/components/schemas/StandingOrderCreatorUser'
+      - $ref: '#/components/schemas/StandingOrderCreatorApi'
+      - $ref: '#/components/schemas/StandingOrderCreatorSystem'
+    AccountIdentifierUk:
+      type: object
+      title: UK
+      properties:
+        type:
+          type: string
+          enum:
+          - UK
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+        accountHolderName:
+          $ref: '#/components/schemas/AccountHolderName'
+      required:
+      - type
+      - sortCode
+      - accountNumber
+      - accountHolderName
+    StandingOrderSender:
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the sender is a oneOf object linked to the **type** in the object. \nCurrently `TBOL` is the only available oneOf object\nbut the **sender** oneOf is extensible and new sender types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment sender.\n"
       allOf:
-      - oneOf:
-        - $ref: '#/components/schemas/AccountIdentifierUk'
-    AccountIdentifierTbolResponse:
+      - $ref: '#/components/schemas/AccountIdentifierTbol'
+    AccountIdentifierTbol:
       type: object
       title: TBOL
       properties:
@@ -1323,419 +1701,33 @@ components:
           - TBOL
         accountId:
           $ref: '#/components/schemas/AccountId'
-        sortCode:
-          $ref: '#/components/schemas/UkSortCode'
-        accountNumber:
-          $ref: '#/components/schemas/UkAccountNumber'
-        accountHolderName:
-          $ref: '#/components/schemas/AccountHolderName'
       required:
       - type
       - accountId
-      - sortCode
-      - accountNumber
-      - accountHolderName
-    ErrorResponseDetails:
-      additionalProperties: true
-      properties: {}
+    InternalStartDateTime:
       type:
-      - object
+      - string
       - 'null'
-      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
-      example:
-        body.extraProperty:
-          message: '"extraProperty" is an excess property and therefore is not allowed'
-          value: extraProperty
-    StandingOrderCreator:
-      oneOf:
-      - $ref: '#/components/schemas/StandingOrderCreatorUser'
-      - $ref: '#/components/schemas/StandingOrderCreatorApi'
-      - $ref: '#/components/schemas/StandingOrderCreatorSystem'
-    InternalStandingOrder:
-      type: object
-      title: Internal Standing Order
-      description: 'A standing order.
-
-        '
-      properties:
-        id:
-          $ref: '#/components/schemas/StandingOrderId'
-        scheme:
-          $ref: '#/components/schemas/InternalPaymentScheme'
-        sender:
-          $ref: '#/components/schemas/StandingOrderSenderResponse'
-        recipient:
-          $ref: '#/components/schemas/StandingOrderInternalRecipientResponse'
-        amount:
-          $ref: '#/components/schemas/StandingOrderAmount'
-        schedule:
-          $ref: '#/components/schemas/InternalStandingOrderSchedule'
-        status:
-          $ref: '#/components/schemas/StandingOrderStatus'
-        createdBy:
-          $ref: '#/components/schemas/CreatedBy1'
-        createdDateTime:
-          $ref: '#/components/schemas/CreatedDateTime'
-        reference:
-          $ref: '#/components/schemas/PaymentReference1'
-        notes:
-          $ref: '#/components/schemas/PaymentNotes1'
-        cancellation:
-          $ref: '#/components/schemas/StandingOrderCancellation'
-        idempotencyId:
-          $ref: '#/components/schemas/IdempotencyId'
-        creator:
-          $ref: '#/components/schemas/StandingOrderCreator'
-      required:
-      - id
-      - scheme
-      - sender
-      - recipient
-      - amount
-      - schedule
-      - status
-      - createdBy
-      - createdDateTime
-      - reference
-      - cancellation
-      - idempotencyId
-    value:
-      type: number
-      description: The amounts value assuming the provided unit under currency.
-      format: double
-      minimum: 0.01
-      example: 4320.5
-    PaymentReference1:
-      allOf:
-      - $ref: '#/components/schemas/PaymentReferenceRequest1'
-      - example: INV-12345
-      description: Reference note that is sent along with the related payments and usually contains personal or business related information. This is visible to the sender and the recipient.
-    BadRequestError:
+      description: The date when the standing order payment should be executed by The Bank of London. Future date and time up to 90 days can be provided to schedule a future payment. The date time should be formatted to the UTC date format (ISO8601). The time element will be ignored on the date time. `2022-10-05T11:01:00.000Z` is a valid example. If no date time is provided, this will be defaulted to the current date time.
+      format: date-time
+      example: '2022-10-05T11:01:00.000Z'
+    ConflictError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
       - properties:
           status:
             enum:
-            - 400
+            - 409
           name:
             enum:
-            - BadRequest
+            - Conflict
           message:
-            example: The request has validation errors
-    IdempotencyId:
+            example: Resource already exists
+    StandingOrderId:
       type: string
-      description: Idempotency ID is a unique identifier that will guarantee that a payment or standing order containing a specific ID will be processed only once.
-      example: 32ed5f75-638e-454c-a91b-ec16dc8f6e84
-      minLength: 5
-      maxLength: 72
-    StandingOrderCreatorId:
-      type: string
-      description: The `id` of the user that created the payment.
-      example: 64e739504746e6fe27ed53b5
-    StandingOrderCreatorUser:
-      type: object
-      title: Standing order Creator - User
-      description: Represents the creator of the standing order.
-      properties:
-        type:
-          $ref: '#/components/schemas/StandingOrderCreatorUserType'
-        id:
-          $ref: '#/components/schemas/StandingOrderCreatorId'
-      required:
-      - type
-      - id
-  responses:
-    '401':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/UnauthorizedError'
-      description: Unauthorized
-    '500':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/InternalServerError'
-      description: Internal Server Error
-    BankAccountNotFoundError:
-      description: Not Found
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/NotFoundError'
-            - properties:
-                code:
-                  type: string
-                  enum:
-                  - BANK_ACCOUNT_NOT_FOUND
-                message:
-                  type: string
-                  example: Bank account with ID <id> not found
-    UpdateStandingOrderConflictError:
-      description: Conflict
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ConflictError'
-            - properties:
-                code:
-                  type: string
-                  enum:
-                  - STANDING_ORDER_NOT_ACTIVE
-                message:
-                  type: string
-                  example: Standing order is not active
-    '422':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ValidationError'
-      description: Validation Failed
-    StandingOrderUnauthorizedError:
-      description: Unauthorized
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/UnauthorizedError'
-            - properties:
-                code:
-                  type: string
-                  enum:
-                  - BANK_ACCOUNT_LOCKED
-                  - BANK_ACCOUNT_CLOSED
-                message:
-                  type: string
-                  example: Account is locked, please contact your account administrator
-    '404':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/NotFoundError'
-      description: Not Found
-    CancelStandingOrderConflictError:
-      description: Conflict
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ConflictError'
-            - properties:
-                code:
-                  type: string
-                  enum:
-                  - STANDING_ORDER_CANNOT_BE_CANCELLED
-                message:
-                  type: string
-                  example: Standing order is not active
-    ErrorResponseConflictIdempotencyId:
-      description: Conflict
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ConflictError'
-            - properties:
-                code:
-                  type: string
-                  enum:
-                  - IDEMPOTENCY_ID_CONFLICT
-                message:
-                  type: string
-                  example: Idempotency ID <id> has already been utilised by a previous request
-    '429':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/TooManyRequestsError'
-      description: Too Many Requests
-    '400':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/BadRequestError'
-      description: Bad Request
-    StandingOrderNotFound:
-      description: Not Found
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/NotFoundError'
-            - properties:
-                code:
-                  type: string
-                  enum:
-                  - STANDING_ORDER_NOT_FOUND
-                message:
-                  type: string
-                  example: Standing order with ID <id> does not exist
-    CreateFPSStandingOrderUnprocessableError:
-      description: Validation Failed
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ValidationError'
-            - properties:
-                code:
-                  type: string
-                  enum:
-                  - RECURRING_PAYMENT_DAY_CANNOT_BE_IN_PAST
-                  - RECURRING_PAYMENT_START_DAY_IS_LATER_THAN_END_DAY
-                  - EXECUTION_DATE_TODAY
-                  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
-                  - EXECUTION_DATE_ON_WEEKEND
-                  - EXECUTION_DATE_ON_PUBLIC_HOLIDAY
-                  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
-                  - INVALID_SORT_CODE_PROVIDED
-                  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
-                message:
-                  type: string
-                  example: Standing order payment start date cannot be in the past
-    CreateInternalStandingOrderUnprocessableError:
-      description: Validation Failed
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ValidationError'
-            - properties:
-                code:
-                  type: string
-                  enum:
-                  - RECURRING_PAYMENT_DAY_CANNOT_BE_IN_PAST
-                  - RECURRING_PAYMENT_START_DAY_IS_LATER_THAN_END_DAY
-                  - EXECUTION_DATE_TODAY
-                  - INVALID_RECIPIENT_ACCOUNT_ID_PROVIDED
-                  - INVALID_PAYMENT_FOR_ACCOUNT_TYPE
-                  - INVALID_SORT_CODE_PROVIDED
-                  - PAYMENT_AMOUNT_EXCEEDS_AVAILABLE_BALANCE
-                message:
-                  type: string
-                  example: Standing order payment start date cannot be in the past
-    '403':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ForbiddenError'
-      description: Forbidden
+      description: Standing order ID identifies the standing order within The Bank of London API platform.
+      example: 5AsbLCDIbxHTc2eLxyrEa
   parameters:
-    Page:
-      in: query
-      name: page
-      schema:
-        type: integer
-        default: 1
-      required: false
-      description: The page number of the result set to be returned.
     PageSize:
       in: query
       name: pageSize
@@ -1754,3 +1746,11 @@ components:
         application/json:
           schema:
             type: string
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+      required: false
+      description: The page number of the result set to be returned.

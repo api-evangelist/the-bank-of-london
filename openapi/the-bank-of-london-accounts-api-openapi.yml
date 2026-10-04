@@ -260,84 +260,6 @@ paths:
       - Accounts
 components:
   responses:
-    '401':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/UnauthorizedError'
-      description: Unauthorized
-    '500':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/InternalServerError'
-      description: Internal Server Error
-    '400':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/BadRequestError'
-      description: Bad Request
-    '403':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ForbiddenError'
-      description: Forbidden
-    '422':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ValidationError'
-      description: Validation Failed
-    '404':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/NotFoundError'
-      description: Not Found
     '409':
       headers:
         x-correlation-id:
@@ -351,51 +273,154 @@ components:
           schema:
             $ref: '#/components/schemas/ConflictError'
       description: Conflict
+    '401':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+      description: Unauthorized
+    '403':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+      description: Forbidden
+    '400':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+      description: Bad Request
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error
+    '404':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+      description: Not Found
+    '422':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+      description: Validation Failed
   schemas:
-    InterestDetail:
-      type:
-      - object
-      - 'null'
-      description: The unit and value of interest.
+    AccountTotals:
+      type: object
+      description: Totals for an account.
       properties:
-        unit:
-          $ref: '#/components/schemas/InterestDetailUnit'
-        value:
+        totalMonthlyCreditInterestAccrued:
           type: number
+          description: The amount of interest accrued on the account in the current month. This interest is not yet paid.
           format: double
-          example: 0.5
+          example: 1000
+          default: 0
+        totalCreditInterestPaid:
+          type: number
+          description: The total interest paid on the account since the account was opened.
+          format: double
+          example: 1000
+          default: 0
+        totalCreditsCurrentMonth:
+          type: number
+          description: The total credits on the account in the current month.
+          format: double
+          example: 1000
+          default: 0
+        totalDebitsCurrentMonth:
+          type: number
+          description: The total debits on the account in the current month.
+          format: double
+          example: 1000
+          default: 0
       required:
-      - unit
-      - value
-    UnauthorizedError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 401
-          name:
-            enum:
-            - Unauthorized
-          message:
-            example: Missing x-jws-signature header
-    UkAccountNumber:
+      - totalMonthlyCreditInterestAccrued
+      - totalCreditInterestPaid
+      - totalCreditsCurrentMonth
+      - totalDebitsCurrentMonth
+    AccountIdentifierForAccountClosureUk:
+      type: object
+      title: UK
+      properties:
+        type:
+          type: string
+          enum:
+          - UK
+        sortCode:
+          $ref: '#/components/schemas/UkSortCode'
+        accountNumber:
+          $ref: '#/components/schemas/UkAccountNumber'
+        accountHolderName:
+          type: string
+          description: Name of the account holder.
+          example: Pay Ment
+      required:
+      - type
+      - sortCode
+      - accountNumber
+      - accountHolderName
+    AccountStatusFilter:
       type: string
-      description: In the UK, most bank account numbers consist of eight digits. Some UK banks have shorter account numbers, the number `0` should not be prefixed in those cases. Generally, an account number is only relevant in conjunction with a sort code.
-      example: '12345678'
-      minLength: 6
-      maxLength: 8
-    UkSortCode:
-      type: string
-      description: A 6-digit identification number of the bank branch holding the account.
-      example: '123456'
-      minLength: 6
-      maxLength: 6
-    AccountLockType:
+      enum:
+      - ACTIVE
+      - CLOSED
+      - ALL
+      description: 'Supplying the `status` will return accounts with specific status only.
+
+        '
+      default: ACTIVE
+    AccountCountryCode:
       type: string
       description: '<span style="color:#f46d2a">**Attention**</span> \
 
-        Please note that the allowed values for the **lockType** are
+        Please note that the allowed values for the **countryCode** are
 
         extensible and new values can be added in the future without a
 
@@ -404,19 +429,31 @@ components:
         application code.
 
 
-        The lock type of the account. \
-
-        `NONE` - account is not locked. \
-
-        `GENERAL` - account is locked and reason is not specified. \
-
-        `LOW_BALANCE` - account is locked due to minimum balance being reached.
+        The country code in which the account resides.
 
         '
       enum:
-      - NONE
-      - GENERAL
-      - LOW_BALANCE
+      - GB
+      example: GB
+    MetaData:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of available records for the query.
+          example: 100
+        page:
+          type: integer
+          description: The page number returned for the query.
+          example: 1
+        pageSize:
+          type: integer
+          description: The number of records per page for the query.
+          example: 20
+      required:
+      - totalRecords
+      - page
+      - pageSize
     NullableAccountOwner:
       type:
       - object
@@ -449,6 +486,19 @@ components:
       required:
       - type
       - id
+    InterestDetailUnit:
+      description: The unit of interest.
+      type: string
+      enum:
+      - '%'
+    AccountNickname:
+      type:
+      - string
+      - 'null'
+      description: User defined name to identify the account.
+      example: Business transactions
+      minLength: 1
+      maxLength: 25
     ErrorResponseDetails:
       additionalProperties: true
       properties: {}
@@ -460,6 +510,61 @@ components:
         body.extraProperty:
           message: '"extraProperty" is an excess property and therefore is not allowed'
           value: extraProperty
+    UpdateAccountRequest:
+      type: object
+      title: Update Account Request
+      description: Request object that is required to update an account
+      properties:
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        salesProductId:
+          $ref: '#/components/schemas/SalesProductId'
+    SalesProductId:
+      type:
+      - string
+      - 'null'
+      description: 'Used to define the interest rate for the account.
+
+
+        Note: Sales product IDs are client specific and must be pre-configured. Please contact us at client.partners@thebankoflondon.com to configure them for you.
+
+        '
+      example: COMP_SP1
+    InterestData:
+      type:
+      - object
+      - 'null'
+      description: Types of interest and associated properties.
+      properties:
+        AER:
+          $ref: '#/components/schemas/InterestDetail'
+        GROSS:
+          $ref: '#/components/schemas/InterestDetail'
+    GetSingleAccountResponse:
+      allOf:
+      - $ref: '#/components/schemas/Account'
+      - type: object
+        properties:
+          constraints:
+            $ref: '#/components/schemas/Constraints'
+    UnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 401
+          name:
+            enum:
+            - Unauthorized
+          message:
+            example: Missing x-jws-signature header
+    UkAccountNumber:
+      type: string
+      description: In the UK, most bank account numbers consist of eight digits. Some UK banks have shorter account numbers, the number `0` should not be prefixed in those cases. Generally, an account number is only relevant in conjunction with a sort code.
+      example: '12345678'
+      minLength: 6
+      maxLength: 8
     CreateAccountResponse:
       type: object
       title: Create Account Response
@@ -484,145 +589,23 @@ components:
       - currency
       - type
       - accountOwner
-    AccountIdentifierForAccountClosureUk:
-      type: object
-      title: UK
-      properties:
-        type:
-          type: string
-          enum:
-          - UK
-        sortCode:
-          $ref: '#/components/schemas/UkSortCode'
-        accountNumber:
-          $ref: '#/components/schemas/UkAccountNumber'
-        accountHolderName:
-          type: string
-          description: Name of the account holder.
-          example: Pay Ment
-      required:
-      - type
-      - sortCode
-      - accountNumber
-      - accountHolderName
-    InternalServerError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          name:
-            enum:
-            - InternalServerError
-          status:
-            enum:
-            - 500
-          message:
-            example: Request failed with status code 500
-    ForbiddenError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 403
-          name:
-            enum:
-            - Forbidden
-          message:
-            example: You do not have permission to access this resource
-    InterestDetailUnit:
-      description: The unit of interest.
+    Iban:
       type: string
-      enum:
-      - '%'
-    Account:
-      description: Physical account owned by the requestor or requestors customers
-      title: Account
-      allOf:
-      - $ref: '#/components/schemas/BaseAccount'
-      type: object
-    CloseAccountResponse:
-      type: object
-      title: Close Account Response
-      description: Close account response object
-      properties:
-        id:
-          type: string
-          description: The account identifier of the closed account.
-          example: GB-040075-87654321
-        status:
-          type: object
-          properties:
-            identifier:
-              type: string
-              description: The status of the account
-              example: CLOSED
-              enum:
-              - CLOSED
-      required:
-      - id
-      - status
-    AccountNickname:
+      description: Account identifier in an IBAN format
+      example: GB98TBOL12345612345678
+    Limits:
       type:
-      - string
+      - object
       - 'null'
-      description: User defined name to identify the account.
-      example: Business transactions
-      minLength: 1
-      maxLength: 25
-    NotFoundError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 404
-          name:
-            enum:
-            - NotFound
-          message:
-            example: The requested resource was not found
-    Currency:
-      type: string
-      enum:
-      - GBP
-      description: '<span style="color:#f46d2a">**Attention**</span> \
-
-        Please note that the allowed values for the **currency** are
-
-        extensible and new values can be added in the future without a
-
-        major version change. Please ensure this is factored into your
-
-        application code.
-
-
-        `GBP`: British Pound Sterling
-
-        '
-      example: GBP
-    ErrorResponseJSON:
-      additionalProperties: false
+      description: Limits applicable to the account.
       properties:
-        status:
+        minimumLimit:
           type:
-          - integer
+          - number
           - 'null'
-        name:
-          type:
-          - string
-          - 'null'
-        message:
-          type:
-          - string
-          - 'null'
-        details:
-          $ref: '#/components/schemas/ErrorResponseDetails'
-        code:
-          type:
-          - string
-          - 'null'
-          description: A unique code for the error, if available.
-      type: object
+          description: The minimum balance for the account.
+          format: double
+          example: 0
     PhysicalAccountClosureReason:
       type: string
       description: '<span style="color:#f46d2a">**Attention**</span> \
@@ -652,37 +635,11 @@ components:
       - CUST_DECEASED
       - FRAUD_AML
       - ACCT_TRANSFER
-    Iban:
-      type: string
-      description: Account identifier in an IBAN format
-      example: GB98TBOL12345612345678
-    UpdateAccountRequest:
-      type: object
-      title: Update Account Request
-      description: Request object that is required to update an account
-      properties:
-        nickname:
-          $ref: '#/components/schemas/AccountNickname'
-        salesProductId:
-          $ref: '#/components/schemas/SalesProductId'
-    AccountId:
-      type: string
-      description: Bank of London account ID identifies the account within Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by Bank of London Account API.
-      example: GB-040075-12345678
-    Status:
-      type: object
-      description: An object that represents the status of Bank of London API entity (e.g. payment status, account status etc.)
-      properties:
-        identifier:
-          type: string
-          description: A machine readable string identifier for the status.
-      required:
-      - identifier
-    AccountCountryCode:
+    AccountLockType:
       type: string
       description: '<span style="color:#f46d2a">**Attention**</span> \
 
-        Please note that the allowed values for the **countryCode** are
+        Please note that the allowed values for the **lockType** are
 
         extensible and new values can be added in the future without a
 
@@ -691,25 +648,148 @@ components:
         application code.
 
 
-        The country code in which the account resides.
+        The lock type of the account. \
+
+        `NONE` - account is not locked. \
+
+        `GENERAL` - account is locked and reason is not specified. \
+
+        `LOW_BALANCE` - account is locked due to minimum balance being reached.
 
         '
       enum:
-      - GB
-      example: GB
-    Limits:
-      type:
-      - object
-      - 'null'
-      description: Limits applicable to the account.
+      - NONE
+      - GENERAL
+      - LOW_BALANCE
+    AccountStatus:
+      allOf:
+      - $ref: '#/components/schemas/Status'
+      - description: '<span style="color:#f46d2a">**Attention**</span> \
+
+          Please note that the oneOf status is extensible and new objects can be returned
+
+          with the new account status **identifier** in the future without a major version change.
+
+          Please ensure this is factored into your application code.
+
+
+          The current status of the account.
+
+          '
+      - oneOf:
+        - title: ACTIVE
+          properties:
+            identifier:
+              enum:
+              - ACTIVE
+              description: Account is active and can be used to process payments.
+        - title: CLOSED
+          properties:
+            identifier:
+              enum:
+              - CLOSED
+              description: Account is closed.
+    ValidationError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 422
+          name:
+            enum:
+            - ValidationFailure
+            - UnprocessableEntity
+          message:
+            example: Validation Failed
+    CreateAccountRequest:
+      type: object
+      title: Create Account Request
+      description: Request object that is required to create an account
       properties:
-        minimumLimit:
-          type:
-          - number
-          - 'null'
-          description: The minimum balance for the account.
+        type:
+          $ref: '#/components/schemas/PhysicalAccountType'
+        accountOwner:
+          $ref: '#/components/schemas/AccountOwner'
+        nickname:
+          $ref: '#/components/schemas/AccountNickname'
+        salesProductId:
+          $ref: '#/components/schemas/SalesProductId'
+      required:
+      - type
+      - accountOwner
+    AccountIdentifiers:
+      type: object
+      description: Identifies the account numbers.
+      properties:
+        uk:
+          type: object
+          description: Identifier of a bank account within the United Kingdom.
+          properties:
+            accountNumber:
+              $ref: '#/components/schemas/UkAccountNumber'
+            sortCode:
+              $ref: '#/components/schemas/UkSortCode'
+          required:
+          - accountNumber
+          - sortCode
+        iban:
+          $ref: '#/components/schemas/Iban'
+      required:
+      - uk
+      - iban
+    AccountBalances:
+      type: object
+      description: Account balances.
+      properties:
+        available:
+          type: number
+          description: 'The available balance is the amount of money that the account holder
+
+            can withdraw immediately.
+
+            Note: For Virtual Accounts with negative balance enabled, the available balance will not be displayed in the response body as the available balance is only applicable to the Header Account.
+
+            '
           format: double
-          example: 0
+          example: 1000
+        current:
+          type: number
+          description: The current balance includes any pending transactions that have not yet been cleared.
+          format: double
+          example: 2000
+      required:
+      - current
+    AccountOwner:
+      type: object
+      description: Owner of the account.
+      properties:
+        type:
+          type: string
+          description: '<span style="color:#f46d2a">**Attention**</span> \
+
+            Please note that the allowed values for the **type** are
+
+            extensible and new can be added in the future without a
+
+            major version change. Please ensure this is factored into your
+
+            application code.
+
+
+            The type of owner
+
+            '
+          enum:
+          - INDIVIDUAL
+          - ORGANISATION
+        id:
+          type: string
+          description: The owner's ID
+          example: hkHcJybfBAKjZac9eiIAr
+      required:
+      - type
+      - id
     BaseAccount:
       properties:
         id:
@@ -756,108 +836,77 @@ components:
       - countryCode
       - type
       - lockType
-    AccountCreatedDateTime:
-      type: string
-      description: The date and time when the account was created.
-      format: date-time
-      example: '2022-01-30T08:30:00Z'
-    MetaData:
-      type: object
-      properties:
-        totalRecords:
-          type: integer
-          description: The total number of available records for the query.
-          example: 100
-        page:
-          type: integer
-          description: The page number returned for the query.
-          example: 1
-        pageSize:
-          type: integer
-          description: The number of records per page for the query.
-          example: 20
-      required:
-      - totalRecords
-      - page
-      - pageSize
-    AccountHolderName:
-      type: string
-      description: Name of the account holder which is issuing or receiving a payment.
-      example: Pay Ment
-    AccountBalances:
-      type: object
-      description: Account balances.
-      properties:
-        available:
-          type: number
-          description: 'The available balance is the amount of money that the account holder
-
-            can withdraw immediately.
-
-            Note: For Virtual Accounts with negative balance enabled, the available balance will not be displayed in the response body as the available balance is only applicable to the Header Account.
-
-            '
-          format: double
-          example: 1000
-        current:
-          type: number
-          description: The current balance includes any pending transactions that have not yet been cleared.
-          format: double
-          example: 2000
-      required:
-      - current
-    AccountStatusFilter:
+    InternalServerError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          name:
+            enum:
+            - InternalServerError
+          status:
+            enum:
+            - 500
+          message:
+            example: Request failed with status code 500
+    Currency:
       type: string
       enum:
-      - ACTIVE
-      - CLOSED
+      - GBP
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **currency** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        `GBP`: British Pound Sterling
+
+        '
+      example: GBP
+    ErrorResponseJSON:
+      additionalProperties: false
+      properties:
+        status:
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        details:
+          $ref: '#/components/schemas/ErrorResponseDetails'
+        code:
+          type:
+          - string
+          - 'null'
+          description: A unique code for the error, if available.
+      type: object
+    AccountOwnership:
+      type: string
+      enum:
+      - DIRECT
+      - INDIRECT
       - ALL
-      description: 'Supplying the `status` will return accounts with specific status only.
+      description: 'Controls whether to return directly linked or customers'' physical accounts, or both. \
+
+        `DIRECT` - returns directly linked physical accounts (DEFAULT). \
+
+        `INDIRECT` - returns customers'' physical accounts. \
+
+        `ALL` - combines both of the above.
 
         '
-      default: ACTIVE
-    CreateAccountRequest:
-      type: object
-      title: Create Account Request
-      description: Request object that is required to create an account
-      properties:
-        type:
-          $ref: '#/components/schemas/PhysicalAccountType'
-        accountOwner:
-          $ref: '#/components/schemas/AccountOwner'
-        nickname:
-          $ref: '#/components/schemas/AccountNickname'
-        salesProductId:
-          $ref: '#/components/schemas/SalesProductId'
-      required:
-      - type
-      - accountOwner
-    CloseAccountRequest:
-      type: object
-      title: Create Account Request
-      description: Request object that is required to close an account
-      properties:
-        closureReason:
-          $ref: '#/components/schemas/PhysicalAccountClosureReason'
-        recipient:
-          description: "Account details where the remaining balance of the\nclosed account, any pending interest or transactions (if applicable)\nwill be transferred to. The account must be a UK bank account.\n\n<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the recipient is a oneOf object linked to the **type** in the object. \nCurrently `UK` is the only available oneOf object\nbut the **recipient** oneOf is extensible and new recipient types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment recipient.\n"
-          allOf:
-          - oneOf:
-            - $ref: '#/components/schemas/AccountIdentifierForAccountClosureUk'
-      required:
-      - closureReason
-      - recipient
-    SalesProductId:
-      type:
-      - string
-      - 'null'
-      description: 'Used to define the interest rate for the account.
-
-
-        Note: Sales product IDs are client specific and must be pre-configured. Please contact us at client.partners@thebankoflondon.com to configure them for you.
-
-        '
-      example: COMP_SP1
+      example: DIRECT
+      default: DIRECT
     PhysicalAccountType:
       type: string
       description: '<span style="color:#f46d2a">**Attention**</span> \
@@ -878,16 +927,151 @@ components:
         '
       enum:
       - BAAS_PHYSICAL_ACCOUNT
-    InterestData:
+    ForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 403
+          name:
+            enum:
+            - Forbidden
+          message:
+            example: You do not have permission to access this resource
+    AccountHolderName:
+      type: string
+      description: Name of the account holder which is issuing or receiving a payment.
+      example: Pay Ment
+    UkSortCode:
+      type: string
+      description: A 6-digit identification number of the bank branch holding the account.
+      example: '123456'
+      minLength: 6
+      maxLength: 6
+    AccountId:
+      type: string
+      description: Bank of London account ID identifies the account within Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by Bank of London Account API.
+      example: GB-040075-12345678
+    CloseAccountRequest:
+      type: object
+      title: Create Account Request
+      description: Request object that is required to close an account
+      properties:
+        closureReason:
+          $ref: '#/components/schemas/PhysicalAccountClosureReason'
+        recipient:
+          description: "Account details where the remaining balance of the\nclosed account, any pending interest or transactions (if applicable)\nwill be transferred to. The account must be a UK bank account.\n\n<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the recipient is a oneOf object linked to the **type** in the object. \nCurrently `UK` is the only available oneOf object\nbut the **recipient** oneOf is extensible and new recipient types can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code.\n\nRepresents the details of the payment recipient.\n"
+          allOf:
+          - oneOf:
+            - $ref: '#/components/schemas/AccountIdentifierForAccountClosureUk'
+      required:
+      - closureReason
+      - recipient
+    Status:
+      type: object
+      description: An object that represents the status of Bank of London API entity (e.g. payment status, account status etc.)
+      properties:
+        identifier:
+          type: string
+          description: A machine readable string identifier for the status.
+      required:
+      - identifier
+    CloseAccountResponse:
+      type: object
+      title: Close Account Response
+      description: Close account response object
+      properties:
+        id:
+          type: string
+          description: The account identifier of the closed account.
+          example: GB-040075-87654321
+        status:
+          type: object
+          properties:
+            identifier:
+              type: string
+              description: The status of the account
+              example: CLOSED
+              enum:
+              - CLOSED
+      required:
+      - id
+      - status
+    Account:
+      description: Physical account owned by the requestor or requestors customers
+      title: Account
+      allOf:
+      - $ref: '#/components/schemas/BaseAccount'
+      type: object
+    AccountCreatedDateTime:
+      type: string
+      description: The date and time when the account was created.
+      format: date-time
+      example: '2022-01-30T08:30:00Z'
+    BadRequestError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 400
+          name:
+            enum:
+            - BadRequest
+          message:
+            example: The request has validation errors
+    AccountType:
+      type: string
+      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the allowed values for the **type** are\nextensible and new can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code. `INSTANT_ACCESS_DEPOSIT` and `FIXED_TERM_DEPOSIT` types have been deprecated \nand no new accounts will be created with these types.\n"
+      enum:
+      - CCA
+      - EASY_ACCESS_DEPOSIT
+      - FIXED_TERM_DEPOSIT
+      - INSTANT_ACCESS_DEPOSIT
+      - NOTICE_DEPOSIT
+      - OPERATING
+      - SEGREGATED
+      - BAAS_PHYSICAL_ACCOUNT
+    NotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 404
+          name:
+            enum:
+            - NotFound
+          message:
+            example: The requested resource was not found
+    InterestDetail:
       type:
       - object
       - 'null'
-      description: Types of interest and associated properties.
+      description: The unit and value of interest.
       properties:
-        AER:
-          $ref: '#/components/schemas/InterestDetail'
-        GROSS:
-          $ref: '#/components/schemas/InterestDetail'
+        unit:
+          $ref: '#/components/schemas/InterestDetailUnit'
+        value:
+          type: number
+          format: double
+          example: 0.5
+      required:
+      - unit
+      - value
+    ConflictError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 409
+          name:
+            enum:
+            - Conflict
+          message:
+            example: Resource already exists
     Constraints:
       type:
       - object
@@ -942,190 +1126,6 @@ components:
           - noticePeriod
       required:
       - withdrawal
-    AccountType:
-      type: string
-      description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the allowed values for the **type** are\nextensible and new can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code. `INSTANT_ACCESS_DEPOSIT` and `FIXED_TERM_DEPOSIT` types have been deprecated \nand no new accounts will be created with these types.\n"
-      enum:
-      - CCA
-      - EASY_ACCESS_DEPOSIT
-      - FIXED_TERM_DEPOSIT
-      - INSTANT_ACCESS_DEPOSIT
-      - NOTICE_DEPOSIT
-      - OPERATING
-      - SEGREGATED
-      - BAAS_PHYSICAL_ACCOUNT
-    ConflictError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 409
-          name:
-            enum:
-            - Conflict
-          message:
-            example: Resource already exists
-    AccountStatus:
-      allOf:
-      - $ref: '#/components/schemas/Status'
-      - description: '<span style="color:#f46d2a">**Attention**</span> \
-
-          Please note that the oneOf status is extensible and new objects can be returned
-
-          with the new account status **identifier** in the future without a major version change.
-
-          Please ensure this is factored into your application code.
-
-
-          The current status of the account.
-
-          '
-      - oneOf:
-        - title: ACTIVE
-          properties:
-            identifier:
-              enum:
-              - ACTIVE
-              description: Account is active and can be used to process payments.
-        - title: CLOSED
-          properties:
-            identifier:
-              enum:
-              - CLOSED
-              description: Account is closed.
-    AccountIdentifiers:
-      type: object
-      description: Identifies the account numbers.
-      properties:
-        uk:
-          type: object
-          description: Identifier of a bank account within the United Kingdom.
-          properties:
-            accountNumber:
-              $ref: '#/components/schemas/UkAccountNumber'
-            sortCode:
-              $ref: '#/components/schemas/UkSortCode'
-          required:
-          - accountNumber
-          - sortCode
-        iban:
-          $ref: '#/components/schemas/Iban'
-      required:
-      - uk
-      - iban
-    BadRequestError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 400
-          name:
-            enum:
-            - BadRequest
-          message:
-            example: The request has validation errors
-    AccountOwnership:
-      type: string
-      enum:
-      - DIRECT
-      - INDIRECT
-      - ALL
-      description: 'Controls whether to return directly linked or customers'' physical accounts, or both. \
-
-        `DIRECT` - returns directly linked physical accounts (DEFAULT). \
-
-        `INDIRECT` - returns customers'' physical accounts. \
-
-        `ALL` - combines both of the above.
-
-        '
-      example: DIRECT
-      default: DIRECT
-    AccountOwner:
-      type: object
-      description: Owner of the account.
-      properties:
-        type:
-          type: string
-          description: '<span style="color:#f46d2a">**Attention**</span> \
-
-            Please note that the allowed values for the **type** are
-
-            extensible and new can be added in the future without a
-
-            major version change. Please ensure this is factored into your
-
-            application code.
-
-
-            The type of owner
-
-            '
-          enum:
-          - INDIVIDUAL
-          - ORGANISATION
-        id:
-          type: string
-          description: The owner's ID
-          example: hkHcJybfBAKjZac9eiIAr
-      required:
-      - type
-      - id
-    ValidationError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 422
-          name:
-            enum:
-            - ValidationFailure
-            - UnprocessableEntity
-          message:
-            example: Validation Failed
-    GetSingleAccountResponse:
-      allOf:
-      - $ref: '#/components/schemas/Account'
-      - type: object
-        properties:
-          constraints:
-            $ref: '#/components/schemas/Constraints'
-    AccountTotals:
-      type: object
-      description: Totals for an account.
-      properties:
-        totalMonthlyCreditInterestAccrued:
-          type: number
-          description: The amount of interest accrued on the account in the current month. This interest is not yet paid.
-          format: double
-          example: 1000
-          default: 0
-        totalCreditInterestPaid:
-          type: number
-          description: The total interest paid on the account since the account was opened.
-          format: double
-          example: 1000
-          default: 0
-        totalCreditsCurrentMonth:
-          type: number
-          description: The total credits on the account in the current month.
-          format: double
-          example: 1000
-          default: 0
-        totalDebitsCurrentMonth:
-          type: number
-          description: The total debits on the account in the current month.
-          format: double
-          example: 1000
-          default: 0
-      required:
-      - totalMonthlyCreditInterestAccrued
-      - totalCreditInterestPaid
-      - totalCreditsCurrentMonth
-      - totalDebitsCurrentMonth
   parameters:
     JwsSignature:
       in: header
@@ -1135,14 +1135,6 @@ components:
         application/json:
           schema:
             type: string
-    Page:
-      in: query
-      name: page
-      schema:
-        type: integer
-        default: 1
-      required: false
-      description: The page number of the result set to be returned.
     PageSize:
       in: query
       name: pageSize
@@ -1153,3 +1145,11 @@ components:
         default: 20
         minimum: 1
         maximum: 50
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+      required: false
+      description: The page number of the result set to be returned.

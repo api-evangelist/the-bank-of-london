@@ -121,73 +121,160 @@ paths:
       tags:
       - Statements
 components:
-  responses:
-    '401':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/UnauthorizedError'
-      description: Unauthorized
-    '500':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/InternalServerError'
-      description: Internal Server Error
-    '400':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/BadRequestError'
-      description: Bad Request
-    '422':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ValidationError'
-      description: Validation Failed
-    '404':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/NotFoundError'
-      description: Not Found
   schemas:
+    StatementEndDate:
+      type: string
+      description: Identifies the end date of statement's period
+      example: '2024-08-31'
+    StatementId:
+      type: string
+      description: Bank of London statement ID identifies the statement within Bank of London API platform
+      example: DS40022484107DB1EDE928A6410EA8C811F
+    MetaData:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of available records for the query.
+          example: 100
+        page:
+          type: integer
+          description: The page number returned for the query.
+          example: 1
+        pageSize:
+          type: integer
+          description: The number of records per page for the query.
+          example: 20
+      required:
+      - totalRecords
+      - page
+      - pageSize
+    ErrorResponseDetails:
+      additionalProperties: true
+      properties: {}
+      type:
+      - object
+      - 'null'
+      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
+      example:
+        body.extraProperty:
+          message: '"extraProperty" is an excess property and therefore is not allowed'
+          value: extraProperty
+    AccountNickname:
+      type:
+      - string
+      - 'null'
+      description: User defined name to identify the account.
+      example: Business transactions
+      minLength: 1
+      maxLength: 25
+    UnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 401
+          name:
+            enum:
+            - Unauthorized
+          message:
+            example: Missing x-jws-signature header
+    StatementType:
+      type: string
+      enum:
+      - TRANSACTION
+      - ANNUAL_INTEREST
+      description: Identifies type of statement
+      example: TRANSACTION
+    ValidationError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 422
+          name:
+            enum:
+            - ValidationFailure
+            - UnprocessableEntity
+          message:
+            example: Validation Failed
+    AccountStatus:
+      allOf:
+      - $ref: '#/components/schemas/Status'
+      - description: '<span style="color:#f46d2a">**Attention**</span> \
+
+          Please note that the oneOf status is extensible and new objects can be returned
+
+          with the new account status **identifier** in the future without a major version change.
+
+          Please ensure this is factored into your application code.
+
+
+          The current status of the account.
+
+          '
+      - oneOf:
+        - title: ACTIVE
+          properties:
+            identifier:
+              enum:
+              - ACTIVE
+              description: Account is active and can be used to process payments.
+        - title: CLOSED
+          properties:
+            identifier:
+              enum:
+              - CLOSED
+              description: Account is closed.
+    StatementName:
+      type: string
+      description: Identifies the end of the statement
+      example: 73975593-march-2024-bank-statement
+    InternalServerError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          name:
+            enum:
+            - InternalServerError
+          status:
+            enum:
+            - 500
+          message:
+            example: Request failed with status code 500
+    StatementStartDate:
+      type: string
+      description: Identifies the start date of statement's period
+      example: '2024-08-02'
+    ErrorResponseJSON:
+      additionalProperties: false
+      properties:
+        status:
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        details:
+          $ref: '#/components/schemas/ErrorResponseDetails'
+        code:
+          type:
+          - string
+          - 'null'
+          description: A unique code for the error, if available.
+      type: object
+    AccountId:
+      type: string
+      description: Bank of London account ID identifies the account within Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by Bank of London Account API.
+      example: GB-040075-12345678
     AccountType2:
       type: string
       description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note that the allowed values for the **type** are\nextensible and new can be added in the future without a\nmajor version change. Please ensure this is factored into your\napplication code. `INSTANT_ACCESS_DEPOSIT` and `FIXED_TERM_DEPOSIT` types have been deprecated \nand no new accounts will be created with these types.\n"
@@ -201,49 +288,27 @@ components:
       - SEGREGATED
       - BAAS_PHYSICAL_ACCOUNT
       - VIRTUAL_ACCOUNT
-    UnauthorizedError:
+    Status:
+      type: object
+      description: An object that represents the status of Bank of London API entity (e.g. payment status, account status etc.)
+      properties:
+        identifier:
+          type: string
+          description: A machine readable string identifier for the status.
+      required:
+      - identifier
+    BadRequestError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
       - properties:
           status:
             enum:
-            - 401
+            - 400
           name:
             enum:
-            - Unauthorized
+            - BadRequest
           message:
-            example: Missing x-jws-signature header
-    StatementId:
-      type: string
-      description: Bank of London statement ID identifies the statement within Bank of London API platform
-      example: DS40022484107DB1EDE928A6410EA8C811F
-    ErrorResponseDetails:
-      additionalProperties: true
-      properties: {}
-      type:
-      - object
-      - 'null'
-      description: A map of additional details about the error. For example, a validation error might include a map of field names to error messages
-      example:
-        body.extraProperty:
-          message: '"extraProperty" is an excess property and therefore is not allowed'
-          value: extraProperty
-    InternalServerError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          name:
-            enum:
-            - InternalServerError
-          status:
-            enum:
-            - 500
-          message:
-            example: Request failed with status code 500
-    StatementEndDate:
-      type: string
-      description: Identifies the end date of statement's period
-      example: '2024-08-31'
+            example: The request has validation errors
     Statement:
       properties:
         id:
@@ -276,14 +341,6 @@ components:
       - type
       type: object
       description: Response object of getting a statement
-    AccountNickname:
-      type:
-      - string
-      - 'null'
-      description: User defined name to identify the account.
-      example: Business transactions
-      minLength: 1
-      maxLength: 25
     NotFoundError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
@@ -296,130 +353,81 @@ components:
             - NotFound
           message:
             example: The requested resource was not found
-    ErrorResponseJSON:
-      additionalProperties: false
-      properties:
-        status:
-          type:
-          - integer
-          - 'null'
-        name:
-          type:
-          - string
-          - 'null'
-        message:
-          type:
-          - string
-          - 'null'
-        details:
-          $ref: '#/components/schemas/ErrorResponseDetails'
-        code:
-          type:
-          - string
-          - 'null'
-          description: A unique code for the error, if available.
-      type: object
-    AccountId:
-      type: string
-      description: Bank of London account ID identifies the account within Bank of London API. This field is considered a unique ID and cannot be constructed using the account number and sort code. As such it must only be provided with `accountId` values returned by Bank of London Account API.
-      example: GB-040075-12345678
-    Status:
-      type: object
-      description: An object that represents the status of Bank of London API entity (e.g. payment status, account status etc.)
-      properties:
-        identifier:
-          type: string
-          description: A machine readable string identifier for the status.
-      required:
-      - identifier
-    StatementType:
-      type: string
-      enum:
-      - TRANSACTION
-      - ANNUAL_INTEREST
-      description: Identifies type of statement
-      example: TRANSACTION
-    MetaData:
-      type: object
-      properties:
-        totalRecords:
-          type: integer
-          description: The total number of available records for the query.
-          example: 100
-        page:
-          type: integer
-          description: The page number returned for the query.
-          example: 1
-        pageSize:
-          type: integer
-          description: The number of records per page for the query.
-          example: 20
-      required:
-      - totalRecords
-      - page
-      - pageSize
-    StatementStartDate:
-      type: string
-      description: Identifies the start date of statement's period
-      example: '2024-08-02'
-    AccountStatus:
-      allOf:
-      - $ref: '#/components/schemas/Status'
-      - description: '<span style="color:#f46d2a">**Attention**</span> \
-
-          Please note that the oneOf status is extensible and new objects can be returned
-
-          with the new account status **identifier** in the future without a major version change.
-
-          Please ensure this is factored into your application code.
-
-
-          The current status of the account.
-
-          '
-      - oneOf:
-        - title: ACTIVE
-          properties:
-            identifier:
-              enum:
-              - ACTIVE
-              description: Account is active and can be used to process payments.
-        - title: CLOSED
-          properties:
-            identifier:
-              enum:
-              - CLOSED
-              description: Account is closed.
-    BadRequestError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 400
-          name:
-            enum:
-            - BadRequest
-          message:
-            example: The request has validation errors
-    ValidationError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 422
-          name:
-            enum:
-            - ValidationFailure
-            - UnprocessableEntity
-          message:
-            example: Validation Failed
-    StatementName:
-      type: string
-      description: Identifies the end of the statement
-      example: 73975593-march-2024-bank-statement
+  responses:
+    '401':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+      description: Unauthorized
+    '400':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+      description: Bad Request
+    '404':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+      description: Not Found
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error
+    '422':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+      description: Validation Failed
   parameters:
+    JwsSignature:
+      in: header
+      name: x-jws-signature
+      description: A JSON web signature representing signed content using JSON data structures. It contains contextual information from the request signed using a private key generated within Bank of London Developer Studio application.
+      content:
+        application/json:
+          schema:
+            type: string
     StatementStartDateQueryParam:
       in: query
       name: startDate
@@ -430,14 +438,16 @@ components:
 
         '
       example: '2024-08-02'
-    JwsSignature:
-      in: header
-      name: x-jws-signature
-      description: A JSON web signature representing signed content using JSON data structures. It contains contextual information from the request signed using a private key generated within Bank of London Developer Studio application.
-      content:
-        application/json:
-          schema:
-            type: string
+    PageSize:
+      in: query
+      name: pageSize
+      required: false
+      schema:
+        type: integer
+        description: The number of items to be returned per page.
+        default: 20
+        minimum: 1
+        maximum: 50
     StatementEndDateQueryParam:
       in: query
       name: endDate
@@ -456,16 +466,6 @@ components:
         default: 1
       required: false
       description: The page number of the result set to be returned.
-    PageSize:
-      in: query
-      name: pageSize
-      required: false
-      schema:
-        type: integer
-        description: The number of items to be returned per page.
-        default: 20
-        minimum: 1
-        maximum: 50
     StatementTypeQueryParam:
       in: query
       name: type
