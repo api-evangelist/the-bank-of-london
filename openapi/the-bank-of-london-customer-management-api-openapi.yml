@@ -486,32 +486,225 @@ paths:
       - Customer Management
 components:
   schemas:
-    PersonNamePrefix:
+    NullableCompanyNumber:
       type:
       - string
       - 'null'
-      description: '<span style="color:#f46d2a">**Attention**</span> \
+      description: 'The unique number assigned to the organisation/company when it was
 
-        Please note that the allowed values for the **namePrefix** are
+        founded/incorporated with the authorities - i.e. Companies House in the
 
-        extensible and new values can be added in the future without a
+        UK. Note that if letters are included in the company number, they must
 
-        major version change. Please ensure this is factored into your
-
-        application code.
-
-
-        Name prefix
+        be upper case.
 
         '
-      example: Mr.
-      enum:
-      - Mr.
-      - Ms.
-    PersonId:
+      example: '123456'
+      maxLength: 8
+    OrganisationId:
+      type:
+      - string
+      - 'null'
+      description: ID of an organisation. When it is not specified, it is then implied that individual is linked to your organisation directly.
+      example: u5vab5K9RZFTTzNJNAs3H
+    NullableOrganisationAddress:
+      type:
+      - object
+      - 'null'
+      description: Organisation's address information
+      properties:
+        country:
+          type: string
+          description: 'Country in ISO 3166-1 alpha-2 format. By default, GB country code is
+
+            supported. If you wish to avail of other country codes the api
+
+            supports within the European Economic Area (EEA), please contact us.
+
+            '
+          enum:
+          - GB
+          - AT
+          - BE
+          - BG
+          - HR
+          - CY
+          - CZ
+          - DK
+          - EE
+          - FI
+          - FR
+          - DE
+          - GR
+          - HU
+          - IS
+          - IE
+          - IM
+          - IT
+          - LI
+          - LV
+          - LT
+          - LU
+          - MT
+          - NL
+          - 'NO'
+          - PL
+          - PT
+          - RO
+          - SK
+          - SI
+          - ES
+          - SE
+          - CH
+        city:
+          type: string
+          description: City
+          example: London
+          maxLength: 40
+        postalCode:
+          type:
+          - string
+          - 'null'
+          description: Postal code. Must be provided together with street.
+          example: EC1Y 8SY
+          maxLength: 9
+        street:
+          type:
+          - string
+          - 'null'
+          description: Street. Must be provided together with postal code.
+          example: Featherstone Street
+          maxLength: 60
+        buildingNumber:
+          type:
+          - string
+          - 'null'
+          description: House or building number
+          example: '888'
+          maxLength: 9
+      required:
+      - country
+      - city
+    NullablePhoneNumber:
+      type:
+      - string
+      - 'null'
+      description: Phone number
+      example: '+442071234567'
+    PlaceOfBirth:
+      type:
+      - string
+      - 'null'
+      description: Place of birth
+      example: GB
+      maxLength: 40
+    NullableNationality:
+      type:
+      - string
+      - 'null'
+      description: Country in ISO 3166-1 alpha-2 format
+      example: GB
+    Nationality:
+      type: string
+      description: Country in ISO 3166-1 alpha-2 format
+      example: GB
+    NotFoundError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 404
+          name:
+            enum:
+            - NotFound
+          message:
+            example: The requested resource was not found
+    NullablePersonLastName:
+      type:
+      - string
+      - 'null'
+      description: Last name
+      example: Ment
+      minLength: 1
+      maxLength: 40
+    CompanyNumber:
+      type: string
+      description: 'The unique number assigned to the organisation/company when it was
+
+        founded/incorporated with the authorities - i.e. Companies House in the
+
+        UK. Note that if letters are included in the company number, they must
+
+        be upper case.
+
+        '
+      example: '123456'
+      maxLength: 8
+    ForbiddenError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 403
+          name:
+            enum:
+            - Forbidden
+          message:
+            example: You do not have permission to access this resource
+    OrganisationName:
+      type: string
+      description: Name
+      example: Test Organisation
+      maxLength: 160
+    PersonLastName:
+      type: string
+      description: Last name
+      example: Ment
+      minLength: 1
+      maxLength: 40
+    NullableEmail:
+      type:
+      - string
+      - 'null'
+      description: Email address
+      example: pay.ment@example.domain.com
+      maxLength: 80
+    OrganisationId1:
       type: string
       description: Randomly generated id
       example: cpNBTqwaiqem3mI72UEcP
+    NullableDateOfBirth:
+      type:
+      - string
+      - 'null'
+      description: Birthdate in YYYY-MM-DD format
+      format: date
+      example: '1991-06-21'
+    ErrorResponseJSON:
+      additionalProperties: false
+      properties:
+        status:
+          type:
+          - integer
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        details:
+          $ref: '#/components/schemas/ErrorResponseDetails'
+        code:
+          type:
+          - string
+          - 'null'
+          description: A unique code for the error, if available.
+      type: object
     NullableClientType:
       type:
       - string
@@ -583,38 +776,6 @@ components:
       - OTHER_REGULATED
       - DEPOSIT_AGGREGATOR
       example: GOVERNMENT_OR_NOT_FOR_PROFIT
-    NullableNationality:
-      type:
-      - string
-      - 'null'
-      description: Country in ISO 3166-1 alpha-2 format
-      example: GB
-    MetaData:
-      type: object
-      properties:
-        totalRecords:
-          type: integer
-          description: The total number of available records for the query.
-          example: 100
-        page:
-          type: integer
-          description: The page number returned for the query.
-          example: 1
-        pageSize:
-          type: integer
-          description: The number of records per page for the query.
-          example: 20
-      required:
-      - totalRecords
-      - page
-      - pageSize
-    PersonMiddleName:
-      type:
-      - string
-      - 'null'
-      description: Middle name
-      example: Patricio
-      maxLength: 40
     ErrorResponseDetails:
       additionalProperties: true
       properties: {}
@@ -626,57 +787,25 @@ components:
         body.extraProperty:
           message: '"extraProperty" is an excess property and therefore is not allowed'
           value: extraProperty
-    OrganisationId:
-      type:
-      - string
-      - 'null'
-      description: ID of an organisation. When it is not specified, it is then implied that individual is linked to your organisation directly.
-      example: u5vab5K9RZFTTzNJNAs3H
-    NullableDateOfBirth:
-      type:
-      - string
-      - 'null'
-      description: Birthdate in YYYY-MM-DD format
-      format: date
-      example: '1991-06-21'
-    NullablePersonFirstName:
-      type:
-      - string
-      - 'null'
-      description: First name
-      example: Pay
-      minLength: 1
-      maxLength: 40
-    NullableEmail:
-      type:
-      - string
-      - 'null'
-      description: Email address
-      example: pay.ment@example.domain.com
-      maxLength: 80
-    NullablePhoneNumber:
-      type:
-      - string
-      - 'null'
-      description: Phone number
-      example: '+442071234567'
-    UnauthorizedError:
+    TooManyRequestsError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
       - properties:
           status:
             enum:
-            - 401
+            - 429
           name:
             enum:
-            - Unauthorized
+            - TooManyRequests
           message:
-            example: Missing x-jws-signature header
-    ClientType:
-      type: string
+            example: Rate limiting has been applied
+    PersonNamePrefix:
+      type:
+      - string
+      - 'null'
       description: '<span style="color:#f46d2a">**Attention**</span> \
 
-        Please note that the allowed values for the **clientType** are
+        Please note that the allowed values for the **namePrefix** are
 
         extensible and new values can be added in the future without a
 
@@ -685,320 +814,16 @@ components:
         application code.
 
 
-        **Default allowed clients types are:** \
-
-        `GOVERNMENT_OR_NOT_FOR_PROFIT` - A government/public body, or a not-for-profit firm (e.g. charities) that is not regulated by a financial services regulator. \
-
-        `PROFESSIONAL_PRACTICE` - A professional practice such as a law firm or accountancy practice that is not regulated by a financial services regulator. \
-
-        `CORPORATE_BUSINESS_LARGE` - Any other type of firm, with a turnover or annual balance sheet that exceeds €2m and more than 10 employees that is not regulated by a financial services regulator. \
-
-        `CORPORATE_BUSINESS_SMALL` - Any other type of firm, with a turnover or annual balance sheet that does not exceed €2m and less than 10 employees that is not regulated by a financial services regulator. \
-
-        `OTHER_NON_REGULATED` - Any other type of business that does not fit into any other client type and is not regulated by a financial services regulator.
-
-
-        **If you require any of the following client types, please contact us.** \
-
-        `BANK` - A bank that is regulated by a recognised regulator. \
-
-        `BUILDING_SOCIETY_OR_CREDIT_UNION` - A building society or credit union that''s regulated by a recognised regulator. \
-
-        `PAYMENT_INSTITUTION` - A payments business that is regulated by a recognised regulator. \
-
-        `MONEY_SERVICE_BUSINESS` - A money service business that is regulated by a recognised regulator. \
-
-        `ELECTRONIC_MONEY_INSTITUTION` - A electronic money business that is regulated by a recognised regulator. \
-
-        `DIGITAL_ASSETS_STABLE_COIN_ISSUER` - A digital assets firm that issues stable coins and is regulated by the FCA. \
-
-        `DIGITAL_ASSETS_NON_STABLE_COIN_ISSUER` - A digital assets firm that does not issue stable coins and is regulated by the FCA. \
-
-        `OTHER_DIGITAL_ASSETS` - A digital assets firm that doesn''t fit into the other digital assets client types, and is regulated by a recognised regulator. \
-
-        `FUNDS` - A funds investment business that is regulated by a recognised regulator. \
-
-        `OTHER_REGULATED` - A regulated firm that doesn''t fit into the other regulated client types (e.g. an insurance broker), and is regulated by a recognised regulator. \
-
-        `DEPOSIT_AGGREGATOR` - A deposit aggregator that is regulated by a recognised regulator.
+        Name prefix
 
         '
+      example: Mr.
       enum:
-      - GOVERNMENT_OR_NOT_FOR_PROFIT
-      - PROFESSIONAL_PRACTICE
-      - CORPORATE_BUSINESS_LARGE
-      - CORPORATE_BUSINESS_SMALL
-      - OTHER_NON_REGULATED
-      - BANK
-      - BUILDING_SOCIETY_OR_CREDIT_UNION
-      - PAYMENT_INSTITUTION
-      - MONEY_SERVICE_BUSINESS
-      - ELECTRONIC_MONEY_INSTITUTION
-      - DIGITAL_ASSETS_STABLE_COIN_ISSUER
-      - DIGITAL_ASSETS_NON_STABLE_COIN_ISSUER
-      - OTHER_DIGITAL_ASSETS
-      - FUNDS
-      - OTHER_REGULATED
-      - DEPOSIT_AGGREGATOR
-      example: GOVERNMENT_OR_NOT_FOR_PROFIT
-    DateOfBirth:
-      type: string
-      description: Birthdate in YYYY-MM-DD format
-      format: date
-      example: '1991-06-21'
-    OrganisationName:
-      type: string
-      description: Name
-      example: Test Organisation
-      maxLength: 160
+      - Mr.
+      - Ms.
     PersonAddress:
       type: object
       description: Individual's address information
-      properties:
-        country:
-          type: string
-          description: 'Country in ISO 3166-1 alpha-2 format. By default, GB country code is
-
-            supported. If you wish to avail of other country codes the api
-
-            supports within the European Economic Area (EEA), please contact us.
-
-            '
-          enum:
-          - GB
-          - AT
-          - BE
-          - BG
-          - HR
-          - CY
-          - CZ
-          - DK
-          - EE
-          - FI
-          - FR
-          - DE
-          - GR
-          - HU
-          - IS
-          - IE
-          - IM
-          - IT
-          - LI
-          - LV
-          - LT
-          - LU
-          - MT
-          - NL
-          - 'NO'
-          - PL
-          - PT
-          - RO
-          - SK
-          - SI
-          - ES
-          - SE
-          - CH
-        city:
-          type: string
-          description: City
-          example: London
-          maxLength: 40
-        postalCode:
-          type:
-          - string
-          - 'null'
-          description: Postal code. Must be provided together with street.
-          example: EC1Y 8SY
-          maxLength: 9
-        street:
-          type:
-          - string
-          - 'null'
-          description: Street. Must be provided together with postal code.
-          example: Featherstone Street
-          maxLength: 60
-        buildingNumber:
-          type:
-          - string
-          - 'null'
-          description: House or building number
-          example: '888'
-          maxLength: 9
-      required:
-      - country
-      - city
-    NullableOrganisationName:
-      type:
-      - string
-      - 'null'
-      description: Name
-      example: Test Organisation
-      maxLength: 160
-    PersonFirstName:
-      type: string
-      description: First name
-      example: Pay
-      minLength: 1
-      maxLength: 40
-    NullablePlaceOfBirth:
-      type:
-      - string
-      - 'null'
-      description: Place of birth
-      example: GB
-      maxLength: 40
-    ValidationError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 422
-          name:
-            enum:
-            - ValidationFailure
-            - UnprocessableEntity
-          message:
-            example: Validation Failed
-    NullableFoundationDate:
-      type:
-      - string
-      - 'null'
-      description: The date the organisation/company was founded/incorporated
-      example: '1995-10-16'
-    Individual:
-      properties:
-        id:
-          $ref: '#/components/schemas/PersonId'
-        namePrefix:
-          $ref: '#/components/schemas/PersonNamePrefix'
-        firstName:
-          $ref: '#/components/schemas/PersonFirstName'
-        middleName:
-          $ref: '#/components/schemas/PersonMiddleName'
-        lastName:
-          $ref: '#/components/schemas/PersonLastName'
-        nationality:
-          $ref: '#/components/schemas/Nationality'
-        dateOfBirth:
-          $ref: '#/components/schemas/DateOfBirth'
-        placeOfBirth:
-          $ref: '#/components/schemas/NullablePlaceOfBirth'
-        identification:
-          $ref: '#/components/schemas/NullableIdentification'
-        address:
-          $ref: '#/components/schemas/PersonAddress'
-        email:
-          $ref: '#/components/schemas/NullableEmail'
-        phoneNumber:
-          $ref: '#/components/schemas/NullablePhoneNumber'
-        organisationId:
-          $ref: '#/components/schemas/OrganisationId'
-      required:
-      - id
-      - firstName
-      - lastName
-      - nationality
-      - dateOfBirth
-      - address
-      type: object
-      description: Response object of getting an individual
-    NullablePersonAddress:
-      type:
-      - object
-      - 'null'
-      description: Individual's address information
-      properties:
-        country:
-          type: string
-          description: 'Country in ISO 3166-1 alpha-2 format. By default, GB country code is
-
-            supported. If you wish to avail of other country codes the api
-
-            supports within the European Economic Area (EEA), please contact us.
-
-            '
-          enum:
-          - GB
-          - AT
-          - BE
-          - BG
-          - HR
-          - CY
-          - CZ
-          - DK
-          - EE
-          - FI
-          - FR
-          - DE
-          - GR
-          - HU
-          - IS
-          - IE
-          - IM
-          - IT
-          - LI
-          - LV
-          - LT
-          - LU
-          - MT
-          - NL
-          - 'NO'
-          - PL
-          - PT
-          - RO
-          - SK
-          - SI
-          - ES
-          - SE
-          - CH
-        city:
-          type: string
-          description: City
-          example: London
-          maxLength: 40
-        postalCode:
-          type:
-          - string
-          - 'null'
-          description: Postal code. Must be provided together with street.
-          example: EC1Y 8SY
-          maxLength: 9
-        street:
-          type:
-          - string
-          - 'null'
-          description: Street. Must be provided together with postal code.
-          example: Featherstone Street
-          maxLength: 60
-        buildingNumber:
-          type:
-          - string
-          - 'null'
-          description: House or building number
-          example: '888'
-          maxLength: 9
-      required:
-      - country
-      - city
-    PersonLastName:
-      type: string
-      description: Last name
-      example: Ment
-      minLength: 1
-      maxLength: 40
-    PlaceOfBirth:
-      type:
-      - string
-      - 'null'
-      description: Place of birth
-      example: GB
-      maxLength: 40
-    NullableOrganisationAddress:
-      type:
-      - object
-      - 'null'
-      description: Organisation's address information
       properties:
         country:
           type: string
@@ -1084,6 +909,25 @@ components:
             - 500
           message:
             example: Request failed with status code 500
+    PersonFirstName:
+      type: string
+      description: First name
+      example: Pay
+      minLength: 1
+      maxLength: 40
+    ValidationError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 422
+          name:
+            enum:
+            - ValidationFailure
+            - UnprocessableEntity
+          message:
+            example: Validation Failed
     NullableIdentification:
       type:
       - object
@@ -1118,18 +962,18 @@ components:
       required:
       - type
       - number
-    TooManyRequestsError:
+    BadRequestError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
       - properties:
           status:
             enum:
-            - 429
+            - 400
           name:
             enum:
-            - TooManyRequests
+            - BadRequest
           message:
-            example: Rate limiting has been applied
+            example: The request has validation errors
     OrganisationV3:
       properties:
         id:
@@ -1151,41 +995,19 @@ components:
       - name
       - companyNumber
       - address
-    ErrorResponseJSON:
-      additionalProperties: false
-      properties:
-        status:
-          type:
-          - integer
-          - 'null'
-        name:
-          type:
-          - string
-          - 'null'
-        message:
-          type:
-          - string
-          - 'null'
-        details:
-          $ref: '#/components/schemas/ErrorResponseDetails'
-        code:
-          type:
-          - string
-          - 'null'
-          description: A unique code for the error, if available.
-      type: object
-    ForbiddenError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 403
-          name:
-            enum:
-            - Forbidden
-          message:
-            example: You do not have permission to access this resource
+    NullablePersonFirstName:
+      type:
+      - string
+      - 'null'
+      description: First name
+      example: Pay
+      minLength: 1
+      maxLength: 40
+    DateOfBirth:
+      type: string
+      description: Birthdate in YYYY-MM-DD format
+      format: date
+      example: '1991-06-21'
     NullableRegulatoryIdentifier:
       type:
       - string
@@ -1193,18 +1015,101 @@ components:
       description: "<span style=\"color:#f46d2a\">**Attention**</span> \\\nPlease note this field is required property when the **clientType** is one of the following regulated client types:\n\n**Regulated client types:** \\\n`BANK` - A bank that is regulated by a recognised regulator. \\\n`BUILDING_SOCIETY_OR_CREDIT_UNION` - A building society or credit union that's regulated by a recognised regulator. \\\n`PAYMENT_INSTITUTION` - A payments business that is regulated by a recognised regulator. \\\n`MONEY_SERVICE_BUSINESS` - A money service business that is regulated by a recognised regulator. \\\n`ELECTRONIC_MONEY_INSTITUTION` - A electronic money business that is regulated by a recognised regulator. \\\n`DIGITAL_ASSETS_STABLE_COIN_ISSUER` - A digital assets firm that issues stable coins and is regulated by the FCA. \\\n`DIGITAL_ASSETS_NON_STABLE_COIN_ISSUER` - A digital assets firm that does not issue stable coins and is regulated by the FCA. \\\n`OTHER_DIGITAL_ASSETS` - A digital assets firm that doesn't fit into the other digital assets client types, and is regulated by a recognised regulator. \\\n`FUNDS` - A funds investment business that is regulated by a recognised regulator. \\\n`OTHER_REGULATED` - A regulated firm that doesn't fit into the other regulated client types (e.g. an insurance broker), and is regulated by a recognised regulator. \\\n`DEPOSIT_AGGREGATOR` - A deposit aggregator that is regulated by a recognised regulator.        \n\nThe unique identifier assigned to the organisation/company by the\nrelevant regulator. This is usually a number, but can also be a string\nof letters and numbers.\n"
       example: '123456'
       maxLength: 36
-    NullablePersonLastName:
+    NullablePlaceOfBirth:
       type:
       - string
       - 'null'
-      description: Last name
-      example: Ment
-      minLength: 1
+      description: Place of birth
+      example: GB
       maxLength: 40
-    OrganisationId1:
+    MetaData:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of available records for the query.
+          example: 100
+        page:
+          type: integer
+          description: The page number returned for the query.
+          example: 1
+        pageSize:
+          type: integer
+          description: The number of records per page for the query.
+          example: 20
+      required:
+      - totalRecords
+      - page
+      - pageSize
+    ClientType:
       type: string
-      description: Randomly generated id
-      example: cpNBTqwaiqem3mI72UEcP
+      description: '<span style="color:#f46d2a">**Attention**</span> \
+
+        Please note that the allowed values for the **clientType** are
+
+        extensible and new values can be added in the future without a
+
+        major version change. Please ensure this is factored into your
+
+        application code.
+
+
+        **Default allowed clients types are:** \
+
+        `GOVERNMENT_OR_NOT_FOR_PROFIT` - A government/public body, or a not-for-profit firm (e.g. charities) that is not regulated by a financial services regulator. \
+
+        `PROFESSIONAL_PRACTICE` - A professional practice such as a law firm or accountancy practice that is not regulated by a financial services regulator. \
+
+        `CORPORATE_BUSINESS_LARGE` - Any other type of firm, with a turnover or annual balance sheet that exceeds €2m and more than 10 employees that is not regulated by a financial services regulator. \
+
+        `CORPORATE_BUSINESS_SMALL` - Any other type of firm, with a turnover or annual balance sheet that does not exceed €2m and less than 10 employees that is not regulated by a financial services regulator. \
+
+        `OTHER_NON_REGULATED` - Any other type of business that does not fit into any other client type and is not regulated by a financial services regulator.
+
+
+        **If you require any of the following client types, please contact us.** \
+
+        `BANK` - A bank that is regulated by a recognised regulator. \
+
+        `BUILDING_SOCIETY_OR_CREDIT_UNION` - A building society or credit union that''s regulated by a recognised regulator. \
+
+        `PAYMENT_INSTITUTION` - A payments business that is regulated by a recognised regulator. \
+
+        `MONEY_SERVICE_BUSINESS` - A money service business that is regulated by a recognised regulator. \
+
+        `ELECTRONIC_MONEY_INSTITUTION` - A electronic money business that is regulated by a recognised regulator. \
+
+        `DIGITAL_ASSETS_STABLE_COIN_ISSUER` - A digital assets firm that issues stable coins and is regulated by the FCA. \
+
+        `DIGITAL_ASSETS_NON_STABLE_COIN_ISSUER` - A digital assets firm that does not issue stable coins and is regulated by the FCA. \
+
+        `OTHER_DIGITAL_ASSETS` - A digital assets firm that doesn''t fit into the other digital assets client types, and is regulated by a recognised regulator. \
+
+        `FUNDS` - A funds investment business that is regulated by a recognised regulator. \
+
+        `OTHER_REGULATED` - A regulated firm that doesn''t fit into the other regulated client types (e.g. an insurance broker), and is regulated by a recognised regulator. \
+
+        `DEPOSIT_AGGREGATOR` - A deposit aggregator that is regulated by a recognised regulator.
+
+        '
+      enum:
+      - GOVERNMENT_OR_NOT_FOR_PROFIT
+      - PROFESSIONAL_PRACTICE
+      - CORPORATE_BUSINESS_LARGE
+      - CORPORATE_BUSINESS_SMALL
+      - OTHER_NON_REGULATED
+      - BANK
+      - BUILDING_SOCIETY_OR_CREDIT_UNION
+      - PAYMENT_INSTITUTION
+      - MONEY_SERVICE_BUSINESS
+      - ELECTRONIC_MONEY_INSTITUTION
+      - DIGITAL_ASSETS_STABLE_COIN_ISSUER
+      - DIGITAL_ASSETS_NON_STABLE_COIN_ISSUER
+      - OTHER_DIGITAL_ASSETS
+      - FUNDS
+      - OTHER_REGULATED
+      - DEPOSIT_AGGREGATOR
+      example: GOVERNMENT_OR_NOT_FOR_PROFIT
     OrganisationAddress:
       type: object
       description: Organisation's address information
@@ -1281,47 +1186,132 @@ components:
       required:
       - country
       - city
-    Nationality:
+    Individual:
+      properties:
+        id:
+          $ref: '#/components/schemas/PersonId'
+        namePrefix:
+          $ref: '#/components/schemas/PersonNamePrefix'
+        firstName:
+          $ref: '#/components/schemas/PersonFirstName'
+        middleName:
+          $ref: '#/components/schemas/PersonMiddleName'
+        lastName:
+          $ref: '#/components/schemas/PersonLastName'
+        nationality:
+          $ref: '#/components/schemas/Nationality'
+        dateOfBirth:
+          $ref: '#/components/schemas/DateOfBirth'
+        placeOfBirth:
+          $ref: '#/components/schemas/NullablePlaceOfBirth'
+        identification:
+          $ref: '#/components/schemas/NullableIdentification'
+        address:
+          $ref: '#/components/schemas/PersonAddress'
+        email:
+          $ref: '#/components/schemas/NullableEmail'
+        phoneNumber:
+          $ref: '#/components/schemas/NullablePhoneNumber'
+        organisationId:
+          $ref: '#/components/schemas/OrganisationId'
+      required:
+      - id
+      - firstName
+      - lastName
+      - nationality
+      - dateOfBirth
+      - address
+      type: object
+      description: Response object of getting an individual
+    PersonId:
       type: string
-      description: Country in ISO 3166-1 alpha-2 format
-      example: GB
-    BadRequestError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 400
-          name:
-            enum:
-            - BadRequest
-          message:
-            example: The request has validation errors
-    CompanyNumber:
-      type: string
-      description: 'The unique number assigned to the organisation/company when it was
+      description: Randomly generated id
+      example: cpNBTqwaiqem3mI72UEcP
+    NullableOrganisationName:
+      type:
+      - string
+      - 'null'
+      description: Name
+      example: Test Organisation
+      maxLength: 160
+    NullablePersonAddress:
+      type:
+      - object
+      - 'null'
+      description: Individual's address information
+      properties:
+        country:
+          type: string
+          description: 'Country in ISO 3166-1 alpha-2 format. By default, GB country code is
 
-        founded/incorporated with the authorities - i.e. Companies House in the
+            supported. If you wish to avail of other country codes the api
 
-        UK. Note that if letters are included in the company number, they must
+            supports within the European Economic Area (EEA), please contact us.
 
-        be upper case.
-
-        '
-      example: '123456'
-      maxLength: 8
-    NotFoundError:
-      allOf:
-      - $ref: '#/components/schemas/ErrorResponseJSON'
-      - properties:
-          status:
-            enum:
-            - 404
-          name:
-            enum:
-            - NotFound
-          message:
-            example: The requested resource was not found
+            '
+          enum:
+          - GB
+          - AT
+          - BE
+          - BG
+          - HR
+          - CY
+          - CZ
+          - DK
+          - EE
+          - FI
+          - FR
+          - DE
+          - GR
+          - HU
+          - IS
+          - IE
+          - IM
+          - IT
+          - LI
+          - LV
+          - LT
+          - LU
+          - MT
+          - NL
+          - 'NO'
+          - PL
+          - PT
+          - RO
+          - SK
+          - SI
+          - ES
+          - SE
+          - CH
+        city:
+          type: string
+          description: City
+          example: London
+          maxLength: 40
+        postalCode:
+          type:
+          - string
+          - 'null'
+          description: Postal code. Must be provided together with street.
+          example: EC1Y 8SY
+          maxLength: 9
+        street:
+          type:
+          - string
+          - 'null'
+          description: Street. Must be provided together with postal code.
+          example: Featherstone Street
+          maxLength: 60
+        buildingNumber:
+          type:
+          - string
+          - 'null'
+          description: House or building number
+          example: '888'
+          maxLength: 9
+      required:
+      - country
+      - city
     ConflictError:
       allOf:
       - $ref: '#/components/schemas/ErrorResponseJSON'
@@ -1334,35 +1324,32 @@ components:
             - Conflict
           message:
             example: Resource already exists
-    NullableCompanyNumber:
+    UnauthorizedError:
+      allOf:
+      - $ref: '#/components/schemas/ErrorResponseJSON'
+      - properties:
+          status:
+            enum:
+            - 401
+          name:
+            enum:
+            - Unauthorized
+          message:
+            example: Missing x-jws-signature header
+    PersonMiddleName:
       type:
       - string
       - 'null'
-      description: 'The unique number assigned to the organisation/company when it was
-
-        founded/incorporated with the authorities - i.e. Companies House in the
-
-        UK. Note that if letters are included in the company number, they must
-
-        be upper case.
-
-        '
-      example: '123456'
-      maxLength: 8
+      description: Middle name
+      example: Patricio
+      maxLength: 40
+    NullableFoundationDate:
+      type:
+      - string
+      - 'null'
+      description: The date the organisation/company was founded/incorporated
+      example: '1995-10-16'
   responses:
-    '409':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ConflictError'
-      description: Conflict
     '401':
       headers:
         x-correlation-id:
@@ -1376,6 +1363,19 @@ components:
           schema:
             $ref: '#/components/schemas/UnauthorizedError'
       description: Unauthorized
+    '429':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TooManyRequestsError'
+      description: Too Many Requests
     '403':
       headers:
         x-correlation-id:
@@ -1389,6 +1389,19 @@ components:
           schema:
             $ref: '#/components/schemas/ForbiddenError'
       description: Forbidden
+    '500':
+      headers:
+        x-correlation-id:
+          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
+          schema:
+            type: string
+          example: '2579248247516384065'
+          required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+      description: Internal Server Error
     '400':
       headers:
         x-correlation-id:
@@ -1415,7 +1428,7 @@ components:
           schema:
             $ref: '#/components/schemas/NotFoundError'
       description: Not Found
-    '500':
+    '409':
       headers:
         x-correlation-id:
           description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
@@ -1426,8 +1439,8 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/InternalServerError'
-      description: Internal Server Error
+            $ref: '#/components/schemas/ConflictError'
+      description: Conflict
     '422':
       headers:
         x-correlation-id:
@@ -1441,28 +1454,7 @@ components:
           schema:
             $ref: '#/components/schemas/ValidationError'
       description: Validation Failed
-    '429':
-      headers:
-        x-correlation-id:
-          description: A unique identifier assigned to each request, facilitating issue tracing. In the event that a problem arises with a request, this ID can be provided to Bank of London support team for assistance.
-          schema:
-            type: string
-          example: '2579248247516384065'
-          required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/TooManyRequestsError'
-      description: Too Many Requests
   parameters:
-    JwsSignature:
-      in: header
-      name: x-jws-signature
-      description: A JSON web signature representing signed content using JSON data structures. It contains contextual information from the request signed using a private key generated within Bank of London Developer Studio application.
-      content:
-        application/json:
-          schema:
-            type: string
     PageSize:
       in: query
       name: pageSize
@@ -1473,6 +1465,14 @@ components:
         default: 20
         minimum: 1
         maximum: 50
+    JwsSignature:
+      in: header
+      name: x-jws-signature
+      description: A JSON web signature representing signed content using JSON data structures. It contains contextual information from the request signed using a private key generated within Bank of London Developer Studio application.
+      content:
+        application/json:
+          schema:
+            type: string
     Page:
       in: query
       name: page
