@@ -64,5 +64,136 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-The Bank of London is a company surfaced via the API Evangelist harvest backlog (source: secondary-market) and added to the network as a stub for full-pipeline profiling.
-- https://forgeglobal.com/the-bank-of-london_stock/
+The Bank of London (TBOL) is a UK principal clearing bank and Banking-as-a-Service provider, authorised by the Bank of England's Prudential Regulation Authority and regulated by the FCA and PRA (FRN 930379). Operating a "safer by design" model in which client deposits are never loaned, invested or leveraged, it offers clearing, payments and settlement, agency banking, embedded banking (BaaS) and commercial and corporate banking to banks, non-bank financial institutions, virtual-asset service providers, digital platforms, financial intermediaries and corporates. Its Developer Studio at developer.bankoflondon.com publishes a public OpenAPI 3.0.3 contract for the Bank of London API v2 covering accounts, customer onboarding, virtual account management, Confirmation of Payee, Faster Payments, Bacs, CHAPS, agency and cross-border payments, standing orders, direct-debit mandates, transactions, statements and webhooks, backed by a free open sandbox that requires no NDA. A separate PSD2 / Open Banking UK v3.1 TPP interface is operated on the bank's behalf by Salt Edge Priora under provider code `tbol`.
+
+**Areas:** Company · Banking · Clearing Bank · Payments · Banking as a Service · Embedded Finance · Open Banking · PSD2 · Faster Payments · Financial Services · United Kingdom · Virtual Accounts
+
+## The Bank of London on APIs.io
+
+Everything profiled for The Bank of London is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/the-bank-of-london/](https://apis.io/providers/the-bank-of-london/)** — or go straight to one of the APIs or properties below.
+
+### APIs (11)
+
+- [Bank of London PSD2 / Open Banking UK API](https://apis.io/apis/the-bank-of-london/bank-of-london-psd2-open-banking-uk-api/) — The dedicated PSD2 Third Party Provider (TPP) interface for The Bank of London, implementing the UK Open Banking Read/Write API v3.1 (AIS, PIS, PIIS, plus…
+- [The Bank of London Accounts API](https://apis.io/apis/the-bank-of-london/the-bank-of-london-accounts-api/) — The Accounts API from The Bank of London — 3 operation(s) for accounts.
+- [The Bank of London Confirmation of Payee API](https://apis.io/apis/the-bank-of-london/the-bank-of-london-confirmation-of-payee-api/) — The Confirmation of Payee API from The Bank of London — 1 operation(s) for confirmation of payee.
+- [The Bank of London Customer Management API](https://apis.io/apis/the-bank-of-london/the-bank-of-london-customer-management-api/) — The Customer Management API from The Bank of London — 4 operation(s) for customer management.
+- [The Bank of London Mandates (Direct Debits) API](https://apis.io/apis/the-bank-of-london/the-bank-of-london-mandates-direct-debits-api/) — The Mandates (Direct Debits) API from The Bank of London — 3 operation(s) for mandates (direct debits).
+- [The Bank of London Payments V2 API](https://apis.io/apis/the-bank-of-london/the-bank-of-london-payments-v2-api/) — The Payments V2 API from The Bank of London — 9 operation(s) for payments v2.
+- [The Bank of London Standing Orders API](https://apis.io/apis/the-bank-of-london/the-bank-of-london-standing-orders-api/) — The Standing Orders API from The Bank of London — 5 operation(s) for standing orders.
+- [The Bank of London Statements API](https://apis.io/apis/the-bank-of-london/the-bank-of-london-statements-api/) — The Statements API from The Bank of London — 2 operation(s) for statements.
+- [The Bank of London Transactions API](https://apis.io/apis/the-bank-of-london/the-bank-of-london-transactions-api/) — The Transactions API from The Bank of London — 4 operation(s) for transactions.
+- [The Bank of London Virtual Account Management API](https://apis.io/apis/the-bank-of-london/the-bank-of-london-virtual-account-management-api/) — The Virtual Account Management API from The Bank of London — 7 operation(s) for virtual account management.
+- [The Bank of London Webhook Management API](https://apis.io/apis/the-bank-of-london/the-bank-of-london-webhook-management-api/) — The Webhook Management API from The Bank of London — 4 operation(s) for webhook management.
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [The Bank Of London Webhooks](https://apis.io/asyncapis/the-bank-of-london/the-bank-of-london-webhooks/)
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [the-bank-of-london-mcp.yml](https://apis.io/servers/the-bank-of-london/the-bank-of-london-mcp-yml/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [The Bank Of London Api Overlay](https://apis.io/overlays/the-bank-of-london/the-bank-of-london-api-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [The Bank Of London Authentication](https://apis.io/security/the-bank-of-london/the-bank-of-london-authentication/)
+- [The Bank Of London Domain Security](https://apis.io/security/the-bank-of-london/the-bank-of-london-domain-security/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [The Bank Of London Plans Pricing](https://apis.io/plans/the-bank-of-london/the-bank-of-london-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [The Bank Of London Rate Limits](https://apis.io/rate-limits/the-bank-of-london/the-bank-of-london-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.bankoflondon.com/)
+- [Documentation](https://developer.bankoflondon.com/docs/guides/getting-started-guide)
+- [Getting started](https://developer.bankoflondon.com/docs/guides/getting-started-guide)
+- [API reference](https://developer.bankoflondon.com/apis/the-bank-of-london-api)
+- [Pricing](https://www.bankoflondon.com/regulated-financial-services)
+- [Sign up](https://developer.bankoflondon.com/register)
+- [Support](https://www.bankoflondon.com/contact-us)
+- [Blog](https://www.bankoflondon.com/newsroom)
+- [Terms of service](https://www.bankoflondon.com/legals/terms-of-use)
+- [Privacy policy](https://www.bankoflondon.com/legals/privacy-policy)
+- [Status](https://status.bankoflondon.com/)
+
+## API Evangelist rating
+
+**Kin Score 51.8** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 66.1 |
+| Contract quality | 55.7 |
+| Contract governance | 0.0 |
+| Operational transparency | 52.6 |
+| Developer ergonomics | 66.1 |
+| Access clarity | 52.6 |
+
+**Agent readiness 40.6** — agent-ready (gated down from agent-native)
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | documented (partial credit) |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | verified |
+| Error Semantics | derived (partial credit) |
+| OpenAPI Examples | verified |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | yes |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | paginated |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 29.9** — Banking & Open Finance
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/the-bank-of-london/](https://apis.io/providers/the-bank-of-london/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for The Bank of London: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/the-bank-of-london/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
